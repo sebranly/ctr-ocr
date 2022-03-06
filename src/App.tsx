@@ -6,7 +6,7 @@ const App = () => {
   return (
     <HelmetProvider>
       <Helmet>
-        <title>CTR OCR</title>
+        <title>CTR OCR Test</title>
         <link rel="canonical" href="https://sebranly.github.io/ctr-ocr" />
       </Helmet>
       <div className="main">
