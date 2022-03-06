@@ -15,5 +15,11 @@
     "noEmit": true,
     "jsx": "react"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "files": [
+    "./node_modules/tesseract.js/src/index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
