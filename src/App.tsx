@@ -115,6 +115,11 @@ const App = () => {
   });
 
   const doOCR = async () => {
+    setSelectIsDisabled(true);
+
+    const div = document.getElementById('img-show');
+    if (div) div.innerHTML = '';
+
     setOcr(`Loading for ${imgIndex}...`);
 
     await worker1.load();
@@ -161,17 +166,19 @@ const App = () => {
     const playerIndexes = [0, 1, 2, 3, 4, 5, 6, 7];
 
     const promisesX = async (playerIndex: number, isTime: boolean, info: any, imsTrans: any) => {
+      const imgTransCopy = imgTrans.clone();
       const scheduler = isTime ? scheduler1 : scheduler2;
       const label = isTime ? 'time' : 'name';
       const dimensions = getExtract(info, playerIndex, isTime);
 
       // TODO: LOG
       // const pathName = path.join(__dirname, '..', 'images', 'output', `${label}${playerIndex}.JPG`);
-      const extracted = imgTrans.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
+      const extracted = imgTransCopy.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
       extracted.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
         var img = document.createElement('img');
         img.setAttribute('src', src);
-        document.body.appendChild(img);
+        const div = document.getElementById('img-show');
+        if (div) div.appendChild(img);
       });
 
       const options = {
@@ -179,23 +186,20 @@ const App = () => {
         type: 'image/jpeg'
       };
 
-      return extracted.getBuffer(Jimp.MIME_JPEG, async (err: any, buffer: any) => {
-        const rgb = await getColors(buffer, options).then((colors: any) => {
-          console.log('🚀 ~ rgb ~ colors', playerIndex, colors);
-          return [colors[0].rgb(), colors[1].rgb()];
-        });
-
-        // const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
-        const shouldInvert = false;
-        const extractedFin = shouldInvert ? extracted.invert() : extracted;
-
-        // TODO:
-        // await extractedFin.toFile(pathName);
-
-        return extractedFin.getBuffer(Jimp.MIME_JPEG, (err: any, buffer: any) => {
-          return scheduler.addJob('recognize', buffer);
-        });
+      const buffer: any = await extracted.getBufferAsync(Jimp.MIME_JPEG);
+      const rgb = await getColors(buffer, options).then((colors: any) => {
+        console.log('🚀 ~ rgb ~ colors', playerIndex, colors);
+        return [colors[0].rgb(), colors[1].rgb()];
       });
+
+      const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
+      const extractedFin = shouldInvert ? extracted.invert() : extracted;
+
+      // TODO:
+      // await extractedFin.toFile(pathName);
+
+      const bufferFin: any = await extractedFin.getBufferAsync(Jimp.MIME_JPEG);
+      return scheduler.addJob('recognize', bufferFin);
     };
 
     // TODO:
@@ -208,7 +212,8 @@ const App = () => {
     imgTrans.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
       var img = document.createElement('img');
       img.setAttribute('src', src);
-      document.body.appendChild(img);
+      const div = document.getElementById('img-show');
+      if (div) div.appendChild(img);
     });
 
     // TODO:
@@ -221,11 +226,10 @@ const App = () => {
     console.log('info.width', info.width, 'info.height', info.height);
 
     // TODO: reactivate
-    const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, true, info, imgTrans.clone()));
-    const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, false, info, imgTrans.clone()));
+    const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, true, info, imgTrans));
+    const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, false, info, imgTrans));
 
     const results = await Promise.all([...promisesNames, ...promisesTimes]);
-    console.log('🚀 ~ file: App.tsx ~ line 231 ~ //awaitmodified.toFile ~ results', results);
     const resultsText = results.map((r) => removeBack((r as any).data.text));
 
     const resultsNames = resultsText.slice(0, 8);
@@ -238,7 +242,8 @@ const App = () => {
       data.push(d as any);
     });
 
-    setOcr(data.toString());
+    setOcr(JSON.stringify(data));
+    setSelectIsDisabled(false);
 
     // TODO: later
     // await scheduler1.terminate();
@@ -246,6 +251,7 @@ const App = () => {
   };
 
   const [ocr, setOcr] = React.useState('Loading...');
+  const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [imgIndex, setImgIndex] = React.useState(1);
 
   React.useEffect(() => {
@@ -266,7 +272,7 @@ const App = () => {
       </Helmet>
       <div className="main">
         <h1 className="white">CTR OCR</h1>
-        <select disabled={true} onChange={onChange}>
+        <select disabled={selectIsDisabled} onChange={onChange}>
           <option label="1" value="1" />
           <option label="2" value="2" />
           <option label="3" value="3" />
@@ -274,7 +280,8 @@ const App = () => {
           <option label="5" value="5" />
         </select>
         <img alt={`Example ${imgIndex}`} src={src} />
-        <h2>{ocr}</h2>
+        <div>{ocr}</div>
+        <div id="img-show"></div>
       </div>
     </HelmetProvider>
   );
