@@ -160,31 +160,42 @@ const App = () => {
 
     const playerIndexes = [0, 1, 2, 3, 4, 5, 6, 7];
 
-    const promisesX = async (playerIndex: number, isTime: boolean, info: any, rotated: any) => {
+    const promisesX = async (playerIndex: number, isTime: boolean, info: any, imsTrans: any) => {
       const scheduler = isTime ? scheduler1 : scheduler2;
       const label = isTime ? 'time' : 'name';
       const dimensions = getExtract(info, playerIndex, isTime);
 
       // TODO: LOG
       // const pathName = path.join(__dirname, '..', 'images', 'output', `${label}${playerIndex}.JPG`);
-      const extracted = await rotated.extract(dimensions);
+      const extracted = imgTrans.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
+      extracted.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
+        var img = document.createElement('img');
+        img.setAttribute('src', src);
+        document.body.appendChild(img);
+      });
 
       const options = {
         count: 2,
         type: 'image/jpeg'
       };
 
-      const rgb = await getColors(await extracted.toBuffer(), options).then((colors: any) => {
-        // console.log("🚀 ~ rgb ~ colors", playerIndex, colors)
-        return [colors[0].rgb(), colors[1].rgb()];
+      return extracted.getBuffer(Jimp.MIME_JPEG, async (err: any, buffer: any) => {
+        const rgb = await getColors(buffer, options).then((colors: any) => {
+          console.log('🚀 ~ rgb ~ colors', playerIndex, colors);
+          return [colors[0].rgb(), colors[1].rgb()];
+        });
+
+        // const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
+        const shouldInvert = false;
+        const extractedFin = shouldInvert ? extracted.invert() : extracted;
+
+        // TODO:
+        // await extractedFin.toFile(pathName);
+
+        return extractedFin.getBuffer(Jimp.MIME_JPEG, (err: any, buffer: any) => {
+          return scheduler.addJob('recognize', buffer);
+        });
       });
-
-      const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
-      const extractedFin = shouldInvert ? extracted.negate({ alpha: false }) : extracted;
-
-      // TODO:
-      // await extractedFin.toFile(pathName);
-      return scheduler.addJob('recognize', await extractedFin.toBuffer());
     };
 
     // TODO:
@@ -204,33 +215,34 @@ const App = () => {
     // const pathRotated = path.join(__dirname, '..', 'images', 'output', 'rotated.JPG');
     // await modified.toFile(pathRotated, async (err: any, info: any) => {
 
+    const w = imgTrans.bitmap.width; //  width of the image
+    const h = imgTrans.bitmap.height; // height of the image
+    const info = { width: w, height: h };
+    console.log('info.width', info.width, 'info.height', info.height);
+
     // TODO: reactivate
+    const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, true, info, imgTrans.clone()));
+    const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, false, info, imgTrans.clone()));
 
-    imgTrans.getBuffer(Jimp.MIME_JPEG, async (err: any, info: any) => {
-      console.log('err', err, 'info.width', info.width, 'info.height', info.height);
+    const results = await Promise.all([...promisesNames, ...promisesTimes]);
+    console.log('🚀 ~ file: App.tsx ~ line 231 ~ //awaitmodified.toFile ~ results', results);
+    const resultsText = results.map((r) => removeBack((r as any).data.text));
 
-      const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, true, info, imgTrans));
-      const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, false, info, imgTrans));
+    const resultsNames = resultsText.slice(0, 8);
+    const resultsTimes = resultsText.slice(8);
 
-      const results = await Promise.all([...promisesNames, ...promisesTimes]);
-      const resultsText = results.map((r) => removeBack(r.data.text));
-
-      const resultsNames = resultsText.slice(0, 8);
-      const resultsTimes = resultsText.slice(8);
-
-      const data: string[] = [];
-      playerIndexes.forEach((playerIndex) => {
-        const playerGuess = resultsNames[playerIndex];
-        const d = { g: playerGuess, player: getName(playerGuess), time: resultsTimes[playerIndex] };
-        data.push(d as any);
-      });
-
-      setOcr(data.toString());
-
-      // TODO: later
-      // await scheduler1.terminate();
-      // await scheduler2.terminate();
+    const data: string[] = [];
+    playerIndexes.forEach((playerIndex) => {
+      const playerGuess = resultsNames[playerIndex];
+      const d = { g: playerGuess, player: getName(playerGuess), time: resultsTimes[playerIndex] };
+      data.push(d as any);
     });
+
+    setOcr(data.toString());
+
+    // TODO: later
+    // await scheduler1.terminate();
+    // await scheduler2.terminate();
   };
 
   const [ocr, setOcr] = React.useState('Loading...');
