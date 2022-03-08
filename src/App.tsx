@@ -1,12 +1,12 @@
 import * as React from 'react';
 import './App.css';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { createWorker, createScheduler, PSM } from 'tesseract.js';
+import { createWorker, createScheduler } from 'tesseract.js';
 import levenshtein from 'fast-levenshtein';
-import path from 'path';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
+const PSM_SINGLE_LINE = '7';
 const language = 'eng';
 
 const PLAYERS = [
@@ -49,7 +49,7 @@ const getName = (guess: string) => {
   return name;
 };
 
-const getExtract = (info: any, index = 0, isTime: boolean) => {
+const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') => {
   const { width, height } = info;
   const left = parseInt((0.64 * width).toString(), 10);
   const top = parseInt((0.265 * height).toString(), 10);
@@ -59,6 +59,7 @@ const getExtract = (info: any, index = 0, isTime: boolean) => {
   const ratioTime = 0.73;
   const ratioEnd = 0.03;
   const ratioLeftOffsetName = 0.27;
+  const ratioEndPosition = 0.1;
   const antiRatioTime = 1 - ratioTime - ratioEnd;
 
   const rectangle = {
@@ -75,6 +76,18 @@ const getExtract = (info: any, index = 0, isTime: boolean) => {
   const leftExtName = left + parseInt((ratioLeftOffsetName * widthCrop).toString(), 10);
   const widthExtName = parseInt(((1 - antiRatioTime - ratioLeftOffsetName - ratioEnd) * widthCrop).toString(), 10);
 
+  if (type === 'position') {
+    const extract = {
+      left: left,
+      top: topExt,
+      width: parseInt((ratioEndPosition * widthCrop).toString(), 10),
+      height: heightExt
+    };
+
+    return extract;
+  }
+
+  const isTime = type === 'time';
   const leftExt = isTime ? leftExtTime : leftExtName;
   const widthExt = isTime ? widthExtTime : widthExtName;
 
@@ -90,37 +103,55 @@ const getExtract = (info: any, index = 0, isTime: boolean) => {
 
 const removeBack = (str: string) => str.replace(/\n/g, '').replace(/ /g, '');
 const pseudoWhitelist = '_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.';
+const positionWhitelist = '12345678';
 const timeWhitelist = '0123456789:-';
 
 const App = () => {
   const scheduler1 = createScheduler();
   const scheduler2 = createScheduler();
+  const scheduler3 = createScheduler();
 
-  // const pathLangData = path.join(__dirname, '..', 'lang-data');
   const worker1 = createWorker({
-    // langPath: pathLangData
     logger: (m: any) => console.log(m)
   });
   const worker2 = createWorker({
-    // langPath: pathLangData
     logger: (m: any) => console.log(m)
   });
   const worker3 = createWorker({
-    // langPath: pathLangData
     logger: (m: any) => console.log(m)
   });
   const worker4 = createWorker({
-    // langPath: pathLangData
     logger: (m: any) => console.log(m)
   });
+  const worker5 = createWorker({
+    logger: (m: any) => console.log(m)
+  });
+  const worker6 = createWorker({
+    logger: (m: any) => console.log(m)
+  });
+  scheduler1.addWorker(worker1);
+  scheduler1.addWorker(worker2);
+
+  scheduler2.addWorker(worker3);
+  scheduler2.addWorker(worker4);
+
+  scheduler3.addWorker(worker5);
+  scheduler3.addWorker(worker6);
+
+  const onMount = async () => {
+    // TODO: initialize?
+    setOnMountOver(true);
+    setSelectIsDisabled(false);
+  };
 
   const doOCR = async () => {
+    if (!onMountOver) return;
     setSelectIsDisabled(true);
 
     const div = document.getElementById('img-show');
     if (div) div.innerHTML = '';
 
-    setOcr(`Loading for ${imgIndex}...`);
+    setOcr('Initializing text recognition');
 
     await worker1.load();
     await worker2.load();
@@ -136,51 +167,54 @@ const App = () => {
     await worker3.initialize(language);
     await worker4.initialize(language);
 
+    await worker5.load();
+    await worker6.load();
+    await worker5.loadLanguage(language);
+    await worker6.loadLanguage(language);
+    await worker5.initialize(language);
+    await worker6.initialize(language);
+
     await worker1.setParameters({
-      tessedit_char_whitelist: timeWhitelist
-      // TODO: re-activate
-      // tessedit_pageseg_mode: PSM.PSM_SINGLE_LINE
+      tessedit_char_whitelist: timeWhitelist,
+      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker2.setParameters({
-      tessedit_char_whitelist: timeWhitelist
-      // tessedit_pageseg_mode: PSM.PSM_SINGLE_LINE
+      tessedit_char_whitelist: timeWhitelist,
+      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker3.setParameters({
-      tessedit_char_whitelist: pseudoWhitelist
-      // tessedit_pageseg_mode: PSM.PSM_SINGLE_LINE
+      tessedit_char_whitelist: pseudoWhitelist,
+      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker4.setParameters({
-      tessedit_char_whitelist: pseudoWhitelist
-      // tessedit_pageseg_mode: PSM.PSM_SINGLE_LINE
+      tessedit_char_whitelist: pseudoWhitelist,
+      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
-    scheduler1.addWorker(worker1);
-    scheduler1.addWorker(worker2);
+    await worker5.setParameters({
+      tessedit_char_whitelist: positionWhitelist,
+      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
+    });
 
-    scheduler2.addWorker(worker3);
-    scheduler2.addWorker(worker4);
+    await worker6.setParameters({
+      tessedit_char_whitelist: positionWhitelist,
+      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
+    });
 
     const playerIndexes = [0, 1, 2, 3, 4, 5, 6, 7];
 
-    const promisesX = async (playerIndex: number, isTime: boolean, info: any, imsTrans: any) => {
+    const promisesX = async (playerIndex: number, type: 'time' | 'pseudo' | 'position', info: any, imsTrans: any) => {
       const imgTransCopy = imgTrans.clone();
-      const scheduler = isTime ? scheduler1 : scheduler2;
-      const label = isTime ? 'time' : 'name';
-      const dimensions = getExtract(info, playerIndex, isTime);
+      let scheduler = null;
+      if (type === 'time') scheduler = scheduler1;
+      else if (type === 'pseudo') scheduler = scheduler2;
+      else scheduler = scheduler3;
+      const dimensions = getExtract(info, playerIndex, type);
 
-      // TODO: LOG
-      // const pathName = path.join(__dirname, '..', 'images', 'output', `${label}${playerIndex}.JPG`);
       const extracted = imgTransCopy.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
-      extracted.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
-        var img = document.createElement('img');
-        img.setAttribute('src', src);
-        const div = document.getElementById('img-show');
-        if (div) div.appendChild(img);
-      });
-
       const options = {
         count: 2,
         type: 'image/jpeg'
@@ -194,19 +228,21 @@ const App = () => {
 
       const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
-
-      // TODO:
-      // await extractedFin.toFile(pathName);
+      extractedFin.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
+        var img = document.createElement('img');
+        img.setAttribute('src', src);
+        const div = document.getElementById('img-show');
+        if (div) div.appendChild(img);
+      });
 
       const bufferFin: any = await extractedFin.getBufferAsync(Jimp.MIME_JPEG);
       return scheduler.addJob('recognize', bufferFin);
     };
 
-    // TODO:
-    // const pathInput = path.join(__dirname, '..', 'images', 'input', `IMG${imgIndex}.JPG`);
     const pathInput = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
-    // const modified = await sharp(pathInput).rotate(6.2).grayscale();
+    setOcr('Reading the image');
     const imgJimp = await Jimp.read(pathInput);
+    setOcr('Rotating the image');
     const imgTrans = imgJimp.rotate(-6.2).grayscale();
 
     imgTrans.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
@@ -216,29 +252,33 @@ const App = () => {
       if (div) div.appendChild(img);
     });
 
-    // TODO:
-    // const pathRotated = path.join(__dirname, '..', 'images', 'output', 'rotated.JPG');
-    // await modified.toFile(pathRotated, async (err: any, info: any) => {
-
-    const w = imgTrans.bitmap.width; //  width of the image
-    const h = imgTrans.bitmap.height; // height of the image
+    const w = imgTrans.bitmap.width;
+    const h = imgTrans.bitmap.height;
     const info = { width: w, height: h };
     console.log('info.width', info.width, 'info.height', info.height);
 
-    // TODO: reactivate
-    const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, true, info, imgTrans));
-    const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, false, info, imgTrans));
+    const promisesPositions = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'position', info, imgTrans));
+    const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'pseudo', info, imgTrans));
+    const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'time', info, imgTrans));
 
-    const results = await Promise.all([...promisesNames, ...promisesTimes]);
+    setOcr('Starting text recognition');
+    const results = await Promise.all([...promisesPositions, ...promisesNames, ...promisesTimes]);
     const resultsText = results.map((r) => removeBack((r as any).data.text));
 
-    const resultsNames = resultsText.slice(0, 8);
-    const resultsTimes = resultsText.slice(8);
+    const resultsPositions = resultsText.slice(0, 8);
+    console.log('🚀 ~ file: App.tsx ~ line 269 ~ doOCR ~ resultsPositions', resultsPositions);
+    const resultsNames = resultsText.slice(8, 16);
+    const resultsTimes = resultsText.slice(16);
 
     const data: string[] = [];
     playerIndexes.forEach((playerIndex) => {
       const playerGuess = resultsNames[playerIndex];
-      const d = { g: playerGuess, player: getName(playerGuess), time: resultsTimes[playerIndex] };
+      const d = {
+        g: playerGuess,
+        position: resultsPositions[playerIndex],
+        player: getName(playerGuess),
+        time: resultsTimes[playerIndex]
+      };
       data.push(d as any);
     });
 
@@ -250,13 +290,18 @@ const App = () => {
     // await scheduler2.terminate();
   };
 
-  const [ocr, setOcr] = React.useState('Loading...');
+  const [ocr, setOcr] = React.useState('Pick an image');
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
+  const [onMountOver, setOnMountOver] = React.useState(false);
   const [imgIndex, setImgIndex] = React.useState(1);
 
   React.useEffect(() => {
     doOCR();
   }, [imgIndex]);
+
+  React.useEffect(() => {
+    onMount();
+  }, []);
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setImgIndex(Number(e.target.value));
@@ -273,11 +318,21 @@ const App = () => {
       <div className="main">
         <h1 className="white">CTR OCR</h1>
         <select disabled={selectIsDisabled} onChange={onChange}>
-          <option label="1" value="1" />
-          <option label="2" value="2" />
-          <option label="3" value="3" />
-          <option label="4" value="4" />
-          <option label="5" value="5" />
+          <option label="1" value="1">
+            Image 1
+          </option>
+          <option label="2" value="2">
+            Image 2
+          </option>
+          <option label="3" value="3">
+            Image 3
+          </option>
+          <option label="4" value="4">
+            Image 4
+          </option>
+          <option label="5" value="5">
+            Image 5
+          </option>
         </select>
         <img alt={`Example ${imgIndex}`} src={src} />
         <div>{ocr}</div>
