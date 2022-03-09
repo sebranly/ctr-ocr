@@ -115,58 +115,99 @@ const App = () => {
     const div = document.getElementById('img-show');
     if (div) div.innerHTML = '';
 
-    setOcr('Loading engine');
+    setOcr('Loading engines');
 
+    setOcr('Loading engine 1');
     await worker1.load();
+
+    setOcr('Loading engine 2');
     await worker2.load();
+
+    setOcr('Loading engine 3');
     await worker3.load();
+
+    setOcr('Loading engine 4');
     await worker4.load();
+
+    setOcr('Loading engine 5');
     await worker5.load();
+
+    setOcr('Loading engine 6');
     await worker6.load();
 
-    setOcr('Loading language');
+    setOcr('Loading languages');
 
+    setOcr('Loading language 1');
     await worker1.loadLanguage(language);
+
+    setOcr('Loading language 2');
     await worker2.loadLanguage(language);
+
+    setOcr('Loading language 3');
     await worker3.loadLanguage(language);
+
+    setOcr('Loading language 4');
     await worker4.loadLanguage(language);
+
+    setOcr('Loading language 5');
     await worker5.loadLanguage(language);
+
+    setOcr('Loading language 6');
     await worker6.loadLanguage(language);
 
-    setOcr('Initializing engine');
+    setOcr('Initializing engines');
 
+    setOcr('Initializing engine 1');
     await worker1.initialize(language);
+
+    setOcr('Initializing engine 2');
     await worker2.initialize(language);
+
+    setOcr('Initializing engine 3');
     await worker3.initialize(language);
+
+    setOcr('Initializing engine 4');
     await worker4.initialize(language);
+
+    setOcr('Initializing engine 5');
     await worker5.initialize(language);
+
+    setOcr('Initializing engine 6');
     await worker6.initialize(language);
 
+    setOcr('Setting parameters');
+
+    setOcr('Setting parameter 1');
     await worker1.setParameters({
       tessedit_char_whitelist: CHARLIST_TIME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
+    setOcr('Setting parameter 2');
     await worker2.setParameters({
       tessedit_char_whitelist: CHARLIST_TIME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
+    setOcr('Setting parameter 3');
     await worker3.setParameters({
       tessedit_char_whitelist: CHARLIST_USERNAME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
+    setOcr('Setting parameter 4');
     await worker4.setParameters({
       tessedit_char_whitelist: CHARLIST_USERNAME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
+    setOcr('Setting parameter 5');
     await worker5.setParameters({
       tessedit_char_whitelist: CHARLIST_POSITION,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
+    setOcr('Setting parameter 6');
     await worker6.setParameters({
       tessedit_char_whitelist: CHARLIST_POSITION,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
@@ -209,54 +250,61 @@ const App = () => {
 
     const pathInput = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
     setOcr('Reading the image');
-    const imgJimp = await Jimp.read(pathInput);
-    setOcr('Rotating the image');
-    const imgTrans = imgJimp.rotate(-6.2).grayscale();
+    let imgTrans: any;
+    try {
+      const imgJimp = await Jimp.read(pathInput);
 
-    imgTrans.getBase64(MIME_JPEG, (err: any, src: string) => {
-      var img = document.createElement('img');
-      img.setAttribute('src', src);
-      const div = document.getElementById('img-show');
-      if (div) div.appendChild(img);
-    });
+      setOcr('Rotating the image');
+      imgTrans = imgJimp.rotate(-6.2).grayscale();
 
-    const w = imgTrans.bitmap.width;
-    const h = imgTrans.bitmap.height;
-    const info = { width: w, height: h };
-    console.log('info.width', info.width, 'info.height', info.height);
+      imgTrans.getBase64(MIME_JPEG, (err: any, src: string) => {
+        var img = document.createElement('img');
+        img.setAttribute('src', src);
+        const div = document.getElementById('img-show');
+        if (div) div.appendChild(img);
+      });
 
-    const promisesPositions = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'position', info, imgTrans));
-    const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'pseudo', info, imgTrans));
-    const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'time', info, imgTrans));
+      const w = imgTrans.bitmap.width;
+      const h = imgTrans.bitmap.height;
+      const info = { width: w, height: h };
+      console.log('info.width', info.width, 'info.height', info.height);
 
-    setOcr('Starting text recognition');
-    const results = await Promise.all([...promisesPositions, ...promisesNames, ...promisesTimes]);
-    const resultsText = results.map((r) => cleanString((r as any).data.text));
+      const promisesPositions = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'position', info, imgTrans));
+      const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'pseudo', info, imgTrans));
+      const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'time', info, imgTrans));
 
-    const resultsPositions = resultsText.slice(0, 8);
-    console.log('🚀 ~ file: App.tsx ~ line 269 ~ doOCR ~ resultsPositions', resultsPositions);
-    const resultsNames = resultsText.slice(8, 16);
-    const resultsTimes = resultsText.slice(16);
+      setOcr('Starting text recognition');
+      const results = await Promise.all([...promisesPositions, ...promisesNames, ...promisesTimes]);
+      const resultsText = results.map((r) => cleanString((r as any).data.text));
 
-    const data: string[] = [];
-    playerIndexes.forEach((playerIndex) => {
-      const playerGuess = resultsNames[playerIndex];
-      const d = {
-        g: playerGuess,
-        position: resultsPositions[playerIndex],
-        player: getCloserString(playerGuess, PLAYERS),
-        time: resultsTimes[playerIndex]
-      };
-      data.push(d as any);
-    });
+      const resultsPositions = resultsText.slice(0, 8);
+      console.log('🚀 ~ file: App.tsx ~ line 269 ~ doOCR ~ resultsPositions', resultsPositions);
+      const resultsNames = resultsText.slice(8, 16);
+      const resultsTimes = resultsText.slice(16);
 
-    setOcr(JSON.stringify(data));
-    setSelectIsDisabled(false);
+      const data: string[] = [];
+      playerIndexes.forEach((playerIndex) => {
+        const playerGuess = resultsNames[playerIndex];
+        const d = {
+          g: playerGuess,
+          position: resultsPositions[playerIndex],
+          player: getCloserString(playerGuess, PLAYERS),
+          time: resultsTimes[playerIndex]
+        };
+        data.push(d as any);
+      });
 
-    // TODO: later
-    // await scheduler1.terminate();
-    // await scheduler2.terminate();
-    // await scheduler3.terminate();
+      setOcr(JSON.stringify(data));
+      setSelectIsDisabled(false);
+
+      // TODO: later
+      // await scheduler1.terminate();
+      // await scheduler2.terminate();
+      // await scheduler3.terminate();
+    } catch (err) {
+      setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
+      setSelectIsDisabled(false);
+    }
   };
 
   const [ocr, setOcr] = React.useState('Pick an image');
