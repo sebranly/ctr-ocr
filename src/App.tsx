@@ -14,16 +14,16 @@ import {
   PLAYERS,
   PSM_SINGLE_LINE
 } from './constants';
-import { cleanString, getCloserString, numberRange } from './utils';
+import { applyRatio, cleanString, getCloserString, numberRange } from './utils';
 
 const language = 'eng';
 
 const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') => {
   const { width, height } = info;
-  const left = parseInt((0.64 * width).toString(), 10);
-  const top = parseInt((0.265 * height).toString(), 10);
-  const widthCrop = parseInt((0.27 * width).toString(), 10);
-  const heightCrop = parseInt((0.425 * height).toString(), 10);
+  const left = applyRatio(0.64, width);
+  const top = applyRatio(0.265, height);
+  const widthCrop = applyRatio(0.27, width);
+  const heightCrop = applyRatio(0.425, height);
 
   const ratioTime = 0.73;
   const ratioEnd = 0.03;
@@ -32,24 +32,24 @@ const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') 
   const antiRatioTime = 1 - ratioTime - ratioEnd;
 
   const rectangle = {
-    top: parseInt(((index / 8) * heightCrop).toString(), 10),
-    height: parseInt(((1 / 8) * heightCrop).toString(), 10)
+    top: applyRatio(index / 8, heightCrop),
+    height: applyRatio(1 / 8, heightCrop)
   };
 
   const topExt = top + rectangle.top;
   const heightExt = rectangle.height;
 
-  const leftExtTime = left + parseInt((ratioTime * widthCrop).toString(), 10);
-  const widthExtTime = parseInt((antiRatioTime * widthCrop).toString(), 10);
+  const leftExtTime = left + applyRatio(ratioTime, widthCrop);
+  const widthExtTime = applyRatio(antiRatioTime, widthCrop);
 
-  const leftExtName = left + parseInt((ratioLeftOffsetName * widthCrop).toString(), 10);
-  const widthExtName = parseInt(((1 - antiRatioTime - ratioLeftOffsetName - ratioEnd) * widthCrop).toString(), 10);
+  const leftExtName = left + applyRatio(ratioLeftOffsetName, widthCrop);
+  const widthExtName = applyRatio(1 - antiRatioTime - ratioLeftOffsetName - ratioEnd, widthCrop);
 
   if (type === 'position') {
     const extract = {
       left: left,
       top: topExt,
-      width: parseInt((ratioEndPosition * widthCrop).toString(), 10),
+      width: applyRatio(ratioEndPosition, widthCrop),
       height: heightExt
     };
 
@@ -115,26 +115,30 @@ const App = () => {
     const div = document.getElementById('img-show');
     if (div) div.innerHTML = '';
 
-    setOcr('Initializing text recognition');
+    setOcr('Loading engine');
 
     await worker1.load();
     await worker2.load();
-    await worker1.loadLanguage(language);
-    await worker2.loadLanguage(language);
-    await worker1.initialize(language);
-    await worker2.initialize(language);
-
     await worker3.load();
     await worker4.load();
-    await worker3.loadLanguage(language);
-    await worker4.loadLanguage(language);
-    await worker3.initialize(language);
-    await worker4.initialize(language);
-
     await worker5.load();
     await worker6.load();
+
+    setOcr('Loading language');
+
+    await worker1.loadLanguage(language);
+    await worker2.loadLanguage(language);
+    await worker3.loadLanguage(language);
+    await worker4.loadLanguage(language);
     await worker5.loadLanguage(language);
     await worker6.loadLanguage(language);
+
+    setOcr('Initializing engine');
+
+    await worker1.initialize(language);
+    await worker2.initialize(language);
+    await worker3.initialize(language);
+    await worker4.initialize(language);
     await worker5.initialize(language);
     await worker6.initialize(language);
 
