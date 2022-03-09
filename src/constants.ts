@@ -9,6 +9,7 @@ export const CHARLIST_POSITION = numberRange(1, CTR_MAX_PLAYERS).join('');
 export const CHARLIST_TIME = `${CHARLIST_DIGITS}:-`;
 export const CHARLIST_USERNAME = `${CHARLIST_LETTERS}${CHARLIST_DIGITS}:-_.`;
 export const MIME_JPEG = 'image/jpeg';
+export const PSM_SINGLE_CHAR = '10';
 export const PSM_SINGLE_LINE = '7';
 export const PLAYERS = [
   'caso-pyro01',

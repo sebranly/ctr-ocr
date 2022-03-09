@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { createWorker, createScheduler } from 'tesseract.js';
+import { createWorker, createScheduler, PSM } from 'tesseract.js';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
@@ -12,6 +12,7 @@ import {
   CTR_MAX_PLAYERS,
   MIME_JPEG,
   PLAYERS,
+  PSM_SINGLE_CHAR,
   PSM_SINGLE_LINE
 } from './constants';
 import { applyRatio, cleanString, getCloserString, numberRange } from './utils';
@@ -81,141 +82,65 @@ const App = () => {
     if (!onMountOver) return;
     setSelectIsDisabled(true);
 
-    const scheduler1 = createScheduler();
-    const scheduler2 = createScheduler();
-    const scheduler3 = createScheduler();
+    const schedulerTime = createScheduler();
+    const schedulerUsername = createScheduler();
+    const schedulerPosition = createScheduler();
 
-    const worker1 = createWorker({
+    const workerTime1 = createWorker({
       logger: (m: any) => console.log(m)
     });
 
-    const worker2 = createWorker({
+    const workerUsername1 = createWorker({
       logger: (m: any) => console.log(m)
     });
 
-    const worker3 = createWorker({
+    const workerPosition1 = createWorker({
       logger: (m: any) => console.log(m)
     });
 
-    const worker4 = createWorker({
-      logger: (m: any) => console.log(m)
-    });
-
-    const worker5 = createWorker({
-      logger: (m: any) => console.log(m)
-    });
-
-    const worker6 = createWorker({
-      logger: (m: any) => console.log(m)
-    });
-
-    scheduler1.addWorker(worker1);
-    scheduler1.addWorker(worker2);
-
-    scheduler2.addWorker(worker3);
-    scheduler2.addWorker(worker4);
-
-    scheduler3.addWorker(worker5);
-    scheduler3.addWorker(worker6);
+    schedulerTime.addWorker(workerTime1);
+    schedulerUsername.addWorker(workerUsername1);
+    schedulerPosition.addWorker(workerPosition1);
 
     const div = document.getElementById('img-show');
     if (div) div.innerHTML = '';
 
-    setOcr('Loading engines');
+    setOcr('Loading engine for position');
+    await workerPosition1.load();
+    setOcr('Loading engine for username');
+    await workerUsername1.load();
+    setOcr('Loading engine for time');
+    await workerTime1.load();
 
-    setOcr('Loading engine 1');
-    await worker1.load();
+    setOcr('Loading language for position');
+    await workerPosition1.loadLanguage(language);
+    setOcr('Loading language for username');
+    await workerUsername1.loadLanguage(language);
+    setOcr('Loading language for time');
+    await workerTime1.loadLanguage(language);
 
-    setOcr('Loading engine 2');
-    await worker2.load();
+    setOcr('Initializing engine for position');
+    await workerPosition1.initialize(language);
+    setOcr('Initializing engine for username');
+    await workerUsername1.initialize(language);
+    setOcr('Initializing engine for time');
+    await workerTime1.initialize(language);
 
-    setOcr('Loading engine 3');
-    await worker3.load();
-
-    setOcr('Loading engine 4');
-    await worker4.load();
-
-    setOcr('Loading engine 5');
-    await worker5.load();
-
-    setOcr('Loading engine 6');
-    await worker6.load();
-
-    setOcr('Loading languages');
-
-    setOcr('Loading language 1');
-    await worker1.loadLanguage(language);
-
-    setOcr('Loading language 2');
-    await worker2.loadLanguage(language);
-
-    setOcr('Loading language 3');
-    await worker3.loadLanguage(language);
-
-    setOcr('Loading language 4');
-    await worker4.loadLanguage(language);
-
-    setOcr('Loading language 5');
-    await worker5.loadLanguage(language);
-
-    setOcr('Loading language 6');
-    await worker6.loadLanguage(language);
-
-    setOcr('Initializing engines');
-
-    setOcr('Initializing engine 1');
-    await worker1.initialize(language);
-
-    setOcr('Initializing engine 2');
-    await worker2.initialize(language);
-
-    setOcr('Initializing engine 3');
-    await worker3.initialize(language);
-
-    setOcr('Initializing engine 4');
-    await worker4.initialize(language);
-
-    setOcr('Initializing engine 5');
-    await worker5.initialize(language);
-
-    setOcr('Initializing engine 6');
-    await worker6.initialize(language);
-
-    setOcr('Setting parameters');
-
-    setOcr('Setting parameter 1');
-    await worker1.setParameters({
-      tessedit_char_whitelist: CHARLIST_TIME,
-      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
+    setOcr('Setting parameter for position');
+    await workerPosition1.setParameters({
+      tessedit_char_whitelist: CHARLIST_POSITION,
+      tessedit_pageseg_mode: PSM_SINGLE_CHAR as any
     });
 
-    setOcr('Setting parameter 2');
-    await worker2.setParameters({
-      tessedit_char_whitelist: CHARLIST_TIME,
-      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
-    });
-
-    setOcr('Setting parameter 3');
-    await worker3.setParameters({
+    setOcr('Setting parameter for username');
+    await workerUsername1.setParameters({
       tessedit_char_whitelist: CHARLIST_USERNAME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
-    setOcr('Setting parameter 4');
-    await worker4.setParameters({
-      tessedit_char_whitelist: CHARLIST_USERNAME,
-      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
-    });
-
-    setOcr('Setting parameter 5');
-    await worker5.setParameters({
-      tessedit_char_whitelist: CHARLIST_POSITION,
-      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
-    });
-
-    setOcr('Setting parameter 6');
-    await worker6.setParameters({
-      tessedit_char_whitelist: CHARLIST_POSITION,
+    setOcr('Setting parameter for time');
+    await workerTime1.setParameters({
+      tessedit_char_whitelist: CHARLIST_TIME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
@@ -224,9 +149,9 @@ const App = () => {
     const promisesX = async (playerIndex: number, type: 'time' | 'pseudo' | 'position', info: any, imsTrans: any) => {
       const imgTransCopy = imgTrans.clone();
       let scheduler = null;
-      if (type === 'time') scheduler = scheduler1;
-      else if (type === 'pseudo') scheduler = scheduler2;
-      else scheduler = scheduler3;
+      if (type === 'time') scheduler = schedulerTime;
+      else if (type === 'pseudo') scheduler = schedulerUsername;
+      else scheduler = schedulerPosition;
       const dimensions = getExtract(info, playerIndex, type);
 
       const extracted = imgTransCopy.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
@@ -303,9 +228,9 @@ const App = () => {
       setOcr(JSON.stringify(data));
       setSelectIsDisabled(false);
 
-      await scheduler1.terminate();
-      await scheduler2.terminate();
-      await scheduler3.terminate();
+      await schedulerTime.terminate();
+      await schedulerUsername.terminate();
+      await schedulerPosition.terminate();
     } catch (err) {
       setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
       setSelectIsDisabled(false);
