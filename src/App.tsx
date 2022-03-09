@@ -71,37 +71,6 @@ const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') 
 };
 
 const App = () => {
-  const scheduler1 = createScheduler();
-  const scheduler2 = createScheduler();
-  const scheduler3 = createScheduler();
-
-  const worker1 = createWorker({
-    logger: (m: any) => console.log(m)
-  });
-  const worker2 = createWorker({
-    logger: (m: any) => console.log(m)
-  });
-  const worker3 = createWorker({
-    logger: (m: any) => console.log(m)
-  });
-  const worker4 = createWorker({
-    logger: (m: any) => console.log(m)
-  });
-  const worker5 = createWorker({
-    logger: (m: any) => console.log(m)
-  });
-  const worker6 = createWorker({
-    logger: (m: any) => console.log(m)
-  });
-  scheduler1.addWorker(worker1);
-  scheduler1.addWorker(worker2);
-
-  scheduler2.addWorker(worker3);
-  scheduler2.addWorker(worker4);
-
-  scheduler3.addWorker(worker5);
-  scheduler3.addWorker(worker6);
-
   const onMount = async () => {
     // TODO: initialize?
     setOnMountOver(true);
@@ -111,6 +80,43 @@ const App = () => {
   const doOCR = async () => {
     if (!onMountOver) return;
     setSelectIsDisabled(true);
+
+    const scheduler1 = createScheduler();
+    const scheduler2 = createScheduler();
+    const scheduler3 = createScheduler();
+
+    const worker1 = createWorker({
+      logger: (m: any) => console.log(m)
+    });
+
+    const worker2 = createWorker({
+      logger: (m: any) => console.log(m)
+    });
+
+    const worker3 = createWorker({
+      logger: (m: any) => console.log(m)
+    });
+
+    const worker4 = createWorker({
+      logger: (m: any) => console.log(m)
+    });
+
+    const worker5 = createWorker({
+      logger: (m: any) => console.log(m)
+    });
+
+    const worker6 = createWorker({
+      logger: (m: any) => console.log(m)
+    });
+
+    scheduler1.addWorker(worker1);
+    scheduler1.addWorker(worker2);
+
+    scheduler2.addWorker(worker3);
+    scheduler2.addWorker(worker4);
+
+    scheduler3.addWorker(worker5);
+    scheduler3.addWorker(worker6);
 
     const div = document.getElementById('img-show');
     if (div) div.innerHTML = '';
@@ -297,10 +303,9 @@ const App = () => {
       setOcr(JSON.stringify(data));
       setSelectIsDisabled(false);
 
-      // TODO: later
-      // await scheduler1.terminate();
-      // await scheduler2.terminate();
-      // await scheduler3.terminate();
+      await scheduler1.terminate();
+      await scheduler2.terminate();
+      await scheduler3.terminate();
     } catch (err) {
       setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
       setSelectIsDisabled(false);
