@@ -2,52 +2,21 @@ import * as React from 'react';
 import './App.css';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { createWorker, createScheduler } from 'tesseract.js';
-import levenshtein from 'fast-levenshtein';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
-const PSM_SINGLE_LINE = '7';
+import {
+  CHARLIST_POSITION,
+  CHARLIST_TIME,
+  CHARLIST_USERNAME,
+  CTR_MAX_PLAYERS,
+  MIME_JPEG,
+  PLAYERS,
+  PSM_SINGLE_LINE
+} from './constants';
+import { cleanString, getCloserString, numberRange } from './utils';
+
 const language = 'eng';
-
-const PLAYERS = [
-  'caso-pyro01',
-  'stin_wz',
-  'ZouGui28',
-  'francois24540',
-  'DGregson97',
-  'nessanumen',
-  'AlexKenshin_33',
-  'CrazyLittleJazzy',
-  'mmartin_m',
-  'Dr N. Tropy',
-  'Kity_Panda',
-  'Jakubeq1_',
-  'Assistant de laboratoire',
-  'Bébé N. Tropy',
-  'Faux Crash',
-  'giomastik',
-  'MarioAlfie123',
-  'kimmyy043',
-  'Mav15151515',
-  'Axe34070',
-  'Stew'
-];
-
-const getName = (guess: string) => {
-  let min = Infinity;
-  let name = guess;
-
-  PLAYERS.forEach((player) => {
-    const lev = levenshtein.get(guess, player);
-
-    if (lev < min) {
-      min = lev;
-      name = player;
-    }
-  });
-
-  return name;
-};
 
 const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') => {
   const { width, height } = info;
@@ -100,11 +69,6 @@ const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') 
 
   return extract;
 };
-
-const removeBack = (str: string) => str.replace(/\n/g, '').replace(/ /g, '');
-const pseudoWhitelist = '_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.';
-const positionWhitelist = '12345678';
-const timeWhitelist = '0123456789:-';
 
 const App = () => {
   const scheduler1 = createScheduler();
@@ -175,36 +139,36 @@ const App = () => {
     await worker6.initialize(language);
 
     await worker1.setParameters({
-      tessedit_char_whitelist: timeWhitelist,
+      tessedit_char_whitelist: CHARLIST_TIME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker2.setParameters({
-      tessedit_char_whitelist: timeWhitelist,
+      tessedit_char_whitelist: CHARLIST_TIME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker3.setParameters({
-      tessedit_char_whitelist: pseudoWhitelist,
+      tessedit_char_whitelist: CHARLIST_USERNAME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker4.setParameters({
-      tessedit_char_whitelist: pseudoWhitelist,
+      tessedit_char_whitelist: CHARLIST_USERNAME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker5.setParameters({
-      tessedit_char_whitelist: positionWhitelist,
+      tessedit_char_whitelist: CHARLIST_POSITION,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     await worker6.setParameters({
-      tessedit_char_whitelist: positionWhitelist,
+      tessedit_char_whitelist: CHARLIST_POSITION,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
-    const playerIndexes = [0, 1, 2, 3, 4, 5, 6, 7];
+    const playerIndexes = numberRange(0, CTR_MAX_PLAYERS - 1);
 
     const promisesX = async (playerIndex: number, type: 'time' | 'pseudo' | 'position', info: any, imsTrans: any) => {
       const imgTransCopy = imgTrans.clone();
@@ -217,10 +181,10 @@ const App = () => {
       const extracted = imgTransCopy.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
       const options = {
         count: 2,
-        type: 'image/jpeg'
+        type: MIME_JPEG
       };
 
-      const buffer: any = await extracted.getBufferAsync(Jimp.MIME_JPEG);
+      const buffer: any = await extracted.getBufferAsync(MIME_JPEG);
       const rgb = await getColors(buffer, options).then((colors: any) => {
         console.log('🚀 ~ rgb ~ colors', playerIndex, colors);
         return [colors[0].rgb(), colors[1].rgb()];
@@ -228,14 +192,14 @@ const App = () => {
 
       const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
-      extractedFin.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
+      extractedFin.getBase64(MIME_JPEG, (err: any, src: string) => {
         var img = document.createElement('img');
         img.setAttribute('src', src);
         const div = document.getElementById('img-show');
         if (div) div.appendChild(img);
       });
 
-      const bufferFin: any = await extractedFin.getBufferAsync(Jimp.MIME_JPEG);
+      const bufferFin: any = await extractedFin.getBufferAsync(MIME_JPEG);
       return scheduler.addJob('recognize', bufferFin);
     };
 
@@ -245,7 +209,7 @@ const App = () => {
     setOcr('Rotating the image');
     const imgTrans = imgJimp.rotate(-6.2).grayscale();
 
-    imgTrans.getBase64(Jimp.MIME_JPEG, (err: any, src: string) => {
+    imgTrans.getBase64(MIME_JPEG, (err: any, src: string) => {
       var img = document.createElement('img');
       img.setAttribute('src', src);
       const div = document.getElementById('img-show');
@@ -263,7 +227,7 @@ const App = () => {
 
     setOcr('Starting text recognition');
     const results = await Promise.all([...promisesPositions, ...promisesNames, ...promisesTimes]);
-    const resultsText = results.map((r) => removeBack((r as any).data.text));
+    const resultsText = results.map((r) => cleanString((r as any).data.text));
 
     const resultsPositions = resultsText.slice(0, 8);
     console.log('🚀 ~ file: App.tsx ~ line 269 ~ doOCR ~ resultsPositions', resultsPositions);
@@ -276,7 +240,7 @@ const App = () => {
       const d = {
         g: playerGuess,
         position: resultsPositions[playerIndex],
-        player: getName(playerGuess),
+        player: getCloserString(playerGuess, PLAYERS),
         time: resultsTimes[playerIndex]
       };
       data.push(d as any);
@@ -288,6 +252,7 @@ const App = () => {
     // TODO: later
     // await scheduler1.terminate();
     // await scheduler2.terminate();
+    // await scheduler3.terminate();
   };
 
   const [ocr, setOcr] = React.useState('Pick an image');
@@ -308,6 +273,7 @@ const App = () => {
   };
 
   const src = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
+  const options = numberRange(1, 5);
 
   return (
     <HelmetProvider>
@@ -318,21 +284,11 @@ const App = () => {
       <div className="main">
         <h1 className="white">CTR OCR</h1>
         <select disabled={selectIsDisabled} onChange={onChange}>
-          <option label="1" value="1">
-            Image 1
-          </option>
-          <option label="2" value="2">
-            Image 2
-          </option>
-          <option label="3" value="3">
-            Image 3
-          </option>
-          <option label="4" value="4">
-            Image 4
-          </option>
-          <option label="5" value="5">
-            Image 5
-          </option>
+          {options.map((option: number) => (
+            <option key={option} label={option.toString()} value={option}>
+              Image {option}
+            </option>
+          ))}
         </select>
         <img alt={`Example ${imgIndex}`} src={src} />
         <div>{ocr}</div>
