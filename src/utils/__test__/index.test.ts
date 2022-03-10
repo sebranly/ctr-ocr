@@ -1,4 +1,6 @@
-import { applyRatio, charRange, cleanString, getCloserString, numberRange } from '../index';
+import { CHARLIST_POSITION, CHARLIST_TIME, CHARLIST_USERNAME, PSM_SINGLE_CHAR, PSM_SINGLE_LINE } from '../../constants';
+import { Category } from '../../types';
+import { applyRatio, charRange, cleanString, getCloserString, getParams, numberRange } from '../index';
 
 test('cleanString', () => {
   expect(cleanString('')).toBe('');
@@ -33,10 +35,31 @@ test('applyRatio', () => {
   expect(applyRatio(1, 1)).toBe(1);
   expect(applyRatio(1.1, 1)).toBe(1);
   expect(applyRatio(1.49, 1)).toBe(1);
-  expect(applyRatio(1.5, 1)).toBe(2);
-  expect(applyRatio(1.7, 1)).toBe(2);
-  expect(applyRatio(1.9, 1)).toBe(2);
+  expect(applyRatio(1.5, 1)).toBe(1);
+  expect(applyRatio(1.7, 1)).toBe(1);
+  expect(applyRatio(1.9, 1)).toBe(1);
   expect(applyRatio(2, 1)).toBe(2);
+  expect(applyRatio(2.1, 1.5)).toBe(3);
+  expect(applyRatio(2.1, 2)).toBe(4);
+});
+
+test('getParams', () => {
+  const { Position, Time, Username } = Category;
+
+  expect(getParams(Position)).toStrictEqual({
+    tessedit_char_whitelist: CHARLIST_POSITION,
+    tessedit_pageseg_mode: PSM_SINGLE_CHAR
+  });
+
+  expect(getParams(Username)).toStrictEqual({
+    tessedit_char_whitelist: CHARLIST_USERNAME,
+    tessedit_pageseg_mode: PSM_SINGLE_LINE
+  });
+
+  expect(getParams(Time)).toStrictEqual({
+    tessedit_char_whitelist: CHARLIST_TIME,
+    tessedit_pageseg_mode: PSM_SINGLE_LINE
+  });
 });
 
 test('charRange', () => {

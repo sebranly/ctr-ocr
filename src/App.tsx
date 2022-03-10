@@ -6,17 +6,8 @@ import { Category } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
-import {
-  CHARLIST_POSITION,
-  CHARLIST_TIME,
-  CHARLIST_USERNAME,
-  CTR_MAX_PLAYERS,
-  MIME_JPEG,
-  PLAYERS,
-  PSM_SINGLE_CHAR,
-  PSM_SINGLE_LINE
-} from './constants';
-import { applyRatio, cleanString, getCloserString, numberRange } from './utils';
+import { CTR_MAX_PLAYERS, MIME_JPEG, PLAYERS, PSM_SINGLE_CHAR, PSM_SINGLE_LINE } from './constants';
+import { applyRatio, cleanString, getCloserString, getParams, numberRange } from './utils';
 
 const language = 'eng';
 
@@ -73,6 +64,27 @@ const getExtract = (info: any, index = 0, category: Category) => {
 };
 
 const App = () => {
+  const renderBody = () => {
+    if (!resultsOcr) return null;
+
+    return (
+      <tbody>
+        {(resultsOcr as any).map((rawLine: any) => {
+          const { position, username, time } = rawLine;
+          const key = `${position}-${username}-${time}`;
+
+          return (
+            <tr key={key}>
+              <td>{position}</td>
+              <td>{username}</td>
+              <td>{time}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    );
+  };
+
   const onMount = async () => {
     // TODO: initialize?
     setOnMountOver(true);
@@ -82,6 +94,7 @@ const App = () => {
   const doOCR = async () => {
     if (!onMountOver) return;
     setSelectIsDisabled(true);
+    setResultsOcr(undefined);
 
     const schedulerTime = createScheduler();
     const schedulerUsername = createScheduler();
@@ -128,22 +141,16 @@ const App = () => {
     await workerTime.initialize(language);
 
     setOcr('Setting parameter for position');
-    await workerPosition.setParameters({
-      tessedit_char_whitelist: CHARLIST_POSITION,
-      tessedit_pageseg_mode: PSM_SINGLE_CHAR as any
-    });
+    const posParams = getParams(Category.Position);
+    await workerPosition.setParameters(posParams);
 
     setOcr('Setting parameter for username');
-    await workerUsername.setParameters({
-      tessedit_char_whitelist: CHARLIST_USERNAME,
-      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
-    });
+    const usernameParams = getParams(Category.Username);
+    await workerUsername.setParameters(usernameParams);
 
     setOcr('Setting parameter for time');
-    await workerTime.setParameters({
-      tessedit_char_whitelist: CHARLIST_TIME,
-      tessedit_pageseg_mode: PSM_SINGLE_LINE as any
-    });
+    const timeParams = getParams(Category.Time);
+    await workerTime.setParameters(timeParams);
 
     const playerIndexes = numberRange(0, CTR_MAX_PLAYERS - 1);
 
@@ -213,24 +220,28 @@ const App = () => {
       const results = await Promise.all([...promisesPositions, ...promisesNames, ...promisesTimes]);
       const resultsText = results.map((r) => cleanString((r as any).data.text));
 
-      const resultsPositions = resultsText.slice(0, 8);
-      console.log('🚀 ~ file: App.tsx ~ line 269 ~ doOCR ~ resultsPositions', resultsPositions);
-      const resultsNames = resultsText.slice(8, 16);
-      const resultsTimes = resultsText.slice(16);
+      const resultsPositions = resultsText.slice(0, CTR_MAX_PLAYERS);
+      console.log('resultsPositions', resultsPositions);
+      const resultsNames = resultsText.slice(CTR_MAX_PLAYERS, CTR_MAX_PLAYERS * 2);
+      console.log('resultsNames', resultsNames);
+      const resultsTimes = resultsText.slice(CTR_MAX_PLAYERS * 2);
+      console.log('resultsTimes', resultsTimes);
 
-      const data: string[] = [];
+      const data: any = [];
       playerIndexes.forEach((playerIndex) => {
         const playerGuess = resultsNames[playerIndex];
         const d = {
-          g: playerGuess,
+          username: playerGuess,
           position: resultsPositions[playerIndex],
-          player: getCloserString(playerGuess, PLAYERS),
+          playerFix: getCloserString(playerGuess, PLAYERS),
           time: resultsTimes[playerIndex]
         };
         data.push(d as any);
       });
 
-      setOcr(JSON.stringify(data));
+      setResultsOcr(data);
+
+      setOcr('Recognition is done and successful');
       setSelectIsDisabled(false);
 
       await schedulerTime.terminate();
@@ -246,6 +257,7 @@ const App = () => {
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [imgIndex, setImgIndex] = React.useState(1);
+  const [resultsOcr, setResultsOcr] = React.useState(undefined);
 
   React.useEffect(() => {
     doOCR();
@@ -270,15 +282,28 @@ const App = () => {
       </Helmet>
       <div className="main">
         <h1 className="white">CTR OCR</h1>
+        <div>{ocr}</div>
         <select disabled={selectIsDisabled} onChange={onChange}>
-          {options.map((option: number) => (
-            <option key={option} label={option.toString()} value={option}>
-              Image {option}
-            </option>
-          ))}
+          {options.map((option: number) => {
+            const label = `Image ${option}`;
+            return (
+              <option key={option} label={label} value={option}>
+                {label}
+              </option>
+            );
+          })}
         </select>
         <img alt={`Example ${imgIndex}`} src={src} />
-        <div>{ocr}</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th>Name</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          {renderBody()}
+        </table>
         <div id="img-show"></div>
       </div>
     </HelmetProvider>
