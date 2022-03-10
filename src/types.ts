@@ -1,9 +1,5 @@
-export enum Status {
-  Done = "done",
-  Todo = "todo",
-}
-
-export interface Result {
-  name: string;
-  time: string;
+export enum Category {
+  Position = 'position',
+  Time = 'time',
+  Username = 'username'
 }

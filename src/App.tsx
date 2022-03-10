@@ -1,7 +1,8 @@
 import * as React from 'react';
 import './App.css';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { createWorker, createScheduler, PSM } from 'tesseract.js';
+import { createWorker, createScheduler } from 'tesseract.js';
+import { Category } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
@@ -19,7 +20,7 @@ import { applyRatio, cleanString, getCloserString, numberRange } from './utils';
 
 const language = 'eng';
 
-const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') => {
+const getExtract = (info: any, index = 0, category: Category) => {
   const { width, height } = info;
   const left = applyRatio(0.64, width);
   const top = applyRatio(0.265, height);
@@ -46,7 +47,7 @@ const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') 
   const leftExtName = left + applyRatio(ratioLeftOffsetName, widthCrop);
   const widthExtName = applyRatio(1 - antiRatioTime - ratioLeftOffsetName - ratioEnd, widthCrop);
 
-  if (type === 'position') {
+  if (category === Category.Position) {
     const extract = {
       left: left,
       top: topExt,
@@ -57,7 +58,7 @@ const getExtract = (info: any, index = 0, type: 'time' | 'pseudo' | 'position') 
     return extract;
   }
 
-  const isTime = type === 'time';
+  const isTime = category === Category.Time;
   const leftExt = isTime ? leftExtTime : leftExtName;
   const widthExt = isTime ? widthExtTime : widthExtName;
 
@@ -86,73 +87,73 @@ const App = () => {
     const schedulerUsername = createScheduler();
     const schedulerPosition = createScheduler();
 
-    const workerTime1 = createWorker({
+    const workerTime = createWorker({
       logger: (m: any) => console.log(m)
     });
 
-    const workerUsername1 = createWorker({
+    const workerUsername = createWorker({
       logger: (m: any) => console.log(m)
     });
 
-    const workerPosition1 = createWorker({
+    const workerPosition = createWorker({
       logger: (m: any) => console.log(m)
     });
 
-    schedulerTime.addWorker(workerTime1);
-    schedulerUsername.addWorker(workerUsername1);
-    schedulerPosition.addWorker(workerPosition1);
+    schedulerTime.addWorker(workerTime);
+    schedulerUsername.addWorker(workerUsername);
+    schedulerPosition.addWorker(workerPosition);
 
     const div = document.getElementById('img-show');
     if (div) div.innerHTML = '';
 
     setOcr('Loading engine for position');
-    await workerPosition1.load();
+    await workerPosition.load();
     setOcr('Loading engine for username');
-    await workerUsername1.load();
+    await workerUsername.load();
     setOcr('Loading engine for time');
-    await workerTime1.load();
+    await workerTime.load();
 
     setOcr('Loading language for position');
-    await workerPosition1.loadLanguage(language);
+    await workerPosition.loadLanguage(language);
     setOcr('Loading language for username');
-    await workerUsername1.loadLanguage(language);
+    await workerUsername.loadLanguage(language);
     setOcr('Loading language for time');
-    await workerTime1.loadLanguage(language);
+    await workerTime.loadLanguage(language);
 
     setOcr('Initializing engine for position');
-    await workerPosition1.initialize(language);
+    await workerPosition.initialize(language);
     setOcr('Initializing engine for username');
-    await workerUsername1.initialize(language);
+    await workerUsername.initialize(language);
     setOcr('Initializing engine for time');
-    await workerTime1.initialize(language);
+    await workerTime.initialize(language);
 
     setOcr('Setting parameter for position');
-    await workerPosition1.setParameters({
+    await workerPosition.setParameters({
       tessedit_char_whitelist: CHARLIST_POSITION,
       tessedit_pageseg_mode: PSM_SINGLE_CHAR as any
     });
 
     setOcr('Setting parameter for username');
-    await workerUsername1.setParameters({
+    await workerUsername.setParameters({
       tessedit_char_whitelist: CHARLIST_USERNAME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     setOcr('Setting parameter for time');
-    await workerTime1.setParameters({
+    await workerTime.setParameters({
       tessedit_char_whitelist: CHARLIST_TIME,
       tessedit_pageseg_mode: PSM_SINGLE_LINE as any
     });
 
     const playerIndexes = numberRange(0, CTR_MAX_PLAYERS - 1);
 
-    const promisesX = async (playerIndex: number, type: 'time' | 'pseudo' | 'position', info: any, imsTrans: any) => {
+    const promisesX = async (playerIndex: number, category: Category, info: any, imsTrans: any) => {
       const imgTransCopy = imgTrans.clone();
       let scheduler = null;
-      if (type === 'time') scheduler = schedulerTime;
-      else if (type === 'pseudo') scheduler = schedulerUsername;
+      if (category === Category.Time) scheduler = schedulerTime;
+      else if (category === Category.Username) scheduler = schedulerUsername;
       else scheduler = schedulerPosition;
-      const dimensions = getExtract(info, playerIndex, type);
+      const dimensions = getExtract(info, playerIndex, category);
 
       const extracted = imgTransCopy.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
       const options = {
@@ -200,9 +201,13 @@ const App = () => {
       const info = { width: w, height: h };
       console.log('info.width', info.width, 'info.height', info.height);
 
-      const promisesPositions = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'position', info, imgTrans));
-      const promisesNames = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'pseudo', info, imgTrans));
-      const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, 'time', info, imgTrans));
+      const promisesPositions = playerIndexes.map((playerIndex) =>
+        promisesX(playerIndex, Category.Position, info, imgTrans)
+      );
+      const promisesNames = playerIndexes.map((playerIndex) =>
+        promisesX(playerIndex, Category.Username, info, imgTrans)
+      );
+      const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, Category.Time, info, imgTrans));
 
       setOcr('Starting text recognition');
       const results = await Promise.all([...promisesPositions, ...promisesNames, ...promisesTimes]);
