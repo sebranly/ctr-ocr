@@ -1,6 +1,6 @@
 import { CHARLIST_POSITION, CHARLIST_TIME, CHARLIST_USERNAME, PSM_SINGLE_CHAR, PSM_SINGLE_LINE } from '../../constants';
 import { Category } from '../../types';
-import { applyRatio, charRange, cleanString, getCloserString, getParams, numberRange } from '../index';
+import { applyRatio, charRange, cleanString, getCloserString, getParams, numberRange, positionIsValid } from '../index';
 
 test('cleanString', () => {
   expect(cleanString('')).toBe('');
@@ -60,6 +60,17 @@ test('getParams', () => {
     tessedit_char_whitelist: CHARLIST_TIME,
     tessedit_pageseg_mode: PSM_SINGLE_LINE
   });
+});
+
+test('positionIsValid', () => {
+  expect(positionIsValid('one', 2)).toBe(false);
+  expect(positionIsValid('0', 2)).toBe(false);
+  expect(positionIsValid('3', 2)).toBe(false);
+  expect(positionIsValid('2a', 2)).toBe(false);
+  expect(positionIsValid('a2', 2)).toBe(false);
+
+  expect(positionIsValid('1', 2)).toBe(true);
+  expect(positionIsValid('2', 2)).toBe(true);
 });
 
 test('charRange', () => {

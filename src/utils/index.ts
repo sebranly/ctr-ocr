@@ -4,6 +4,14 @@ import { Category } from '../types';
 
 const cleanString = (str: string) => str.replace(/\n/g, '').replace(/ /g, '');
 
+const positionIsValid = (position: string, max: number) => {
+  if (!position) return false;
+  const pos = Number(position);
+  const isValid = position.length === 1 && pos >= 1 && pos <= max;
+
+  return isValid;
+};
+
 const getCloserString = (str: string, list: string[]) => {
   let min = Infinity;
   let name = str;
@@ -65,4 +73,4 @@ const charRange = (startChar: string, stopChar: string) => {
   return result;
 };
 
-export { applyRatio, charRange, cleanString, getCloserString, getParams, numberRange };
+export { applyRatio, charRange, cleanString, getCloserString, getParams, numberRange, positionIsValid };

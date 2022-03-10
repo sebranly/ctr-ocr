@@ -6,7 +6,7 @@ import { Category } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
-import { CTR_MAX_PLAYERS, MIME_JPEG, PLAYERS, PSM_SINGLE_CHAR, PSM_SINGLE_LINE } from './constants';
+import { CTR_MAX_PLAYERS, MIME_JPEG, PLAYERS } from './constants';
 import { applyRatio, cleanString, getCloserString, getParams, numberRange } from './utils';
 
 const language = 'eng';
@@ -64,6 +64,23 @@ const getExtract = (info: any, index = 0, category: Category) => {
 };
 
 const App = () => {
+  const renderTable = () => {
+    if (!resultsOcr) return null;
+
+    return (
+      <table>
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Name</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        {renderBody()}
+      </table>
+    );
+  };
+
   const renderBody = () => {
     if (!resultsOcr) return null;
 
@@ -294,16 +311,7 @@ const App = () => {
           })}
         </select>
         <img alt={`Example ${imgIndex}`} src={src} />
-        <table>
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>Name</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          {renderBody()}
-        </table>
+        {renderTable()}
         <div id="img-show"></div>
       </div>
     </HelmetProvider>
