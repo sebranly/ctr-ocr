@@ -1,26 +1,10 @@
 import levenshtein from 'fast-levenshtein';
-import {
-  CHARLIST_POSITION,
-  CHARLIST_TIME,
-  CHARLIST_USERNAME,
-  CTR_MAX_TIME_DIFF_SEC,
-  PSM_SINGLE_CHAR,
-  PSM_SINGLE_LINE,
-  TIME_DNF
-} from '../constants';
+import { CHARLIST_TIME, CHARLIST_USERNAME, CTR_MAX_TIME_DIFF_SEC, PSM_SINGLE_LINE, TIME_DNF } from '../constants';
 import { Category, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 
 const cleanString = (str: string) => str.replace(/\n/g, '').replace(/ /g, '');
-
-const positionIsValid = (position: string, max: number) => {
-  if (!position) return false;
-  const pos = Number(position);
-  const isValid = position.length === 1 && pos >= 1 && pos <= max;
-
-  return isValid;
-};
 
 const convertToMs = (time: string) => {
   const timeIsValid = REGEX_TIME.test(time);
@@ -63,15 +47,9 @@ const numberRange = (min: number, max: number) => {
 };
 
 const getParams = (category: Category) => {
-  const { Position, Time, Username } = Category;
+  const { Time, Username } = Category;
 
   switch (category) {
-    case Position:
-      return {
-        tessedit_char_whitelist: CHARLIST_POSITION,
-        tessedit_pageseg_mode: PSM_SINGLE_CHAR as any
-      };
-
     case Username:
       return {
         tessedit_char_whitelist: CHARLIST_USERNAME,
@@ -202,7 +180,6 @@ export {
   getCloserString,
   getParams,
   numberRange,
-  positionIsValid,
   validateTimes,
   validateUsernames
 };

@@ -1,11 +1,4 @@
-import {
-  CHARLIST_POSITION,
-  CHARLIST_TIME,
-  CHARLIST_USERNAME,
-  PSM_SINGLE_CHAR,
-  PSM_SINGLE_LINE,
-  TIME_DNF
-} from '../../constants';
+import { CHARLIST_TIME, CHARLIST_USERNAME, PSM_SINGLE_LINE, TIME_DNF } from '../../constants';
 import { Category, Validation } from '../../types';
 import {
   applyRatio,
@@ -15,7 +8,6 @@ import {
   getCloserString,
   getParams,
   numberRange,
-  positionIsValid,
   validateTimes,
   validateUsernames
 } from '../index';
@@ -147,12 +139,7 @@ test('applyRatio', () => {
 });
 
 test('getParams', () => {
-  const { Position, Time, Username } = Category;
-
-  expect(getParams(Position)).toStrictEqual({
-    tessedit_char_whitelist: CHARLIST_POSITION,
-    tessedit_pageseg_mode: PSM_SINGLE_CHAR
-  });
+  const { Time, Username } = Category;
 
   expect(getParams(Username)).toStrictEqual({
     tessedit_char_whitelist: CHARLIST_USERNAME,
@@ -163,17 +150,6 @@ test('getParams', () => {
     tessedit_char_whitelist: CHARLIST_TIME,
     tessedit_pageseg_mode: PSM_SINGLE_LINE
   });
-});
-
-test('positionIsValid', () => {
-  expect(positionIsValid('one', 2)).toBe(false);
-  expect(positionIsValid('0', 2)).toBe(false);
-  expect(positionIsValid('3', 2)).toBe(false);
-  expect(positionIsValid('2a', 2)).toBe(false);
-  expect(positionIsValid('a2', 2)).toBe(false);
-
-  expect(positionIsValid('1', 2)).toBe(true);
-  expect(positionIsValid('2', 2)).toBe(true);
 });
 
 test('charRange', () => {
