@@ -10,6 +10,7 @@ import {
 } from '../constants';
 import { Category, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
+import { uniq } from 'lodash';
 
 const cleanString = (str: string) => str.replace(/\n/g, '').replace(/ /g, '');
 
@@ -100,6 +101,30 @@ const charRange = (startChar: string, stopChar: string) => {
   return result;
 };
 
+const validateUsernames = (usernames: string[]) => {
+  const validation: Validation = {
+    correct: false,
+    errMsg: ''
+  };
+
+  const empty = usernames.some((str: string) => !str);
+  if (empty) {
+    validation.errMsg = 'At least one username is missing';
+
+    return validation;
+  }
+
+  const uniqueUsernames = uniq(usernames);
+  if (uniqueUsernames.length !== usernames.length) {
+    validation.errMsg = 'At least one username is duplicated';
+
+    return validation;
+  }
+
+  validation.correct = true;
+  return validation;
+};
+
 const validateTimes = (times: string[]) => {
   const positionNotTime: number[] = [];
   const validation: Validation = {
@@ -178,5 +203,6 @@ export {
   getParams,
   numberRange,
   positionIsValid,
-  validateTimes
+  validateTimes,
+  validateUsernames
 };

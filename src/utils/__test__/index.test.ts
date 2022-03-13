@@ -16,8 +16,39 @@ import {
   getParams,
   numberRange,
   positionIsValid,
-  validateTimes
+  validateTimes,
+  validateUsernames
 } from '../index';
+
+test('validateUsernames', () => {
+  const correctResponse = {
+    correct: true,
+    errMsg: ''
+  };
+
+  expect(validateUsernames([])).toStrictEqual(correctResponse);
+  expect(validateUsernames([''])).toStrictEqual({
+    correct: false,
+    errMsg: 'At least one username is missing'
+  });
+
+  expect(validateUsernames(['', 'bonjour'])).toStrictEqual({
+    correct: false,
+    errMsg: 'At least one username is missing'
+  });
+
+  expect(validateUsernames(['', ''])).toStrictEqual({
+    correct: false,
+    errMsg: 'At least one username is missing'
+  });
+
+  expect(validateUsernames(['bonjour', 'bonjour'])).toStrictEqual({
+    correct: false,
+    errMsg: 'At least one username is duplicated'
+  });
+
+  expect(validateUsernames(['bonjour', 'bonsoir'])).toStrictEqual(correctResponse);
+});
 
 test('validateTimes', () => {
   const correctResponse = {
