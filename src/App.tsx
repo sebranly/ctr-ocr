@@ -298,7 +298,7 @@ const App = () => {
   };
 
   const src = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
-  const options = numberRange(1, 5);
+  const options = [...numberRange(1, 5), ...numberRange(11, 20)];
 
   return (
     <HelmetProvider>
