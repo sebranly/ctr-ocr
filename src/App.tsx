@@ -7,7 +7,8 @@ import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
 import { CTR_MAX_PLAYERS, MIME_JPEG, PLAYERS } from './constants';
-import { applyRatio, cleanString, getCloserString, getParams, numberRange } from './utils';
+import { applyRatio, cleanString, getCloserString, getParams, numberRange, positionIsValid } from './utils';
+import { REGEX_TIME } from './utils/regEx';
 
 const language = 'eng';
 
@@ -89,12 +90,20 @@ const App = () => {
         {(resultsOcr as any).map((rawLine: any) => {
           const { position, username, time } = rawLine;
           const key = `${position}-${username}-${time}`;
+          const posIsValid = positionIsValid(position, CTR_MAX_PLAYERS);
+          const timeIsValid = REGEX_TIME.test(time);
+          const emojiPos = posIsValid ? '✅' : '❌';
+          const emojiTime = timeIsValid ? '✅' : '❌';
 
           return (
             <tr key={key}>
-              <td>{position}</td>
+              <td>
+                {emojiPos} {position}
+              </td>
               <td>{username}</td>
-              <td>{time}</td>
+              <td>
+                {emojiTime} {time}
+              </td>
             </tr>
           );
         })}
