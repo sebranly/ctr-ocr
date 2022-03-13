@@ -6,7 +6,7 @@ import {
   PSM_SINGLE_LINE,
   TIME_DNF
 } from '../../constants';
-import { Category } from '../../types';
+import { Category, Validation } from '../../types';
 import {
   applyRatio,
   charRange,
@@ -20,42 +20,32 @@ import {
   validateUsernames
 } from '../index';
 
+const correctResponse: Validation = {
+  correct: true,
+  errMsg: ''
+};
+
 test('validateUsernames', () => {
-  const correctResponse = {
-    correct: true,
-    errMsg: ''
+  const missingUsernameResponse = {
+    correct: false,
+    errMsg: 'At least one username is missing'
+  };
+
+  const duplicatedUsernameResponse = {
+    correct: false,
+    errMsg: 'At least one username is duplicated'
   };
 
   expect(validateUsernames([])).toStrictEqual(correctResponse);
-  expect(validateUsernames([''])).toStrictEqual({
-    correct: false,
-    errMsg: 'At least one username is missing'
-  });
-
-  expect(validateUsernames(['', 'bonjour'])).toStrictEqual({
-    correct: false,
-    errMsg: 'At least one username is missing'
-  });
-
-  expect(validateUsernames(['', ''])).toStrictEqual({
-    correct: false,
-    errMsg: 'At least one username is missing'
-  });
-
-  expect(validateUsernames(['bonjour', 'bonjour'])).toStrictEqual({
-    correct: false,
-    errMsg: 'At least one username is duplicated'
-  });
-
+  expect(validateUsernames([''])).toStrictEqual(missingUsernameResponse);
+  expect(validateUsernames(['', 'bonjour'])).toStrictEqual(missingUsernameResponse);
+  expect(validateUsernames(['', ''])).toStrictEqual(missingUsernameResponse);
+  expect(validateUsernames(['bonjour', 'bonjour'])).toStrictEqual(duplicatedUsernameResponse);
+  expect(validateUsernames(['bonjour', 'bonsoir', 'bonjour'])).toStrictEqual(duplicatedUsernameResponse);
   expect(validateUsernames(['bonjour', 'bonsoir'])).toStrictEqual(correctResponse);
 });
 
 test('validateTimes', () => {
-  const correctResponse = {
-    correct: true,
-    errMsg: ''
-  };
-
   expect(validateTimes(['Bonjour'])).toStrictEqual({
     correct: false,
     errMsg: 'The following positions have incorrect formatted times: 1'
