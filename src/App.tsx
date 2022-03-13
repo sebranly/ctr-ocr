@@ -6,7 +6,7 @@ import { Category } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
-import { CTR_MAX_PLAYERS, MIME_JPEG, PLAYERS } from './constants';
+import { CTR_MAX_PLAYERS, MIME_JPEG, SEPARATOR_PLAYERS } from './constants';
 import { applyRatio, cleanString, getCloserString, getParams, numberRange, positionIsValid } from './utils';
 import { REGEX_TIME } from './utils/regEx';
 
@@ -18,6 +18,17 @@ const getExtract = (info: any, index = 0, category: Category) => {
   const top = applyRatio(0.265, height);
   const widthCrop = applyRatio(0.27, width);
   const heightCrop = applyRatio(0.425, height);
+
+  if (category === Category.All) {
+    const extract = {
+      left,
+      top,
+      width: widthCrop,
+      height: heightCrop
+    };
+
+    return extract;
+  }
 
   const ratioTime = 0.73;
   const ratioEnd = 0.03;
@@ -69,7 +80,7 @@ const App = () => {
     if (!resultsOcr) return null;
 
     return (
-      <table>
+      <table className="flex-1">
         <thead>
           <tr>
             <th>Position</th>
@@ -142,7 +153,7 @@ const App = () => {
     schedulerUsername.addWorker(workerUsername);
     schedulerPosition.addWorker(workerPosition);
 
-    const div = document.getElementById('img-show');
+    const div = document.getElementsByClassName('img-show')[0];
     if (div) div.innerHTML = '';
 
     setOcr('Loading engine for position');
@@ -202,12 +213,14 @@ const App = () => {
 
       const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
-      extractedFin.getBase64(MIME_JPEG, (err: any, src: string) => {
-        var img = document.createElement('img');
-        img.setAttribute('src', src);
-        const div = document.getElementById('img-show');
-        if (div) div.appendChild(img);
-      });
+
+      // TODO: activate for debugging only
+      // extractedFin.getBase64(MIME_JPEG, (err: any, src: string) => {
+      //   var img = document.createElement('img');
+      //   img.setAttribute('src', src);
+      //   const div = document.getElementsByClassName('img-show')[0];
+      //   if (div) div.appendChild(img);
+      // });
 
       const bufferFin: any = await extractedFin.getBufferAsync(MIME_JPEG);
       return scheduler.addJob('recognize', bufferFin);
@@ -219,19 +232,29 @@ const App = () => {
     try {
       const imgJimp = await Jimp.read(pathInput);
 
-      setOcr('Rotating the image');
+      setOcr('Generating cropped image');
       imgTrans = imgJimp.rotate(-6.2).grayscale();
-
-      imgTrans.getBase64(MIME_JPEG, (err: any, src: string) => {
-        var img = document.createElement('img');
-        img.setAttribute('src', src);
-        const div = document.getElementById('img-show');
-        if (div) div.appendChild(img);
-      });
 
       const w = imgTrans.bitmap.width;
       const h = imgTrans.bitmap.height;
       const info = { width: w, height: h };
+      const dimensionsCrop = getExtract(info, 0, Category.All);
+
+      const imgTransCopy = imgTrans.clone();
+      const extractedCrop = imgTransCopy.crop(
+        dimensionsCrop.left,
+        dimensionsCrop.top,
+        dimensionsCrop.width,
+        dimensionsCrop.height
+      );
+
+      extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
+        var img = document.createElement('img');
+        img.setAttribute('src', src);
+        const div = document.getElementsByClassName('img-show')[0];
+        if (div) div.appendChild(img);
+      });
+
       console.log('info.width', info.width, 'info.height', info.height);
 
       const promisesPositions = playerIndexes.map((playerIndex) =>
@@ -254,12 +277,13 @@ const App = () => {
       console.log('resultsTimes', resultsTimes);
 
       const data: any = [];
+      const referencePlayers = players.split(SEPARATOR_PLAYERS);
+      console.log('🚀 ~ file: App.tsx ~ line 258 ~ doOCR ~ referencePlayers', referencePlayers);
       playerIndexes.forEach((playerIndex) => {
         const playerGuess = resultsNames[playerIndex];
         const d = {
-          username: playerGuess,
+          username: getCloserString(playerGuess, referencePlayers),
           position: resultsPositions[playerIndex],
-          playerFix: getCloserString(playerGuess, PLAYERS),
           time: resultsTimes[playerIndex]
         };
         data.push(d as any);
@@ -284,6 +308,7 @@ const App = () => {
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [imgIndex, setImgIndex] = React.useState(1);
   const [resultsOcr, setResultsOcr] = React.useState(undefined);
+  const [players, setPlayers] = React.useState<string>('');
 
   React.useEffect(() => {
     doOCR();
@@ -292,6 +317,10 @@ const App = () => {
   React.useEffect(() => {
     onMount();
   }, []);
+
+  const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setPlayers(e.currentTarget.value);
+  };
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setImgIndex(Number(e.target.value));
@@ -309,6 +338,7 @@ const App = () => {
       <div className="main">
         <h1 className="white">CTR OCR</h1>
         <div>{ocr}</div>
+        <textarea rows={CTR_MAX_PLAYERS} value={players} onChange={onPlayersChange} />
         <select disabled={selectIsDisabled} onChange={onChange}>
           {options.map((option: number) => {
             const label = `Image ${option}`;
@@ -319,9 +349,11 @@ const App = () => {
             );
           })}
         </select>
-        <img alt={`Example ${imgIndex}`} src={src} />
-        {renderTable()}
-        <div id="img-show"></div>
+        <img id="img-full" alt={`Example ${imgIndex}`} src={src} />
+        <div className="flex-container results">
+          {renderTable()}
+          <div className="img-show flex-1"></div>
+        </div>
       </div>
     </HelmetProvider>
   );

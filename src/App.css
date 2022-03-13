@@ -7,7 +7,28 @@
   margin: 10px;
 }
 
-img {
+#img-full {
   max-width: 50%;
   display: block;
+}
+
+textarea {
+  display: block;
+  margin: 10px;
+}
+
+.results {
+  margin-top: 5px;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.img-show {
+  margin-left: 1%;
 }
