@@ -1,5 +1,6 @@
 export enum Category {
   Position = 'position',
   Time = 'time',
-  Username = 'username'
+  Username = 'username',
+  All = 'all'
 }

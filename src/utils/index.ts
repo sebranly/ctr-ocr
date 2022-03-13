@@ -13,10 +13,11 @@ const positionIsValid = (position: string, max: number) => {
 };
 
 const getCloserString = (str: string, list: string[]) => {
+  const listSafe = list.filter((s: string) => !!s);
   let min = Infinity;
   let name = str;
 
-  list.forEach((s: string) => {
+  listSafe.forEach((s: string) => {
     const lev = levenshtein.get(str, s);
 
     if (lev < min) {
