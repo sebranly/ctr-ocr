@@ -4,3 +4,8 @@ export enum Category {
   Username = 'username',
   All = 'all'
 }
+
+export type Validation = {
+  correct: boolean;
+  errMsg: string;
+};
