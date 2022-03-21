@@ -7,8 +7,7 @@ import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
 import { CTR_MAX_PLAYERS, MIME_JPEG, SEPARATOR_PLAYERS } from './constants';
-import { cleanString, getCloserString, getExtract, getParams, numberRange, positionIsValid } from './utils';
-import { REGEX_TIME } from './utils/regEx';
+import { cleanString, getCloserString, getExtract, getParams, numberRange } from './utils';
 
 const language = 'eng';
 
@@ -22,7 +21,6 @@ const App = () => {
           <tr>
             <th>Position</th>
             <th>Name</th>
-            <th>Time</th>
           </tr>
         </thead>
         {renderBody()}
@@ -38,20 +36,11 @@ const App = () => {
         {(resultsOcr as any).map((rawLine: any) => {
           const { position, username, time } = rawLine;
           const key = `${position}-${username}-${time}`;
-          const posIsValid = positionIsValid(position, CTR_MAX_PLAYERS);
-          const timeIsValid = REGEX_TIME.test(time);
-          const emojiPos = posIsValid ? '✅' : '❌';
-          const emojiTime = timeIsValid ? '✅' : '❌';
 
           return (
             <tr key={key}>
-              <td>
-                {emojiPos} {position}
-              </td>
+              <td>{position}</td>
               <td>{username}</td>
-              <td>
-                {emojiTime} {time}
-              </td>
             </tr>
           );
         })}
@@ -70,70 +59,35 @@ const App = () => {
     setSelectIsDisabled(true);
     setResultsOcr(undefined);
 
-    const schedulerTime = createScheduler();
     const schedulerUsername = createScheduler();
-    const schedulerPosition = createScheduler();
-
-    const workerTime = createWorker({
-      logger: (m: any) => console.log(m)
-    });
 
     const workerUsername = createWorker({
-      logger: (m: any) => console.log(m)
+      // logger: (m: any) => console.log(m)
     });
 
-    const workerPosition = createWorker({
-      logger: (m: any) => console.log(m)
-    });
-
-    schedulerTime.addWorker(workerTime);
     schedulerUsername.addWorker(workerUsername);
-    schedulerPosition.addWorker(workerPosition);
 
     const div = document.getElementsByClassName('img-show')[0];
     if (div) div.innerHTML = '';
 
-    setOcr('Loading engine for position');
-    await workerPosition.load();
-    setOcr('Loading engine for username');
+    setOcr('Loading engine (1/4)');
     await workerUsername.load();
-    setOcr('Loading engine for time');
-    await workerTime.load();
 
-    setOcr('Loading language for position');
-    await workerPosition.loadLanguage(language);
-    setOcr('Loading language for username');
+    setOcr('Loading language (2/4)');
     await workerUsername.loadLanguage(language);
-    setOcr('Loading language for time');
-    await workerTime.loadLanguage(language);
 
-    setOcr('Initializing engine for position');
-    await workerPosition.initialize(language);
-    setOcr('Initializing engine for username');
+    setOcr('Initializing engine (3/4)');
     await workerUsername.initialize(language);
-    setOcr('Initializing engine for time');
-    await workerTime.initialize(language);
 
-    setOcr('Setting parameter for position');
-    const posParams = getParams(Category.Position);
-    await workerPosition.setParameters(posParams);
-
-    setOcr('Setting parameter for username');
+    setOcr('Setting parameter (4/4)');
     const usernameParams = getParams(Category.Username);
     await workerUsername.setParameters(usernameParams);
 
-    setOcr('Setting parameter for time');
-    const timeParams = getParams(Category.Time);
-    await workerTime.setParameters(timeParams);
-
     const playerIndexes = numberRange(0, CTR_MAX_PLAYERS - 1);
 
-    const promisesX = async (playerIndex: number, category: Category, info: any, imsTrans: any) => {
+    const promisesX = async (playerIndex: number, category: Category, info: any, imgTrans: any) => {
       const imgTransCopy = imgTrans.clone();
-      let scheduler = null;
-      if (category === Category.Time) scheduler = schedulerTime;
-      else if (category === Category.Username) scheduler = schedulerUsername;
-      else scheduler = schedulerPosition;
+      const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
 
       const extracted = imgTransCopy.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
@@ -144,7 +98,6 @@ const App = () => {
 
       const buffer: any = await extracted.getBufferAsync(MIME_JPEG);
       const rgb = await getColors(buffer, options).then((colors: any) => {
-        console.log('🚀 ~ rgb ~ colors', playerIndex, colors);
         return [colors[0].rgb(), colors[1].rgb()];
       });
 
@@ -192,37 +145,23 @@ const App = () => {
         if (div) div.appendChild(img);
       });
 
-      console.log('info.width', info.width, 'info.height', info.height);
-
-      const promisesPositions = playerIndexes.map((playerIndex) =>
-        promisesX(playerIndex, Category.Position, info, imgTrans)
-      );
       const promisesNames = playerIndexes.map((playerIndex) =>
         promisesX(playerIndex, Category.Username, info, imgTrans)
       );
-      const promisesTimes = playerIndexes.map((playerIndex) => promisesX(playerIndex, Category.Time, info, imgTrans));
 
       setOcr('Starting text recognition');
-      const results = await Promise.all([...promisesPositions, ...promisesNames, ...promisesTimes]);
-      const resultsText = results.map((r) => cleanString((r as any).data.text));
-
-      const resultsPositions = resultsText.slice(0, CTR_MAX_PLAYERS);
-      console.log('resultsPositions', resultsPositions);
-      const resultsNames = resultsText.slice(CTR_MAX_PLAYERS, CTR_MAX_PLAYERS * 2);
-      console.log('resultsNames', resultsNames);
-      const resultsTimes = resultsText.slice(CTR_MAX_PLAYERS * 2);
-      console.log('resultsTimes', resultsTimes);
+      const results = await Promise.all(promisesNames);
+      const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
       const data: any = [];
       const referencePlayers = players.split(SEPARATOR_PLAYERS);
-      console.log('🚀 ~ file: App.tsx ~ line 258 ~ doOCR ~ referencePlayers', referencePlayers);
       playerIndexes.forEach((playerIndex) => {
         const playerGuess = resultsNames[playerIndex];
         const d = {
           username: getCloserString(playerGuess, referencePlayers),
-          position: resultsPositions[playerIndex],
-          time: resultsTimes[playerIndex]
+          position: playerIndex + 1
         };
+
         data.push(d as any);
       });
 
@@ -231,9 +170,7 @@ const App = () => {
       setOcr('Recognition is done and successful');
       setSelectIsDisabled(false);
 
-      await schedulerTime.terminate();
       await schedulerUsername.terminate();
-      await schedulerPosition.terminate();
     } catch (err) {
       setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
       setSelectIsDisabled(false);
