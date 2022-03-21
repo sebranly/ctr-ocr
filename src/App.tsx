@@ -5,6 +5,9 @@ import { createWorker, createScheduler } from 'tesseract.js';
 import { Category } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
+import useWindowSize from 'react-use/lib/useWindowSize';
+import Confetti from 'react-confetti';
+import { isMobile } from 'react-device-detect';
 
 import { CTR_MAX_PLAYERS, MIME_JPEG, SEPARATOR_PLAYERS } from './constants';
 import { cleanString, getCloserString, getExtract, getParams, numberRange } from './utils';
@@ -12,6 +15,18 @@ import { cleanString, getCloserString, getExtract, getParams, numberRange } from
 const language = 'eng';
 
 const App = () => {
+  const renderDots = () => {
+    return <div className="dots">{numberRange(1, 4).map(renderDot)}</div>;
+  };
+
+  const renderDot = (index: number) => {
+    const classColorPrefix = index === 4 ? 'green' : 'red';
+    const classColorSuffix = index > step ? '-off' : '';
+    const classColor = `${classColorPrefix}${classColorSuffix}`;
+    const classes = `dot ${classColor}`;
+    return <span key={index} className={classes}></span>;
+  };
+
   const renderTable = () => {
     if (!resultsOcr) return null;
 
@@ -57,6 +72,7 @@ const App = () => {
   const doOCR = async () => {
     if (!onMountOver) return;
     setSelectIsDisabled(true);
+    setStep(0);
     setResultsOcr(undefined);
 
     const schedulerUsername = createScheduler();
@@ -69,6 +85,8 @@ const App = () => {
 
     const div = document.getElementsByClassName('img-show')[0];
     if (div) div.innerHTML = '';
+
+    setStep(1);
 
     setOcr('Loading engine (1/4)');
     await workerUsername.load();
@@ -117,6 +135,7 @@ const App = () => {
     };
 
     const pathInput = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
+    setStep(2);
     setOcr('Reading the image');
     let imgTrans: any;
     try {
@@ -150,6 +169,7 @@ const App = () => {
       );
 
       setOcr('Starting text recognition');
+      setStep(3);
       const results = await Promise.all(promisesNames);
       const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
@@ -168,6 +188,7 @@ const App = () => {
       setResultsOcr(data);
 
       setOcr('Recognition is done and successful');
+      setStep(4);
       setSelectIsDisabled(false);
 
       await schedulerUsername.terminate();
@@ -177,7 +198,9 @@ const App = () => {
     }
   };
 
-  const [ocr, setOcr] = React.useState('Pick an image');
+  const { width, height } = useWindowSize();
+  const [step, setStep] = React.useState(0);
+  const [ocr, setOcr] = React.useState('');
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [imgIndex, setImgIndex] = React.useState(1);
@@ -203,30 +226,44 @@ const App = () => {
   const src = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
   const options = [...numberRange(1, 5), ...numberRange(11, 20)];
 
+  const classPlatform = isMobile ? 'mobile' : 'desktop';
+
   return (
     <HelmetProvider>
       <Helmet>
-        <title>CTR OCR</title>
+        <title>Crash Team Racing: OCR</title>
         <link rel="canonical" href="https://sebranly.github.io/ctr-ocr" />
       </Helmet>
       <div className="main">
-        <h1 className="white">CTR OCR</h1>
-        <div>{ocr}</div>
-        <textarea rows={CTR_MAX_PLAYERS} value={players} onChange={onPlayersChange} />
-        <select disabled={selectIsDisabled} onChange={onChange}>
-          {options.map((option: number) => {
-            const label = `Image ${option}`;
-            return (
-              <option key={option} label={label} value={option}>
-                {label}
-              </option>
-            );
-          })}
-        </select>
-        <img id="img-full" alt={`Example ${imgIndex}`} src={src} />
-        <div className="flex-container results">
-          {renderTable()}
-          <div className="img-show flex-1"></div>
+        <h1 className="white">Crash Team Racing: OCR</h1>
+        {step === 4 && <Confetti width={width} height={height} numberOfPieces={400} recycle={false} />}
+        <div className={`main-content-${classPlatform}`}>
+          {renderDots()}
+          <div className="ocr">{ocr}</div>
+          <h2>Players</h2>
+          <h3>One player per line</h3>
+          <textarea
+            className={`textarea-${classPlatform}`}
+            rows={CTR_MAX_PLAYERS}
+            value={players}
+            onChange={onPlayersChange}
+          />
+          <div className="flex-container results">{renderTable()}</div>
+          <h2>Image</h2>
+          <div className="img-show"></div>
+          <div className="center">
+            <select disabled={selectIsDisabled} onChange={onChange}>
+              {options.map((option: number) => {
+                const label = `Image ${option}`;
+                return (
+                  <option key={option} label={label} value={option}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <img id="img-full" alt={`Example ${imgIndex}`} src={src} />
         </div>
       </div>
     </HelmetProvider>
