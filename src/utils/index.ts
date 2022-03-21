@@ -8,7 +8,7 @@ import {
   PSM_SINGLE_LINE,
   TIME_DNF
 } from '../constants';
-import { Category, Validation } from '../types';
+import { Category, Coord, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 
@@ -54,6 +54,69 @@ const getCloserString = (str: string, list: string[]) => {
   });
 
   return name;
+};
+
+const getExtract = (info: any, index = 0, category: Category) => {
+  const { width, height } = info;
+  const left = applyRatio(0.64, width);
+  const top = applyRatio(0.265, height);
+  const widthCrop = applyRatio(0.27, width);
+  const heightCrop = applyRatio(0.425, height);
+
+  if (category === Category.All) {
+    const extract: Coord = {
+      height: heightCrop,
+      left,
+      top,
+      width: widthCrop
+    };
+
+    return extract;
+  }
+
+  const ratioTime = 0.73;
+  const ratioEnd = 0.03;
+  const ratioLeftOffsetName = 0.27;
+  const ratioEndPosition = 0.1;
+  const antiRatioTime = 1 - ratioTime - ratioEnd;
+
+  const rectangle = {
+    top: applyRatio(index / 8, heightCrop),
+    height: applyRatio(1 / 8, heightCrop)
+  };
+
+  const topExt = top + rectangle.top;
+  const heightExt = rectangle.height;
+
+  if (category === Category.Position) {
+    const extract: Coord = {
+      height: heightExt,
+      left: left,
+      top: topExt,
+      width: applyRatio(ratioEndPosition, widthCrop)
+    };
+
+    return extract;
+  }
+
+  const leftExtTime = left + applyRatio(ratioTime, widthCrop);
+  const widthExtTime = applyRatio(antiRatioTime, widthCrop);
+
+  const leftExtName = left + applyRatio(ratioLeftOffsetName, widthCrop);
+  const widthExtName = applyRatio(1 - antiRatioTime - ratioLeftOffsetName - ratioEnd, widthCrop);
+
+  const isTime = category === Category.Time;
+  const leftExt = isTime ? leftExtTime : leftExtName;
+  const widthExt = isTime ? widthExtTime : widthExtName;
+
+  const extract: Coord = {
+    height: heightExt,
+    left: leftExt,
+    top: topExt,
+    width: widthExt
+  };
+
+  return extract;
 };
 
 const numberRange = (min: number, max: number) => {
@@ -200,6 +263,7 @@ export {
   cleanString,
   convertToMs,
   getCloserString,
+  getExtract,
   getParams,
   numberRange,
   positionIsValid,

@@ -13,6 +13,7 @@ import {
   cleanString,
   convertToMs,
   getCloserString,
+  getExtract,
   getParams,
   numberRange,
   positionIsValid,
@@ -144,6 +145,67 @@ test('applyRatio', () => {
   expect(applyRatio(2, 1)).toBe(2);
   expect(applyRatio(2.1, 1.5)).toBe(3);
   expect(applyRatio(2.1, 2)).toBe(4);
+});
+
+test('getExtract', () => {
+  const info = { width: 4052, height: 2564 };
+  const commonHeight = 136;
+  const commonTop0 = 679;
+  const commonTop1 = 815;
+  const positionWidth = 109;
+  const usernameWidth = 503;
+  const timeWidth = 262;
+  const expectedFullCrop = {
+    height: 1089,
+    left: 2593,
+    top: 679,
+    width: 1094
+  };
+
+  expect(getExtract(info, 0, Category.All)).toStrictEqual(expectedFullCrop);
+  expect(getExtract(info, 1, Category.All)).toStrictEqual(expectedFullCrop);
+
+  expect(getExtract(info, 0, Category.Position)).toStrictEqual({
+    height: commonHeight,
+    left: 2593,
+    top: commonTop0,
+    width: positionWidth
+  });
+
+  expect(getExtract(info, 1, Category.Position)).toStrictEqual({
+    height: commonHeight,
+    left: 2593,
+    top: commonTop1,
+    width: positionWidth
+  });
+
+  expect(getExtract(info, 0, Category.Username)).toStrictEqual({
+    height: commonHeight,
+    left: 2888,
+    top: commonTop0,
+    width: usernameWidth
+  });
+
+  expect(getExtract(info, 1, Category.Username)).toStrictEqual({
+    height: commonHeight,
+    left: 2888,
+    top: commonTop1,
+    width: usernameWidth
+  });
+
+  expect(getExtract(info, 0, Category.Time)).toStrictEqual({
+    height: commonHeight,
+    left: 3391,
+    top: commonTop0,
+    width: timeWidth
+  });
+
+  expect(getExtract(info, 1, Category.Time)).toStrictEqual({
+    height: commonHeight,
+    left: 3391,
+    top: commonTop1,
+    width: timeWidth
+  });
 });
 
 test('getParams', () => {

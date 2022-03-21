@@ -7,73 +7,10 @@ import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 
 import { CTR_MAX_PLAYERS, MIME_JPEG, SEPARATOR_PLAYERS } from './constants';
-import { applyRatio, cleanString, getCloserString, getParams, numberRange, positionIsValid } from './utils';
+import { cleanString, getCloserString, getExtract, getParams, numberRange, positionIsValid } from './utils';
 import { REGEX_TIME } from './utils/regEx';
 
 const language = 'eng';
-
-const getExtract = (info: any, index = 0, category: Category) => {
-  const { width, height } = info;
-  const left = applyRatio(0.64, width);
-  const top = applyRatio(0.265, height);
-  const widthCrop = applyRatio(0.27, width);
-  const heightCrop = applyRatio(0.425, height);
-
-  if (category === Category.All) {
-    const extract = {
-      left,
-      top,
-      width: widthCrop,
-      height: heightCrop
-    };
-
-    return extract;
-  }
-
-  const ratioTime = 0.73;
-  const ratioEnd = 0.03;
-  const ratioLeftOffsetName = 0.27;
-  const ratioEndPosition = 0.1;
-  const antiRatioTime = 1 - ratioTime - ratioEnd;
-
-  const rectangle = {
-    top: applyRatio(index / 8, heightCrop),
-    height: applyRatio(1 / 8, heightCrop)
-  };
-
-  const topExt = top + rectangle.top;
-  const heightExt = rectangle.height;
-
-  const leftExtTime = left + applyRatio(ratioTime, widthCrop);
-  const widthExtTime = applyRatio(antiRatioTime, widthCrop);
-
-  const leftExtName = left + applyRatio(ratioLeftOffsetName, widthCrop);
-  const widthExtName = applyRatio(1 - antiRatioTime - ratioLeftOffsetName - ratioEnd, widthCrop);
-
-  if (category === Category.Position) {
-    const extract = {
-      left: left,
-      top: topExt,
-      width: applyRatio(ratioEndPosition, widthCrop),
-      height: heightExt
-    };
-
-    return extract;
-  }
-
-  const isTime = category === Category.Time;
-  const leftExt = isTime ? leftExtTime : leftExtName;
-  const widthExt = isTime ? widthExtTime : widthExtName;
-
-  const extract = {
-    left: leftExt,
-    top: topExt,
-    width: widthExt,
-    height: heightExt
-  };
-
-  return extract;
-};
 
 const App = () => {
   const renderTable = () => {
