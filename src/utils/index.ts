@@ -3,6 +3,7 @@ import {
   CHARLIST_POSITION,
   CHARLIST_TIME,
   CHARLIST_USERNAME,
+  CTR_MAX_PLAYERS,
   CTR_MAX_TIME_DIFF_SEC,
   PSM_SINGLE_CHAR,
   PSM_SINGLE_LINE,
@@ -56,6 +57,7 @@ const getCloserString = (str: string, list: string[]) => {
   return name;
 };
 
+// TODO: for All, index is actually the number of players
 const getExtract = (info: any, index = 0, category: Category) => {
   const { width, height } = info;
   const left = applyRatio(0.64, width);
@@ -64,8 +66,9 @@ const getExtract = (info: any, index = 0, category: Category) => {
   const heightCrop = applyRatio(0.425, height);
 
   if (category === Category.All) {
+    const ratioHeight = index / CTR_MAX_PLAYERS;
     const extract: Coord = {
-      height: heightCrop,
+      height: applyRatio(ratioHeight, heightCrop),
       left,
       top,
       width: widthCrop

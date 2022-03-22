@@ -162,8 +162,15 @@ test('getExtract', () => {
     width: 1094
   };
 
-  expect(getExtract(info, 0, Category.All)).toStrictEqual(expectedFullCrop);
-  expect(getExtract(info, 1, Category.All)).toStrictEqual(expectedFullCrop);
+  const expectedHalfCrop = {
+    height: 544,
+    left: 2593,
+    top: 679,
+    width: 1094
+  };
+
+  expect(getExtract(info, 8, Category.All)).toStrictEqual(expectedFullCrop);
+  expect(getExtract(info, 4, Category.All)).toStrictEqual(expectedHalfCrop);
 
   expect(getExtract(info, 0, Category.Position)).toStrictEqual({
     height: commonHeight,
