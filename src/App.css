@@ -21,13 +21,33 @@ html {
   display: inline-block;
 }
 
+.mb {
+  margin-bottom: 5px;
+}
+
 .ml {
   margin-left: 5px;
+}
+
+.mt {
+  margin-top: 5px;
+}
+
+.mr {
+  margin-right: 5px;
+}
+
+.mt2 {
+  margin-top: 10px;
 }
 
 .center {
   text-align: center;
   margin: 0 auto;
+}
+
+.text-center {
+  text-align: center;
 }
 
 .main-content-desktop {
@@ -69,6 +89,7 @@ h1, h2, h3, h4, h5, h6 {
 .textarea-desktop {
   display: block;
   margin: 0 auto;
+  margin-top: 5px;
   width: 50%;
   font-size: 16px;
 }
@@ -76,6 +97,7 @@ h1, h2, h3, h4, h5, h6 {
 .textarea-mobile {
   display: block;
   margin: 0 auto;
+  margin-top: 5px;
   width: 95%;
   font-size: 16px;
 }

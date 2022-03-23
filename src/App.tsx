@@ -9,8 +9,16 @@ import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { isMobile } from 'react-device-detect';
 
-import { CTR_MAX_PLAYERS, MIME_JPEG, SEPARATOR_PLAYERS } from './constants';
-import { cleanString, getCloserString, getExtract, getParams, numberRange } from './utils';
+import {
+  CTR_MAX_PLAYERS,
+  MIME_JPEG,
+  PLACEHOLDER_PLAYERS,
+  SEPARATOR_PLAYERS,
+  WEBSITE_DEFAULT_LANGUAGE,
+  WEBSITE_TITLE,
+  WEBSITE_VERSION
+} from './constants';
+import { cleanString, getCloserString, getExtract, getParams, getReferencePlayers, numberRange } from './utils';
 
 const language = 'eng';
 
@@ -78,10 +86,67 @@ const App = () => {
     );
   };
 
+  const renderCPUMainSection = () => {
+    if (!players) return null;
+
+    return (
+      <>
+        <h3>CPUs</h3>
+        {renderCPUSection()}
+      </>
+    );
+  };
+
+  const renderCPUSection = () => {
+    if (!cpuData || Object.keys(cpuData).length === 0) return <div className="text-center mb">Loading CPUs...</div>;
+
+    const optionsCPULanguages = Object.keys(cpuData);
+
+    return (
+      <>
+        <div className="text-center mb">
+          <input name="includeCpuPlayers" type="checkbox" checked={includeCpuPlayers} onChange={onCpuCheckboxChange} />
+          <div className="ml inline">Check this if there were bots during the race</div>
+        </div>
+        {includeCpuPlayers && (
+          <>
+            <div className="text-center mb">
+              Those are automatically determined based on the language and cannot be edited
+            </div>
+            <div className="inline mr">Language in images</div>
+            <select onChange={onChangeCPULanguage} value={cpuLanguage}>
+              {optionsCPULanguages.map((option: string) => {
+                const label = `${option}`;
+                return (
+                  <option key={option} label={label} value={option}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
+            <textarea
+              className={`textarea-${classPlatform}`}
+              disabled={true}
+              placeholder={'Loading CPUs...'}
+              rows={CTR_MAX_PLAYERS}
+              value={cpuPlayers}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
   const onMount = async () => {
     // TODO: initialize?
     setOnMountOver(true);
     setSelectIsDisabled(false);
+    fetch('https://sebranly.github.io/json/ctrocr/players.json')
+      .then((response) => response.json())
+      .then((data) => {
+        setCpuData(data);
+        setCpuPlayers((data as any)[WEBSITE_DEFAULT_LANGUAGE].sort().join(SEPARATOR_PLAYERS));
+      });
   };
 
   const doOCR = async () => {
@@ -190,7 +255,7 @@ const App = () => {
       const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
       const data: any = [];
-      const referencePlayers = players.split(SEPARATOR_PLAYERS);
+      const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
       playerIndexes.forEach((playerIndex) => {
         const playerGuess = resultsNames[playerIndex];
         const d = {
@@ -218,11 +283,15 @@ const App = () => {
   const [step, setStep] = React.useState(0);
   const [ocr, setOcr] = React.useState('');
   const [nbPlayers, setNbPlayers] = React.useState(CTR_MAX_PLAYERS);
+  const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [imgIndex, setImgIndex] = React.useState(1);
   const [resultsOcr, setResultsOcr] = React.useState(undefined);
   const [players, setPlayers] = React.useState<string>('');
+  const [cpuPlayers, setCpuPlayers] = React.useState<string>('Loading CPUs...');
+  const [cpuData, setCpuData] = React.useState<any>({});
+  const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     onMount();
@@ -236,35 +305,39 @@ const App = () => {
     setNbPlayers(Number(e.target.value));
   };
 
+  const onChangeCPULanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCpuLanguage(e.target.value);
+    setCpuPlayers(cpuData[e.target.value].sort().join(SEPARATOR_PLAYERS));
+  };
+
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setImgIndex(Number(e.target.value));
+  };
+
+  const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIncludeCpuPlayers(e.target.checked);
   };
 
   const src = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
   const options = [...numberRange(1, 5), ...numberRange(11, 20)];
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
-
   const classPlatform = isMobile ? 'mobile' : 'desktop';
-
-  const textAreaPlaceholder = `Hyène_JurassX
-Alexiz
-Colonel_Hay
-TATANE`;
 
   return (
     <HelmetProvider>
       <Helmet>
-        <title>Crash Team Racing: OCR</title>
+        <title>{WEBSITE_TITLE}</title>
         <link rel="canonical" href="https://sebranly.github.io/ctr-ocr" />
       </Helmet>
       <div className="main">
-        <h1>Crash Team Racing: OCR</h1>
+        <h1>{WEBSITE_TITLE}</h1>
         {step === 4 && <Confetti width={width} height={height} numberOfPieces={400} recycle={false} />}
         <div className={`center main-content-${classPlatform}`}>
           {renderDots()}
           <div className="ocr">{ocr}</div>
           <h2>Players</h2>
           <h3>Number of players</h3>
+          <div className="text-center mb">This includes CPUs if any</div>
           <select onChange={onChangeNbPlayers} value={nbPlayers}>
             {optionsNbPlayers.map((option: number) => {
               const label = `${option} players`;
@@ -275,14 +348,19 @@ TATANE`;
               );
             })}
           </select>
-          <h3>Name all players (one per line)</h3>
+          <h3>Human Players</h3>
+          <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
+          <div className="text-center mb">
+            Please note that providing no players will drastically reduce the quality of the recognition
+          </div>
           <textarea
             className={`textarea-${classPlatform}`}
-            placeholder={textAreaPlaceholder}
+            placeholder={PLACEHOLDER_PLAYERS}
             rows={nbPlayers}
             value={players}
             onChange={onPlayersChange}
           />
+          {renderCPUMainSection()}
           {!!resultsOcr && (
             <div className="center">
               <h2>Results</h2>
@@ -311,6 +389,7 @@ TATANE`;
           </div>
           {renderImages()}
         </div>
+        <div className="mt2 text-center">{`v${WEBSITE_VERSION}`}</div>
       </div>
     </HelmetProvider>
   );

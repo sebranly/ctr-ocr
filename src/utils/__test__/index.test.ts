@@ -15,6 +15,7 @@ import {
   getCloserString,
   getExtract,
   getParams,
+  getReferencePlayers,
   numberRange,
   positionIsValid,
   validateTimes,
@@ -25,6 +26,16 @@ const correctResponse: Validation = {
   correct: true,
   errMsg: ''
 };
+
+test('getReferencePlayers', () => {
+  expect(getReferencePlayers('', '', false)).toStrictEqual([]);
+  expect(getReferencePlayers('', '', true)).toStrictEqual([]);
+  expect(getReferencePlayers('', 'and\nelse', false)).toStrictEqual([]);
+  expect(getReferencePlayers('', 'and\nelse', true)).toStrictEqual([]);
+  expect(getReferencePlayers('some\nthing', 'and\nelse', false)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers('some\nthing', '', true)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers('some\nthing', '', true)).toStrictEqual(['some', 'thing']);
+});
 
 test('validateUsernames', () => {
   const missingUsernameResponse = {
