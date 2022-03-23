@@ -33,7 +33,8 @@ test('getReferencePlayers', () => {
   expect(getReferencePlayers('', 'and\nelse', false)).toStrictEqual([]);
   expect(getReferencePlayers('', 'and\nelse', true)).toStrictEqual([]);
   expect(getReferencePlayers('some\nthing', 'and\nelse', false)).toStrictEqual(['some', 'thing']);
-  expect(getReferencePlayers('some\nthing', '', true)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers('some\nthing', 'and\nelse', true)).toStrictEqual(['some', 'thing', 'and', 'else']);
+  expect(getReferencePlayers('some\nthing', '', false)).toStrictEqual(['some', 'thing']);
   expect(getReferencePlayers('some\nthing', '', true)).toStrictEqual(['some', 'thing']);
 });
 
