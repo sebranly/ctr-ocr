@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  color: #134eac;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -24,17 +25,29 @@ td, th {
 }
 
 td {
-  border: 1px solid #dddddd;
+  border: 1px solid #1560bc;
 }
 
 th {
-  border: 1px solid #black;
+  border: 1px solid #1560bc;
 }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
+tbody > tr:nth-child(even) {
+  background-color: #1560bc;
+  color: white;
 }
 
-tr:nth-child(odd) {
-  background-color: #888;
+tbody > tr:nth-child(odd) {
+  background-color: #eefaff;
+  color: #134eac
+}
+
+thead > tr:nth-child(odd) {
+  background-color: navy;
+  color: white;
+}
+
+thead > tr:nth-child(even) {
+  background-color: #eefaff;
+  color: #134eac
 }
