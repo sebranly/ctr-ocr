@@ -34,7 +34,11 @@ const language = 'eng';
 
 const App = () => {
   const renderDots = () => {
-    return <div className="dots">{numberRange(1, 4).map(renderDot)}</div>;
+    if (step === 0) return null;
+
+    const classes = step === 4 ? 'dots' : 'dots sticky';
+
+    return <div className={classes}>{numberRange(1, 4).map(renderDot)}</div>;
   };
 
   const renderDot = (index: number) => {
