@@ -147,9 +147,7 @@ const App = () => {
 
     const optionsCpuLanguages = Object.keys(cpuData);
     const textCheckbox = shouldIncludeCpuPlayers
-      ? `There is/are only ${nbPlayersTyped} human player(s) typed above out of ${nbPlayers} so we assume there were ${
-          nbPlayers - nbPlayersTyped
-        } bots during the race`
+      ? `Automatically activated bots because ${nbPlayersTyped} human player(s) was/were filled out of a total of ${nbPlayers} players`
       : 'Check this if there were bots during the race';
 
     return (
@@ -167,7 +165,7 @@ const App = () => {
         {includeCpuPlayers && (
           <>
             <div className="text-center mb">
-              Those are automatically determined based on the language and cannot be edited
+              Bots are automatically determined based on the language and cannot be edited
             </div>
             <div className="inline mr">Language in images</div>
             <select onChange={onChangeCpuLanguage} value={cpuLanguage}>
