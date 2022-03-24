@@ -12,9 +12,12 @@ import {
   charRange,
   cleanString,
   convertToMs,
+  formatCpuPlayers,
   getCloserString,
   getExtract,
   getParams,
+  getPlayers,
+  getReferencePlayers,
   numberRange,
   positionIsValid,
   validateTimes,
@@ -25,6 +28,39 @@ const correctResponse: Validation = {
   correct: true,
   errMsg: ''
 };
+
+test('formatCpuPlayers', () => {
+  expect(formatCpuPlayers([])).toBe('');
+  expect(formatCpuPlayers(['', ''])).toBe('');
+  expect(formatCpuPlayers(['bonjour', ''])).toBe('bonjour');
+  expect(formatCpuPlayers(['bonjour', 'bonsoir'])).toBe('bonjour\nbonsoir');
+  expect(formatCpuPlayers(['bonsoir', 'bonjour'])).toBe('bonjour\nbonsoir');
+});
+
+test('getPlayers', () => {
+  expect(getPlayers('')).toStrictEqual([]);
+  expect(getPlayers('some\n')).toStrictEqual(['some']);
+  expect(getPlayers('some\nelse')).toStrictEqual(['some', 'else']);
+  expect(getPlayers('some\n\n\nelse\n\n')).toStrictEqual(['some', 'else']);
+});
+
+test('getReferencePlayers', () => {
+  expect(getReferencePlayers('', '', false)).toStrictEqual([]);
+  expect(getReferencePlayers('', '', true)).toStrictEqual([]);
+  expect(getReferencePlayers('', 'and\nelse', false)).toStrictEqual([]);
+  expect(getReferencePlayers('', 'and\nelse', true)).toStrictEqual([]);
+  expect(getReferencePlayers('some\nthing', 'and\nelse', false)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers('some\nthing', 'and\nelse', true)).toStrictEqual(['some', 'thing', 'and', 'else']);
+  expect(getReferencePlayers('some\nthing', '', false)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers('some\nthing', '', true)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers('some\nthing\n\nthen', 'and\n\nelse\n', true)).toStrictEqual([
+    'some',
+    'thing',
+    'then',
+    'and',
+    'else'
+  ]);
+});
 
 test('validateUsernames', () => {
   const missingUsernameResponse = {

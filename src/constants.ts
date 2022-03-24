@@ -17,3 +17,12 @@ export const PSM_SINGLE_CHAR = '10';
 export const PSM_SINGLE_LINE = '7';
 export const SEPARATOR_PLAYERS = '\n';
 export const TIME_DNF = '--:--:--';
+export const WEBSITE_TITLE = `Crash Team Reading`;
+export const WEBSITE_VERSION = '1.0.0';
+export const WEBSITE_DEFAULT_LANGUAGE = 'en';
+export const PLACEHOLDER_CPUS = 'Loading CPUs...';
+export const URL_CPUS = 'https://sebranly.github.io/json/ctrocr/players.json';
+export const PLACEHOLDER_PLAYERS = `Hyène_JurassX
+Alexiz
+Colonel_Hay
+TATANE`;

@@ -9,14 +9,36 @@ import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { isMobile } from 'react-device-detect';
 
-import { CTR_MAX_PLAYERS, MIME_JPEG, SEPARATOR_PLAYERS } from './constants';
-import { cleanString, getCloserString, getExtract, getParams, numberRange } from './utils';
+import {
+  CTR_MAX_PLAYERS,
+  MIME_JPEG,
+  PLACEHOLDER_CPUS,
+  PLACEHOLDER_PLAYERS,
+  URL_CPUS,
+  WEBSITE_DEFAULT_LANGUAGE,
+  WEBSITE_TITLE,
+  WEBSITE_VERSION
+} from './constants';
+import {
+  cleanString,
+  formatCpuPlayers,
+  getCloserString,
+  getExtract,
+  getParams,
+  getPlayers,
+  getReferencePlayers,
+  numberRange
+} from './utils';
 
 const language = 'eng';
 
 const App = () => {
   const renderDots = () => {
-    return <div className="dots">{numberRange(1, 4).map(renderDot)}</div>;
+    if (step === 0) return null;
+
+    const classes = step === 4 ? 'dots' : 'dots sticky';
+
+    return <div className={classes}>{numberRange(1, 4).map(renderDot)}</div>;
   };
 
   const renderDot = (index: number) => {
@@ -78,10 +100,111 @@ const App = () => {
     );
   };
 
+  const renderCpuMainSection = () => {
+    return (
+      <>
+        <h3>CPUs</h3>
+        {renderCpuSection()}
+      </>
+    );
+  };
+
+  const renderMainSection = () => {
+    if (nbPlayersTyped === 0) return null;
+
+    return (
+      <>
+        {renderCpuMainSection()}
+        {!!resultsOcr && (
+          <div className="center">
+            <h2>Results</h2>
+            <div className="flex-container results">{renderTable()}</div>
+          </div>
+        )}
+        <h2>Image</h2>
+        <div className="center">
+          <select disabled={selectIsDisabled} onChange={onChange}>
+            {options.map((option: number) => {
+              const label = `Image ${option}`;
+              return (
+                <option key={option} label={label} value={option}>
+                  {label}
+                </option>
+              );
+            })}
+          </select>
+          <input
+            className="inline-block ml"
+            type="button"
+            value="Start recognition"
+            disabled={selectIsDisabled}
+            onClick={doOCR}
+          />
+        </div>
+        {renderImages()}
+      </>
+    );
+  };
+
+  const renderCpuSection = () => {
+    if (!cpuData || Object.keys(cpuData).length === 0) return <div className="text-center mb">{PLACEHOLDER_CPUS}</div>;
+
+    const optionsCpuLanguages = Object.keys(cpuData);
+    const textCheckbox = shouldIncludeCpuPlayers
+      ? `Automatically activated bots because ${nbPlayersTyped} human player(s) was/were filled out of a total of ${nbPlayers} players`
+      : 'Check this if there were bots during the race';
+
+    return (
+      <>
+        <div className="text-center mb">
+          <input
+            name="includeCpuPlayers"
+            type="checkbox"
+            checked={includeCpuPlayers}
+            onChange={onCpuCheckboxChange}
+            disabled={shouldIncludeCpuPlayers}
+          />
+          <div className="ml inline">{textCheckbox}</div>
+        </div>
+        {includeCpuPlayers && (
+          <>
+            <div className="text-center mb">
+              Bots are automatically determined based on the language and cannot be edited
+            </div>
+            <div className="inline mr">Language in images</div>
+            <select onChange={onChangeCpuLanguage} value={cpuLanguage}>
+              {optionsCpuLanguages.map((option: string) => {
+                const label = `${option}`;
+                return (
+                  <option key={option} label={label} value={option}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
+            <textarea
+              className={`textarea-${classPlatform}`}
+              disabled={true}
+              placeholder={PLACEHOLDER_CPUS}
+              rows={CTR_MAX_PLAYERS}
+              value={cpuPlayers}
+            />
+          </>
+        )}
+      </>
+    );
+  };
+
   const onMount = async () => {
     // TODO: initialize?
     setOnMountOver(true);
     setSelectIsDisabled(false);
+    fetch(URL_CPUS)
+      .then((response) => response.json())
+      .then((data) => {
+        setCpuData(data);
+        setCpuPlayers(formatCpuPlayers((data as any)[WEBSITE_DEFAULT_LANGUAGE]));
+      });
   };
 
   const doOCR = async () => {
@@ -190,7 +313,7 @@ const App = () => {
       const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
       const data: any = [];
-      const referencePlayers = players.split(SEPARATOR_PLAYERS);
+      const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
       playerIndexes.forEach((playerIndex) => {
         const playerGuess = resultsNames[playerIndex];
         const d = {
@@ -218,15 +341,29 @@ const App = () => {
   const [step, setStep] = React.useState(0);
   const [ocr, setOcr] = React.useState('');
   const [nbPlayers, setNbPlayers] = React.useState(CTR_MAX_PLAYERS);
+  const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [imgIndex, setImgIndex] = React.useState(1);
   const [resultsOcr, setResultsOcr] = React.useState(undefined);
   const [players, setPlayers] = React.useState<string>('');
+  const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
+  const [cpuData, setCpuData] = React.useState<any>({});
+  const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
+
+  // TODO: do uniq
+  const nbPlayersTyped = getPlayers(players).length;
+  const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
 
   React.useEffect(() => {
     onMount();
   }, []);
+
+  React.useEffect(() => {
+    if (shouldIncludeCpuPlayers && !includeCpuPlayers) {
+      setIncludeCpuPlayers(true);
+    }
+  }, [shouldIncludeCpuPlayers, includeCpuPlayers]);
 
   const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPlayers(e.currentTarget.value);
@@ -236,35 +373,39 @@ const App = () => {
     setNbPlayers(Number(e.target.value));
   };
 
+  const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCpuLanguage(e.target.value);
+    setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
+  };
+
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setImgIndex(Number(e.target.value));
+  };
+
+  const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIncludeCpuPlayers(e.target.checked);
   };
 
   const src = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
   const options = [...numberRange(1, 5), ...numberRange(11, 20)];
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
-
   const classPlatform = isMobile ? 'mobile' : 'desktop';
-
-  const textAreaPlaceholder = `Hyène_JurassX
-Alexiz
-Colonel_Hay
-TATANE`;
 
   return (
     <HelmetProvider>
       <Helmet>
-        <title>Crash Team Racing: OCR</title>
+        <title>{WEBSITE_TITLE}</title>
         <link rel="canonical" href="https://sebranly.github.io/ctr-ocr" />
       </Helmet>
       <div className="main">
-        <h1>Crash Team Racing: OCR</h1>
+        <h1>{WEBSITE_TITLE}</h1>
         {step === 4 && <Confetti width={width} height={height} numberOfPieces={400} recycle={false} />}
         <div className={`center main-content-${classPlatform}`}>
           {renderDots()}
           <div className="ocr">{ocr}</div>
           <h2>Players</h2>
           <h3>Number of players</h3>
+          <div className="text-center mb">This includes CPUs if any</div>
           <select onChange={onChangeNbPlayers} value={nbPlayers}>
             {optionsNbPlayers.map((option: number) => {
               const label = `${option} players`;
@@ -275,42 +416,18 @@ TATANE`;
               );
             })}
           </select>
-          <h3>Name all players (one per line)</h3>
+          <h3>Human Players</h3>
+          <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
           <textarea
             className={`textarea-${classPlatform}`}
-            placeholder={textAreaPlaceholder}
+            placeholder={PLACEHOLDER_PLAYERS}
             rows={nbPlayers}
             value={players}
             onChange={onPlayersChange}
           />
-          {!!resultsOcr && (
-            <div className="center">
-              <h2>Results</h2>
-              <div className="flex-container results">{renderTable()}</div>
-            </div>
-          )}
-          <h2>Image</h2>
-          <div className="center">
-            <select disabled={selectIsDisabled} onChange={onChange}>
-              {options.map((option: number) => {
-                const label = `Image ${option}`;
-                return (
-                  <option key={option} label={label} value={option}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
-            <input
-              className="inline ml"
-              type="button"
-              value="Start recognition"
-              disabled={selectIsDisabled}
-              onClick={doOCR}
-            />
-          </div>
-          {renderImages()}
+          {renderMainSection()}
         </div>
+        <div className="mt2 text-center">{`v${WEBSITE_VERSION}`}</div>
       </div>
     </HelmetProvider>
   );

@@ -7,11 +7,39 @@ import {
   CTR_MAX_TIME_DIFF_SEC,
   PSM_SINGLE_CHAR,
   PSM_SINGLE_LINE,
+  SEPARATOR_PLAYERS,
   TIME_DNF
 } from '../constants';
 import { Category, Coord, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
+
+const formatCpuPlayers = (cpuPlayers: string[]) => {
+  if (!cpuPlayers || cpuPlayers.length === 0) return '';
+
+  return cpuPlayers
+    .filter((s: string) => !!s)
+    .sort()
+    .join(SEPARATOR_PLAYERS);
+};
+
+const getPlayers = (players: string) => {
+  if (!players) return [];
+
+  return players.split(SEPARATOR_PLAYERS).filter((s: string) => !!s);
+};
+
+const getReferencePlayers = (humanPlayers: string, cpuPlayers: string, includeCpuPlayers: boolean) => {
+  if (!humanPlayers) return [];
+
+  const humanPlayersSplit = getPlayers(humanPlayers);
+
+  if (!includeCpuPlayers || !cpuPlayers) return humanPlayersSplit;
+
+  const cpuPlayersSplit = getPlayers(cpuPlayers);
+
+  return [...humanPlayersSplit, ...cpuPlayersSplit];
+};
 
 const cleanString = (str: string) => str.replace(/\n/g, '').replace(/ /g, '');
 
@@ -265,6 +293,9 @@ export {
   charRange,
   cleanString,
   convertToMs,
+  formatCpuPlayers,
+  getPlayers,
+  getReferencePlayers,
   getCloserString,
   getExtract,
   getParams,

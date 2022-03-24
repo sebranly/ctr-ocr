@@ -17,12 +17,37 @@ html {
   overflow-y: scroll;
 }
 
-.inline {
+.inline-block {
   display: inline-block;
+}
+
+.inline {
+  display: inline;
+}
+
+.mb {
+  margin-bottom: 5px;
 }
 
 .ml {
   margin-left: 5px;
+}
+
+.mt {
+  margin-top: 5px;
+}
+
+.mr {
+  margin-right: 5px;
+}
+
+.mt2 {
+  margin-top: 10px;
+}
+
+.sticky {
+  position: sticky;
+  top: 5px;
 }
 
 .center {
@@ -30,12 +55,16 @@ html {
   margin: 0 auto;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .main-content-desktop {
   max-width: 75%;
   margin: 0 auto;
+  padding: 10px 10px 30px 10px;
   border: 1px solid black;
   background-color: white;
-  padding: 10px;
 }
 
 .main-content-mobile {
@@ -43,7 +72,7 @@ html {
   margin: 0 auto;
   border: 1px solid black;
   background-color: white;
-  padding: 10px;
+  padding: 10px 10px 30px 10px;
 }
 
 .ocr {
@@ -69,6 +98,7 @@ h1, h2, h3, h4, h5, h6 {
 .textarea-desktop {
   display: block;
   margin: 0 auto;
+  margin-top: 5px;
   width: 50%;
   font-size: 16px;
 }
@@ -76,6 +106,7 @@ h1, h2, h3, h4, h5, h6 {
 .textarea-mobile {
   display: block;
   margin: 0 auto;
+  margin-top: 5px;
   width: 95%;
   font-size: 16px;
 }
