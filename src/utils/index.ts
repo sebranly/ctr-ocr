@@ -14,14 +14,29 @@ import { Category, Coord, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 
+const formatCpuPlayers = (cpuPlayers: string[]) => {
+  if (!cpuPlayers || cpuPlayers.length === 0) return '';
+
+  return cpuPlayers
+    .filter((s: string) => !!s)
+    .sort()
+    .join(SEPARATOR_PLAYERS);
+};
+
+const getPlayers = (players: string) => {
+  if (!players) return [];
+
+  return players.split(SEPARATOR_PLAYERS).filter((s: string) => !!s);
+};
+
 const getReferencePlayers = (humanPlayers: string, cpuPlayers: string, includeCpuPlayers: boolean) => {
   if (!humanPlayers) return [];
 
-  const humanPlayersSplit = humanPlayers.split(SEPARATOR_PLAYERS);
+  const humanPlayersSplit = getPlayers(humanPlayers);
 
   if (!includeCpuPlayers || !cpuPlayers) return humanPlayersSplit;
 
-  const cpuPlayersSplit = cpuPlayers.split(SEPARATOR_PLAYERS);
+  const cpuPlayersSplit = getPlayers(cpuPlayers);
 
   return [...humanPlayersSplit, ...cpuPlayersSplit];
 };
@@ -278,6 +293,8 @@ export {
   charRange,
   cleanString,
   convertToMs,
+  formatCpuPlayers,
+  getPlayers,
   getReferencePlayers,
   getCloserString,
   getExtract,

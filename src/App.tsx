@@ -12,13 +12,23 @@ import { isMobile } from 'react-device-detect';
 import {
   CTR_MAX_PLAYERS,
   MIME_JPEG,
+  PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
-  SEPARATOR_PLAYERS,
+  URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
   WEBSITE_VERSION
 } from './constants';
-import { cleanString, getCloserString, getExtract, getParams, getReferencePlayers, numberRange } from './utils';
+import {
+  cleanString,
+  formatCpuPlayers,
+  getCloserString,
+  getExtract,
+  getParams,
+  getPlayers,
+  getReferencePlayers,
+  numberRange
+} from './utils';
 
 const language = 'eng';
 
@@ -86,27 +96,73 @@ const App = () => {
     );
   };
 
-  const renderCPUMainSection = () => {
-    if (!players) return null;
-
+  const renderCpuMainSection = () => {
     return (
       <>
         <h3>CPUs</h3>
-        {renderCPUSection()}
+        {renderCpuSection()}
       </>
     );
   };
 
-  const renderCPUSection = () => {
-    if (!cpuData || Object.keys(cpuData).length === 0) return <div className="text-center mb">Loading CPUs...</div>;
+  const renderMainSection = () => {
+    if (nbPlayersTyped === 0) return null;
 
-    const optionsCPULanguages = Object.keys(cpuData);
+    return (
+      <>
+        {renderCpuMainSection()}
+        {!!resultsOcr && (
+          <div className="center">
+            <h2>Results</h2>
+            <div className="flex-container results">{renderTable()}</div>
+          </div>
+        )}
+        <h2>Image</h2>
+        <div className="center">
+          <select disabled={selectIsDisabled} onChange={onChange}>
+            {options.map((option: number) => {
+              const label = `Image ${option}`;
+              return (
+                <option key={option} label={label} value={option}>
+                  {label}
+                </option>
+              );
+            })}
+          </select>
+          <input
+            className="inline-block ml"
+            type="button"
+            value="Start recognition"
+            disabled={selectIsDisabled}
+            onClick={doOCR}
+          />
+        </div>
+        {renderImages()}
+      </>
+    );
+  };
+
+  const renderCpuSection = () => {
+    if (!cpuData || Object.keys(cpuData).length === 0) return <div className="text-center mb">{PLACEHOLDER_CPUS}</div>;
+
+    const optionsCpuLanguages = Object.keys(cpuData);
+    const textCheckbox = shouldIncludeCpuPlayers
+      ? `There is/are only ${nbPlayersTyped} human player(s) typed above out of ${nbPlayers} so we assume there were ${
+          nbPlayers - nbPlayersTyped
+        } bots during the race`
+      : 'Check this if there were bots during the race';
 
     return (
       <>
         <div className="text-center mb">
-          <input name="includeCpuPlayers" type="checkbox" checked={includeCpuPlayers} onChange={onCpuCheckboxChange} />
-          <div className="ml inline">Check this if there were bots during the race</div>
+          <input
+            name="includeCpuPlayers"
+            type="checkbox"
+            checked={includeCpuPlayers}
+            onChange={onCpuCheckboxChange}
+            disabled={shouldIncludeCpuPlayers}
+          />
+          <div className="ml inline">{textCheckbox}</div>
         </div>
         {includeCpuPlayers && (
           <>
@@ -114,8 +170,8 @@ const App = () => {
               Those are automatically determined based on the language and cannot be edited
             </div>
             <div className="inline mr">Language in images</div>
-            <select onChange={onChangeCPULanguage} value={cpuLanguage}>
-              {optionsCPULanguages.map((option: string) => {
+            <select onChange={onChangeCpuLanguage} value={cpuLanguage}>
+              {optionsCpuLanguages.map((option: string) => {
                 const label = `${option}`;
                 return (
                   <option key={option} label={label} value={option}>
@@ -127,7 +183,7 @@ const App = () => {
             <textarea
               className={`textarea-${classPlatform}`}
               disabled={true}
-              placeholder={'Loading CPUs...'}
+              placeholder={PLACEHOLDER_CPUS}
               rows={CTR_MAX_PLAYERS}
               value={cpuPlayers}
             />
@@ -141,11 +197,11 @@ const App = () => {
     // TODO: initialize?
     setOnMountOver(true);
     setSelectIsDisabled(false);
-    fetch('https://sebranly.github.io/json/ctrocr/players.json')
+    fetch(URL_CPUS)
       .then((response) => response.json())
       .then((data) => {
         setCpuData(data);
-        setCpuPlayers((data as any)[WEBSITE_DEFAULT_LANGUAGE].sort().join(SEPARATOR_PLAYERS));
+        setCpuPlayers(formatCpuPlayers((data as any)[WEBSITE_DEFAULT_LANGUAGE]));
       });
   };
 
@@ -289,13 +345,23 @@ const App = () => {
   const [imgIndex, setImgIndex] = React.useState(1);
   const [resultsOcr, setResultsOcr] = React.useState(undefined);
   const [players, setPlayers] = React.useState<string>('');
-  const [cpuPlayers, setCpuPlayers] = React.useState<string>('Loading CPUs...');
+  const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
-  const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState<boolean>(false);
+  const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
+
+  // TODO: do uniq
+  const nbPlayersTyped = getPlayers(players).length;
+  const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
 
   React.useEffect(() => {
     onMount();
   }, []);
+
+  React.useEffect(() => {
+    if (shouldIncludeCpuPlayers && !includeCpuPlayers) {
+      setIncludeCpuPlayers(true);
+    }
+  }, [shouldIncludeCpuPlayers, includeCpuPlayers]);
 
   const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPlayers(e.currentTarget.value);
@@ -305,9 +371,9 @@ const App = () => {
     setNbPlayers(Number(e.target.value));
   };
 
-  const onChangeCPULanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCpuLanguage(e.target.value);
-    setCpuPlayers(cpuData[e.target.value].sort().join(SEPARATOR_PLAYERS));
+    setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -350,9 +416,6 @@ const App = () => {
           </select>
           <h3>Human Players</h3>
           <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
-          <div className="text-center mb">
-            Please note that providing no players will drastically reduce the quality of the recognition
-          </div>
           <textarea
             className={`textarea-${classPlatform}`}
             placeholder={PLACEHOLDER_PLAYERS}
@@ -360,34 +423,7 @@ const App = () => {
             value={players}
             onChange={onPlayersChange}
           />
-          {renderCPUMainSection()}
-          {!!resultsOcr && (
-            <div className="center">
-              <h2>Results</h2>
-              <div className="flex-container results">{renderTable()}</div>
-            </div>
-          )}
-          <h2>Image</h2>
-          <div className="center">
-            <select disabled={selectIsDisabled} onChange={onChange}>
-              {options.map((option: number) => {
-                const label = `Image ${option}`;
-                return (
-                  <option key={option} label={label} value={option}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
-            <input
-              className="inline ml"
-              type="button"
-              value="Start recognition"
-              disabled={selectIsDisabled}
-              onClick={doOCR}
-            />
-          </div>
-          {renderImages()}
+          {renderMainSection()}
         </div>
         <div className="mt2 text-center">{`v${WEBSITE_VERSION}`}</div>
       </div>
