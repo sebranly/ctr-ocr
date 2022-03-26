@@ -53,7 +53,7 @@ const App = () => {
     return <span key={index} className={classes}></span>;
   };
 
-  const renderTable = () => {
+  const renderTable = (index: number) => {
     return (
       <table className="flex-1">
         <thead>
@@ -63,17 +63,17 @@ const App = () => {
             <th>Name</th>
           </tr>
         </thead>
-        {renderBody()}
+        {renderBody(index)}
       </table>
     );
   };
 
-  const renderCroppedImage = () => {
-    if (!croppedImages || croppedImages.length === 0) return null;
+  const renderCroppedImage = (index: number) => {
+    if (!croppedImages || croppedImages.length <= index) return null;
 
     const classes = isMobile ? 'img-show max-width-100' : 'img-show max-width-45';
 
-    return <img alt="Cropped Results" className={classes} src={croppedImages[0]} />;
+    return <img alt="Cropped Results" className={classes} src={croppedImages[index]} />;
   };
 
   const renderImages = () => {
@@ -92,7 +92,7 @@ const App = () => {
     );
   };
 
-  const renderBody = () => {
+  const renderBody = (index: number) => {
     const renderOption = (option: string) => {
       const label = `${option}`;
       return (
@@ -120,8 +120,8 @@ const App = () => {
 
     return (
       <tbody>
-        {resultsOcr[0].map((rawLine: Result, index: number) => {
-          const { position, username } = rawLine;
+        {resultsOcr[index].map((resultOcr: Result, indexPlayer: number) => {
+          const { position, username } = resultOcr;
           const key = `${position}-${username}`;
 
           return (
@@ -129,7 +129,7 @@ const App = () => {
               <td>{position}</td>
               {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
-                <select onChange={onChangeResultsPlayer(index)} value={username}>
+                <select onChange={onChangeResultsPlayer(index, indexPlayer)} value={username}>
                   {renderOptions()}
                 </select>
               </td>
@@ -140,17 +140,28 @@ const App = () => {
     );
   };
 
-  const renderRace = () => {
+  const renderRace = (index: number) => {
+    const labelRace = `Race ${index + 1}`;
+    const validationUsernames = validateUsernames(resultsOcr[index].map((r: Result) => r.username));
+
+    return (
+      <div key={index}>
+        <h3>{labelRace}</h3>
+        {renderCroppedImage(index)}
+        <div className="flex-container results">{renderTable(index)}</div>
+        {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
+      </div>
+    );
+  };
+
+  const renderRaces = () => {
     if (!resultsOcr || resultsOcr.length === 0) return null;
-    const validationUsernames = validateUsernames(resultsOcr[0].map((r: Result) => r.username));
 
     return (
       <>
         <div className="center">
           <h2>Results</h2>
-          {renderCroppedImage()}
-          <div className="flex-container results">{renderTable()}</div>
-          {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
+          {resultsOcr.map((_resultOcr: Result[], index: number) => renderRace(index))}
         </div>
       </>
     );
@@ -205,7 +216,7 @@ const App = () => {
           />
         </div>
         {renderImages()}
-        {renderRace()}
+        {renderRaces()}
       </>
     );
   };
@@ -277,6 +288,7 @@ const App = () => {
     setSelectIsDisabled(true);
     setStep(0);
     setResultsOcr([]);
+    setCroppedImages([]);
 
     const schedulerUsername = createScheduler();
 
@@ -328,6 +340,9 @@ const App = () => {
     setStep(2);
     setOcr('Reading the images...');
 
+    let resultsOcrTemp: Result[][] = [];
+    let croppedImagesTemp: string[] = [];
+
     for (let i = 0; i < imagesURLs.length; i++) {
       let imgTrans: any;
 
@@ -351,8 +366,9 @@ const App = () => {
           dimensionsCrop.height
         );
 
+        // eslint-disable-next-line no-loop-func
         extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-          setCroppedImages([src]);
+          croppedImagesTemp = [...croppedImagesTemp, src];
         });
 
         const promisesNames = playerIndexes.map((playerIndex) =>
@@ -375,10 +391,9 @@ const App = () => {
           };
 
           dataResults.push(result);
-          console.log('🚀 ~ file: App.tsx ~ line 378 ~ playerIndexes.forEach ~ result', result);
         });
 
-        setResultsOcr([dataResults]);
+        resultsOcrTemp = [...resultsOcrTemp, dataResults];
       } catch (err) {
         // TODO: have better error handling
         setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
@@ -386,6 +401,8 @@ const App = () => {
       }
     }
 
+    setResultsOcr(resultsOcrTemp);
+    setCroppedImages(croppedImagesTemp);
     setOcr('');
     setStep(LOADING_LAST_STATE);
     setSelectIsDisabled(false);
@@ -448,12 +465,13 @@ const App = () => {
     setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
 
-  const onChangeResultsPlayer = (index: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (!resultsOcr || resultsOcr.length === 0) return;
-    const copy = [...resultsOcr[0]];
-    copy[index].username = e.target.value;
-    setResultsOcr([copy]);
-  };
+  const onChangeResultsPlayer =
+    (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (!resultsOcr || resultsOcr.length < indexResultOcr) return;
+      const copy = [...resultsOcr];
+      copy[indexResultOcr][indexPlayer].username = e.target.value;
+      setResultsOcr(copy);
+    };
 
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIncludeCpuPlayers(e.target.checked);
