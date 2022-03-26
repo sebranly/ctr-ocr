@@ -115,12 +115,6 @@ const App = () => {
     return (
       <>
         {renderCpuMainSection()}
-        {!!resultsOcr && (
-          <div className="center">
-            <h2>Results</h2>
-            <div className="flex-container results">{renderTable()}</div>
-          </div>
-        )}
         <h2>Image</h2>
         <div className="center">
           <select disabled={selectIsDisabled} onChange={onChange}>
@@ -142,6 +136,12 @@ const App = () => {
           />
         </div>
         {renderImages()}
+        {!!resultsOcr && (
+          <div className="center">
+            <h2>Results</h2>
+            <div className="flex-container results">{renderTable()}</div>
+          </div>
+        )}
       </>
     );
   };
@@ -399,7 +399,7 @@ const App = () => {
       </Helmet>
       <div className="main">
         <h1>{WEBSITE_TITLE}</h1>
-        {step === 4 && <Confetti width={width} height={height} numberOfPieces={400} recycle={false} />}
+        {step === 4 && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
         <div className={`center main-content-${classPlatform}`}>
           {renderDots()}
           <div className="ocr">{ocr}</div>
