@@ -8,6 +8,7 @@ import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { isMobile } from 'react-device-detect';
+import { sortBy } from 'lodash';
 
 import {
   CTR_MAX_PLAYERS,
@@ -67,25 +68,26 @@ const App = () => {
     );
   };
 
-  const renderImages = () => {
-    const renderImageUpload = () => {
-      return imagesURLs.map((imageSrc: string, index: number) => (
-        <img alt="tbd" className="img-full" key={`${imageSrc}-${index}`} src={imageSrc} />
-      ));
-    };
+  const renderCroppedImage = () => {
+    if (!croppedImages || croppedImages.length === 0) return null;
 
-    if (isMobile)
-      return (
-        <>
-          <div className="img-show"></div>
-          {renderImageUpload()}
-        </>
-      );
+    const classes = isMobile ? 'img-show max-width-100' : 'img-show max-width-50';
+
+    return <img alt="Cropped Results" className={classes} src={croppedImages[0]} />;
+  };
+
+  const renderImages = () => {
+    if (isMobile) {
+      return imagesURLs.map((imageSrc: string, index: number) => (
+        <img alt="tbd" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
+      ));
+    }
 
     return (
       <div className="flex-container center">
-        <div className="flex-1">{renderImageUpload()}</div>
-        <div className="img-show flex-1"></div>
+        {imagesURLs.map((imageSrc: string, index: number) => (
+          <img alt="tbd" className="img-full max-width-45 flex-1" key={`${imageSrc}-${index}`} src={imageSrc} />
+        ))}
       </div>
     );
   };
@@ -138,6 +140,22 @@ const App = () => {
     );
   };
 
+  const renderRace = () => {
+    if (!resultsOcr || resultsOcr.length === 0) return null;
+    const validationUsernames = validateUsernames(resultsOcr.map((r: Result) => r.username));
+
+    return (
+      <>
+        <div className="center">
+          <h2>Results</h2>
+          {renderCroppedImage()}
+          <div className="flex-container results">{renderTable()}</div>
+          {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
+        </div>
+      </>
+    );
+  };
+
   const renderCpuMainSection = () => {
     return (
       <>
@@ -150,16 +168,15 @@ const App = () => {
   const renderMainSection = () => {
     if (nbPlayersTyped === 0) return null;
 
-    const validationUsernames = validateUsernames(resultsOcr.map((r: Result) => r.username));
-
     return (
       <>
         {renderCpuMainSection()}
         <h2>Images</h2>
-        <div className="center">
+        <div className="text-center mb">
           <div className="ml block mb">
             Select screenshots in JPEG format, taken right when Returning to Lobby was around 14 seconds
           </div>
+          <div className="ml block mb">Screenshots will be ordered alphabetically by name</div>
           <div className="ml block mb">
             An example:{' '}
             <a
@@ -175,7 +192,7 @@ const App = () => {
             className="inline"
             disabled={selectIsDisabled}
             type="file"
-            multiple={false}
+            multiple
             accept={MIME_JPEG}
             onChange={onChangeImage}
           />
@@ -183,18 +200,12 @@ const App = () => {
             className="inline-block ml"
             type="button"
             value="Start recognition"
-            disabled={selectIsDisabled}
+            disabled={selectIsDisabled || !imagesURLs || imagesURLs.length === 0}
             onClick={doOCR}
           />
         </div>
         {renderImages()}
-        {resultsOcr && resultsOcr.length > 0 && (
-          <div className="center">
-            <h2>Results</h2>
-            <div className="flex-container results">{renderTable()}</div>
-            {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
-          </div>
-        )}
+        {renderRace()}
       </>
     );
   };
@@ -275,9 +286,6 @@ const App = () => {
 
     schedulerUsername.addWorker(workerUsername);
 
-    const div = document.getElementsByClassName('img-show')[0];
-    if (div) div.innerHTML = '';
-
     setStep(1);
 
     setOcr('Loading engine... (1/4)');
@@ -314,14 +322,6 @@ const App = () => {
       const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
 
-      // TODO: activate for debugging only
-      // extractedFin.getBase64(MIME_JPEG, (err: any, src: string) => {
-      //   var img = document.createElement('img');
-      //   img.setAttribute('src', src);
-      //   const div = document.getElementsByClassName('img-show')[0];
-      //   if (div) div.appendChild(img);
-      // });
-
       const bufferFin: any = await extractedFin.getBufferAsync(MIME_JPEG);
       return scheduler.addJob('recognize', bufferFin);
     };
@@ -349,10 +349,7 @@ const App = () => {
       );
 
       extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-        var img = document.createElement('img');
-        img.setAttribute('src', src);
-        const div = document.getElementsByClassName('img-show')[0];
-        if (div) div.appendChild(img);
+        setCroppedImages([src]);
       });
 
       const promisesNames = playerIndexes.map((playerIndex) =>
@@ -394,6 +391,7 @@ const App = () => {
   const [ocr, setOcr] = React.useState('');
   const [images, setImages] = React.useState<any[]>([]);
   const [imagesURLs, setImagesURLs] = React.useState<any[]>([]);
+  const [croppedImages, setCroppedImages] = React.useState<any[]>([]);
   const [nbPlayers, setNbPlayers] = React.useState(CTR_MAX_PLAYERS);
   const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
@@ -415,7 +413,8 @@ const App = () => {
   React.useEffect(() => {
     if (images.length < 1) return;
     const newImageUrls: any[] = [];
-    images.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
+    const sortImages = sortBy(images, (image: any) => image.name);
+    sortImages.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
     setImagesURLs(newImageUrls);
   }, [images]);
 
@@ -430,7 +429,6 @@ const App = () => {
   };
 
   const onChangeImage = (e: any) => {
-    console.log(e.target.files);
     setImages([...e.target.files]);
   };
 
@@ -486,6 +484,7 @@ const App = () => {
           <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
           <textarea
             className={`textarea-${classPlatform}`}
+            disabled={selectIsDisabled}
             placeholder={PLACEHOLDER_PLAYERS}
             rows={nbPlayers}
             value={players}

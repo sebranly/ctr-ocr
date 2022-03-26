@@ -89,10 +89,20 @@ h1, h2, h3, h4, h5, h6 {
   font-family: Verdana
 }
 
-.img-full {
+.max-width-100 {
   max-width: 100%;
+}
+
+.max-width-50 {
+  max-width: 50%;
+}
+
+.max-width-45 {
+  max-width: 45%;
+}
+
+.img-full {
   margin: 0 auto;
-  display: block;
 }
 
 .textarea-desktop {
@@ -121,15 +131,14 @@ h1 {
 
 .flex-container {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .flex-1 {
   flex: 1;
-  margin: 1%;
 }
 
-.img-show > img {
-  max-width: 100%;
+.img-show {
   margin: 0 auto;
   display: block;
 }
