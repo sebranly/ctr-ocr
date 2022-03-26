@@ -73,6 +73,7 @@ const App = () => {
         <img alt="tbd" className="img-full" key={`${imageSrc}-${index}`} src={imageSrc} />
       ));
     };
+
     if (isMobile)
       return (
         <>
@@ -156,7 +157,28 @@ const App = () => {
         {renderCpuMainSection()}
         <h2>Images</h2>
         <div className="center">
-          <input disabled={selectIsDisabled} type="file" multiple accept={MIME_JPEG} onChange={onChangeImage} />
+          <div className="ml block mb">
+            Select screenshots in JPEG format, taken right when Returning to Lobby was around 14 seconds
+          </div>
+          <div className="ml block mb">
+            An example:{' '}
+            <a
+              href="https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG1.JPG"
+              rel="noopener noreferrer"
+              title="Example of valid JPEG screenshot"
+              target="_blank"
+            >
+              Example of valid JPEG screenshot
+            </a>
+          </div>
+          <input
+            className="inline"
+            disabled={selectIsDisabled}
+            type="file"
+            multiple={false}
+            accept={MIME_JPEG}
+            onChange={onChangeImage}
+          />
           <input
             className="inline-block ml"
             type="button"
