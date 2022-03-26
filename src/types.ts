@@ -16,3 +16,8 @@ export type Coord = {
   top: number;
   width: number;
 };
+
+export type Result = {
+  username: string;
+  position: number;
+};

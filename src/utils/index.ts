@@ -29,6 +29,14 @@ const getPlayers = (players: string) => {
   return players.split(SEPARATOR_PLAYERS).filter((s: string) => !!s);
 };
 
+const isHumanPlayer = (player: string, humanPlayers: string) => {
+  if (!humanPlayers) return false;
+
+  const humanPlayersSplit = getPlayers(humanPlayers);
+
+  return humanPlayersSplit.includes(player);
+};
+
 const getReferencePlayers = (humanPlayers: string, cpuPlayers: string, includeCpuPlayers: boolean) => {
   if (!humanPlayers) return [];
 
@@ -299,6 +307,7 @@ export {
   getCloserString,
   getExtract,
   getParams,
+  isHumanPlayer,
   numberRange,
   positionIsValid,
   validateTimes,
