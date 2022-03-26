@@ -68,19 +68,23 @@ const App = () => {
   };
 
   const renderImages = () => {
+    const renderImageUpload = () => {
+      return imagesURLs.map((imageSrc: string, index: number) => (
+        <img alt="tbd" className="img-full" key={`${imageSrc}-${index}`} src={imageSrc} />
+      ));
+    };
+
     if (isMobile)
       return (
         <>
           <div className="img-show"></div>
-          <img id="img-full" alt={`Example ${imgIndex}`} src={src} />
+          {renderImageUpload()}
         </>
       );
 
     return (
       <div className="flex-container center">
-        <div className="flex-1">
-          <img id="img-full" alt={`Example ${imgIndex}`} src={src} />
-        </div>
+        <div className="flex-1">{renderImageUpload()}</div>
         <div className="img-show flex-1"></div>
       </div>
     );
@@ -151,18 +155,30 @@ const App = () => {
     return (
       <>
         {renderCpuMainSection()}
-        <h2>Image</h2>
+        <h2>Images</h2>
         <div className="center">
-          <select disabled={selectIsDisabled} onChange={onChange}>
-            {options.map((option: number) => {
-              const label = `Image ${option}`;
-              return (
-                <option key={option} label={label} value={option}>
-                  {label}
-                </option>
-              );
-            })}
-          </select>
+          <div className="ml block mb">
+            Select screenshots in JPEG format, taken right when Returning to Lobby was around 14 seconds
+          </div>
+          <div className="ml block mb">
+            An example:{' '}
+            <a
+              href="https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG1.JPG"
+              rel="noopener noreferrer"
+              title="Example of valid JPEG screenshot"
+              target="_blank"
+            >
+              Example of valid JPEG screenshot
+            </a>
+          </div>
+          <input
+            className="inline"
+            disabled={selectIsDisabled}
+            type="file"
+            multiple={false}
+            accept={MIME_JPEG}
+            onChange={onChangeImage}
+          />
           <input
             className="inline-block ml"
             type="button"
@@ -310,12 +326,11 @@ const App = () => {
       return scheduler.addJob('recognize', bufferFin);
     };
 
-    const pathInput = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
     setStep(2);
     setOcr('Reading the image...');
     let imgTrans: any;
     try {
-      const imgJimp = await Jimp.read(pathInput);
+      const imgJimp = await Jimp.read(imagesURLs[0]);
 
       setOcr('Generating cropped image...');
       imgTrans = imgJimp.rotate(-6.2);
@@ -377,11 +392,12 @@ const App = () => {
   const { width, height } = useWindowSize();
   const [step, setStep] = React.useState(0);
   const [ocr, setOcr] = React.useState('');
+  const [images, setImages] = React.useState<any[]>([]);
+  const [imagesURLs, setImagesURLs] = React.useState<any[]>([]);
   const [nbPlayers, setNbPlayers] = React.useState(CTR_MAX_PLAYERS);
   const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
-  const [imgIndex, setImgIndex] = React.useState(1);
   const [resultsOcr, setResultsOcr] = React.useState<Result[]>([]);
   const [players, setPlayers] = React.useState<string>('');
   const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
@@ -397,6 +413,13 @@ const App = () => {
   }, []);
 
   React.useEffect(() => {
+    if (images.length < 1) return;
+    const newImageUrls: any[] = [];
+    images.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
+    setImagesURLs(newImageUrls);
+  }, [images]);
+
+  React.useEffect(() => {
     if (shouldIncludeCpuPlayers && !includeCpuPlayers) {
       setIncludeCpuPlayers(true);
     }
@@ -404,6 +427,11 @@ const App = () => {
 
   const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPlayers(e.currentTarget.value);
+  };
+
+  const onChangeImage = (e: any) => {
+    console.log(e.target.files);
+    setImages([...e.target.files]);
   };
 
   const onChangeNbPlayers = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -422,16 +450,10 @@ const App = () => {
     setResultsOcr(copy);
   };
 
-  const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setImgIndex(Number(e.target.value));
-  };
-
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIncludeCpuPlayers(e.target.checked);
   };
 
-  const src = `https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG${imgIndex}.JPG`;
-  const options = [...numberRange(1, 5), ...numberRange(11, 20)];
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
 
