@@ -11,8 +11,10 @@ import { isMobile } from 'react-device-detect';
 import { sortBy } from 'lodash';
 
 import {
+  CANONICAL_URL,
   CTR_MAX_PLAYERS,
-  LOADING_LAST_STATE,
+  FINAL_PROGRESS,
+  INITIAL_PROGRESS,
   MIME_JPEG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
@@ -22,6 +24,7 @@ import {
   WEBSITE_VERSION
 } from './constants';
 import {
+  calculateProgress,
   cleanString,
   formatCpuPlayers,
   getCloserString,
@@ -37,20 +40,17 @@ import {
 const language = 'eng';
 
 const App = () => {
-  const renderDots = () => {
-    if (step === 0) return null;
-
-    const classes = step === LOADING_LAST_STATE ? 'dots' : 'dots sticky';
-
-    return <div className={classes}>{numberRange(1, LOADING_LAST_STATE).map(renderDot)}</div>;
-  };
-
-  const renderDot = (index: number) => {
-    const classColorPrefix = index === LOADING_LAST_STATE ? 'bg-green' : 'bg-red';
-    const classColorSuffix = index > step ? '-off' : '';
-    const classColor = `${classColorPrefix}${classColorSuffix}`;
-    const classes = `dot ${classColor}`;
-    return <span key={index} className={classes}></span>;
+  const renderProgressBar = () => {
+    if ([0, FINAL_PROGRESS].includes(progress)) return null;
+    const percent = Math.floor(progress * 100);
+    const percentString = `${percent}%`;
+    return (
+      <div className="progress-bar sticky">
+        <div className="pl progress" style={{ maxWidth: percentString }}>
+          {percentString}
+        </div>
+      </div>
+    );
   };
 
   const renderTable = (index: number) => {
@@ -112,8 +112,12 @@ const App = () => {
 
       return (
         <>
-          <optgroup label="Human">{optionsResultsPlayerHuman.map(renderOption)}</optgroup>
-          <optgroup label="CPUs">{optionsResultsPlayerCpu.map(renderOption)}</optgroup>
+          <optgroup key="human" label="Human">
+            {optionsResultsPlayerHuman.map(renderOption)}
+          </optgroup>
+          <optgroup key="cpus" label="CPUs">
+            {optionsResultsPlayerCpu.map(renderOption)}
+          </optgroup>
         </>
       );
     };
@@ -129,7 +133,11 @@ const App = () => {
               <td>{position}</td>
               {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
-                <select onChange={onChangeResultsPlayer(index, indexPlayer)} value={username}>
+                <select
+                  disabled={selectIsDisabled}
+                  onChange={onChangeResultsPlayer(index, indexPlayer)}
+                  value={username}
+                >
                   {renderOptions()}
                 </select>
               </td>
@@ -247,7 +255,7 @@ const App = () => {
               Bots are automatically determined based on the language and cannot be edited
             </div>
             <div className="inline mr">Language in images</div>
-            <select onChange={onChangeCpuLanguage} value={cpuLanguage}>
+            <select disabled={selectIsDisabled} onChange={onChangeCpuLanguage} value={cpuLanguage}>
               {optionsCpuLanguages.map((option: string) => {
                 const label = `${option}`;
                 return (
@@ -286,7 +294,7 @@ const App = () => {
     if (!onMountOver) return;
 
     setSelectIsDisabled(true);
-    setStep(0);
+    setProgress(INITIAL_PROGRESS);
     setResultsOcr([]);
     setCroppedImages([]);
 
@@ -298,20 +306,18 @@ const App = () => {
 
     schedulerUsername.addWorker(workerUsername);
 
-    setStep(1);
-
-    setOcr('Loading engine... (1/4)');
     await workerUsername.load();
+    setProgress(calculateProgress(1 / 4));
 
-    setOcr('Loading language... (2/4)');
     await workerUsername.loadLanguage(language);
+    setProgress(calculateProgress(2 / 4));
 
-    setOcr('Initializing engine... (3/4)');
     await workerUsername.initialize(language);
+    setProgress(calculateProgress(3 / 4));
 
-    setOcr('Setting parameter... (4/4)');
     const usernameParams = getParams(Category.Username);
     await workerUsername.setParameters(usernameParams);
+    setProgress(calculateProgress(4 / 4));
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
 
@@ -337,9 +343,6 @@ const App = () => {
       return scheduler.addJob('recognize', bufferFin);
     };
 
-    setStep(2);
-    setOcr('Reading the images...');
-
     let resultsOcrTemp: Result[][] = [];
     let croppedImagesTemp: string[] = [];
 
@@ -348,9 +351,7 @@ const App = () => {
 
       try {
         const imgJimp = await Jimp.read(imagesURLs[i]);
-        const imageIndicator = `${i + 1}/${imagesURLs.length}`;
 
-        setOcr(`Generating cropped image ${imageIndicator}...`);
         imgTrans = imgJimp.rotate(-6.2);
 
         const w = imgTrans.bitmap.width;
@@ -375,9 +376,7 @@ const App = () => {
           promisesX(playerIndex, Category.Username, info, imgTrans.grayscale().clone())
         );
 
-        setOcr(`Starting text recognition ${imageIndicator}...`);
-        // TODO: cannot anymore
-        // setStep(3);
+        setProgress(calculateProgress(1, i, imagesURLs.length));
         const results = await Promise.all(promisesNames);
         const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
@@ -396,23 +395,20 @@ const App = () => {
         resultsOcrTemp = [...resultsOcrTemp, dataResults];
       } catch (err) {
         // TODO: have better error handling
-        setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
         setSelectIsDisabled(false);
       }
     }
 
     setResultsOcr(resultsOcrTemp);
     setCroppedImages(croppedImagesTemp);
-    setOcr('');
-    setStep(LOADING_LAST_STATE);
+    setProgress(1);
     setSelectIsDisabled(false);
 
     await schedulerUsername.terminate();
   };
 
   const { width, height } = useWindowSize();
-  const [step, setStep] = React.useState(0);
-  const [ocr, setOcr] = React.useState('');
+  const [progress, setProgress] = React.useState(0);
   const [images, setImages] = React.useState<any[]>([]);
   const [imagesURLs, setImagesURLs] = React.useState<any[]>([]);
   const [croppedImages, setCroppedImages] = React.useState<any[]>([]);
@@ -454,6 +450,7 @@ const App = () => {
 
   const onChangeImage = (e: any) => {
     setImages([...e.target.files]);
+    setResultsOcr([]);
   };
 
   const onChangeNbPlayers = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -479,23 +476,24 @@ const App = () => {
 
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
+  const classBgDisabled = selectIsDisabled ? 'bg-grey' : 'bg-white';
 
   return (
     <HelmetProvider>
       <Helmet>
         <title>{WEBSITE_TITLE}</title>
-        <link rel="canonical" href="https://sebranly.github.io/ctr-ocr" />
+        <link rel="canonical" href={CANONICAL_URL} />
       </Helmet>
       <div className="main">
         <h1>{WEBSITE_TITLE}</h1>
-        {step === LOADING_LAST_STATE && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
-        <div className={`center main-content-${classPlatform}`}>
-          {renderDots()}
-          <div className="ocr">{ocr}</div>
+        <div className="w3-light-grey"></div>
+        {progress === FINAL_PROGRESS && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
+        <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
+          {renderProgressBar()}
           <h2>Players</h2>
           <h3>Number of players</h3>
           <div className="text-center mb">This includes CPUs if any</div>
-          <select onChange={onChangeNbPlayers} value={nbPlayers}>
+          <select disabled={selectIsDisabled} onChange={onChangeNbPlayers} value={nbPlayers}>
             {optionsNbPlayers.map((option: number) => {
               const label = `${option} players`;
               return (

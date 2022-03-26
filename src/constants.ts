@@ -5,6 +5,7 @@ import { charRange, numberRange } from './utils';
 export const CTR_MAX_TIME_DIFF_SEC = 30;
 export const CTR_MAX_PLAYERS = 8;
 
+export const CANONICAL_URL = 'https://sebranly.github.io/ctr-ocr';
 export const CHARLIST_UPPERCASE_LETTERS = charRange('A', 'Z').join('');
 export const CHARLIST_LOWERCASE_LETTERS = charRange('a', 'z').join('');
 export const CHARLIST_LETTERS = `${CHARLIST_LOWERCASE_LETTERS}${CHARLIST_UPPERCASE_LETTERS}`;
@@ -22,7 +23,8 @@ export const WEBSITE_VERSION = '1.0.0';
 export const WEBSITE_DEFAULT_LANGUAGE = 'en';
 export const PLACEHOLDER_CPUS = 'Loading CPUs...';
 export const URL_CPUS = 'https://sebranly.github.io/json/ctrocr/players.json';
-export const LOADING_LAST_STATE = 4;
+export const INITIAL_PROGRESS = 1 / 100;
+export const FINAL_PROGRESS = 1;
 export const PLACEHOLDER_PLAYERS = `Hyène_JurassX
 Alexiz
 Colonel_Hay
