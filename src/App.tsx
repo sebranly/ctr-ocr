@@ -8,10 +8,13 @@ import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { isMobile } from 'react-device-detect';
+import { sortBy } from 'lodash';
 
 import {
+  CANONICAL_URL,
   CTR_MAX_PLAYERS,
-  LOADING_LAST_STATE,
+  FINAL_PROGRESS,
+  INITIAL_PROGRESS,
   MIME_JPEG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
@@ -21,6 +24,7 @@ import {
   WEBSITE_VERSION
 } from './constants';
 import {
+  calculateProgress,
   cleanString,
   formatCpuPlayers,
   getCloserString,
@@ -36,23 +40,20 @@ import {
 const language = 'eng';
 
 const App = () => {
-  const renderDots = () => {
-    if (step === 0) return null;
-
-    const classes = step === LOADING_LAST_STATE ? 'dots' : 'dots sticky';
-
-    return <div className={classes}>{numberRange(1, LOADING_LAST_STATE).map(renderDot)}</div>;
+  const renderProgressBar = () => {
+    if ([0, FINAL_PROGRESS].includes(progress)) return null;
+    const percent = Math.floor(progress * 100);
+    const percentString = `${percent}%`;
+    return (
+      <div className="progress-bar sticky">
+        <div className="pl progress" style={{ maxWidth: percentString }}>
+          {percentString}
+        </div>
+      </div>
+    );
   };
 
-  const renderDot = (index: number) => {
-    const classColorPrefix = index === LOADING_LAST_STATE ? 'bg-green' : 'bg-red';
-    const classColorSuffix = index > step ? '-off' : '';
-    const classColor = `${classColorPrefix}${classColorSuffix}`;
-    const classes = `dot ${classColor}`;
-    return <span key={index} className={classes}></span>;
-  };
-
-  const renderTable = () => {
+  const renderTable = (index: number) => {
     return (
       <table className="flex-1">
         <thead>
@@ -62,35 +63,36 @@ const App = () => {
             <th>Name</th>
           </tr>
         </thead>
-        {renderBody()}
+        {renderBody(index)}
       </table>
     );
   };
 
-  const renderImages = () => {
-    const renderImageUpload = () => {
-      return imagesURLs.map((imageSrc: string, index: number) => (
-        <img alt="tbd" className="img-full" key={`${imageSrc}-${index}`} src={imageSrc} />
-      ));
-    };
+  const renderCroppedImage = (index: number) => {
+    if (!croppedImages || croppedImages.length <= index) return null;
 
-    if (isMobile)
-      return (
-        <>
-          <div className="img-show"></div>
-          {renderImageUpload()}
-        </>
-      );
+    const classes = isMobile ? 'img-show max-width-100' : 'img-show max-width-45';
+
+    return <img alt="Cropped Results" className={classes} src={croppedImages[index]} />;
+  };
+
+  const renderImages = () => {
+    if (isMobile) {
+      return imagesURLs.map((imageSrc: string, index: number) => (
+        <img alt="tbd" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
+      ));
+    }
 
     return (
       <div className="flex-container center">
-        <div className="flex-1">{renderImageUpload()}</div>
-        <div className="img-show flex-1"></div>
+        {imagesURLs.map((imageSrc: string, index: number) => (
+          <img alt="tbd" className="img-full max-width-45 flex-1" key={`${imageSrc}-${index}`} src={imageSrc} />
+        ))}
       </div>
     );
   };
 
-  const renderBody = () => {
+  const renderBody = (index: number) => {
     const renderOption = (option: string) => {
       const label = `${option}`;
       return (
@@ -110,16 +112,20 @@ const App = () => {
 
       return (
         <>
-          <optgroup label="Human">{optionsResultsPlayerHuman.map(renderOption)}</optgroup>
-          <optgroup label="CPUs">{optionsResultsPlayerCpu.map(renderOption)}</optgroup>
+          <optgroup key="human" label="Human">
+            {optionsResultsPlayerHuman.map(renderOption)}
+          </optgroup>
+          <optgroup key="cpus" label="CPUs">
+            {optionsResultsPlayerCpu.map(renderOption)}
+          </optgroup>
         </>
       );
     };
 
     return (
       <tbody>
-        {resultsOcr.map((rawLine: Result, index: number) => {
-          const { position, username } = rawLine;
+        {resultsOcr[index].map((resultOcr: Result, indexPlayer: number) => {
+          const { position, username } = resultOcr;
           const key = `${position}-${username}`;
 
           return (
@@ -127,7 +133,11 @@ const App = () => {
               <td>{position}</td>
               {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
-                <select onChange={onChangeResultsPlayer(index)} value={username}>
+                <select
+                  disabled={selectIsDisabled}
+                  onChange={onChangeResultsPlayer(index, indexPlayer)}
+                  value={username}
+                >
                   {renderOptions()}
                 </select>
               </td>
@@ -135,6 +145,33 @@ const App = () => {
           );
         })}
       </tbody>
+    );
+  };
+
+  const renderRace = (index: number) => {
+    const labelRace = `Race ${index + 1}`;
+    const validationUsernames = validateUsernames(resultsOcr[index].map((r: Result) => r.username));
+
+    return (
+      <div key={index}>
+        <h3>{labelRace}</h3>
+        {renderCroppedImage(index)}
+        <div className="flex-container results">{renderTable(index)}</div>
+        {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
+      </div>
+    );
+  };
+
+  const renderRaces = () => {
+    if (!resultsOcr || resultsOcr.length === 0) return null;
+
+    return (
+      <>
+        <div className="center">
+          <h2>Results</h2>
+          {resultsOcr.map((_resultOcr: Result[], index: number) => renderRace(index))}
+        </div>
+      </>
     );
   };
 
@@ -150,16 +187,15 @@ const App = () => {
   const renderMainSection = () => {
     if (nbPlayersTyped === 0) return null;
 
-    const validationUsernames = validateUsernames(resultsOcr.map((r: Result) => r.username));
-
     return (
       <>
         {renderCpuMainSection()}
         <h2>Images</h2>
-        <div className="center">
+        <div className="text-center mb">
           <div className="ml block mb">
             Select screenshots in JPEG format, taken right when Returning to Lobby was around 14 seconds
           </div>
+          <div className="ml block mb">Screenshots will be ordered alphabetically by name</div>
           <div className="ml block mb">
             An example:{' '}
             <a
@@ -175,7 +211,7 @@ const App = () => {
             className="inline"
             disabled={selectIsDisabled}
             type="file"
-            multiple={false}
+            multiple
             accept={MIME_JPEG}
             onChange={onChangeImage}
           />
@@ -183,18 +219,12 @@ const App = () => {
             className="inline-block ml"
             type="button"
             value="Start recognition"
-            disabled={selectIsDisabled}
+            disabled={selectIsDisabled || !imagesURLs || imagesURLs.length === 0}
             onClick={doOCR}
           />
         </div>
         {renderImages()}
-        {resultsOcr && resultsOcr.length > 0 && (
-          <div className="center">
-            <h2>Results</h2>
-            <div className="flex-container results">{renderTable()}</div>
-            {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
-          </div>
-        )}
+        {renderRaces()}
       </>
     );
   };
@@ -225,7 +255,7 @@ const App = () => {
               Bots are automatically determined based on the language and cannot be edited
             </div>
             <div className="inline mr">Language in images</div>
-            <select onChange={onChangeCpuLanguage} value={cpuLanguage}>
+            <select disabled={selectIsDisabled} onChange={onChangeCpuLanguage} value={cpuLanguage}>
               {optionsCpuLanguages.map((option: string) => {
                 const label = `${option}`;
                 return (
@@ -264,8 +294,9 @@ const App = () => {
     if (!onMountOver) return;
 
     setSelectIsDisabled(true);
-    setStep(0);
+    setProgress(INITIAL_PROGRESS);
     setResultsOcr([]);
+    setCroppedImages([]);
 
     const schedulerUsername = createScheduler();
 
@@ -275,28 +306,22 @@ const App = () => {
 
     schedulerUsername.addWorker(workerUsername);
 
-    const div = document.getElementsByClassName('img-show')[0];
-    if (div) div.innerHTML = '';
-
-    setStep(1);
-
-    setOcr('Loading engine... (1/4)');
     await workerUsername.load();
+    setProgress(calculateProgress(1 / 4));
 
-    setOcr('Loading language... (2/4)');
     await workerUsername.loadLanguage(language);
+    setProgress(calculateProgress(2 / 4));
 
-    setOcr('Initializing engine... (3/4)');
     await workerUsername.initialize(language);
+    setProgress(calculateProgress(3 / 4));
 
-    setOcr('Setting parameter... (4/4)');
     const usernameParams = getParams(Category.Username);
     await workerUsername.setParameters(usernameParams);
+    setProgress(calculateProgress(4 / 4));
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
 
-    const promisesX = async (playerIndex: number, category: Category, info: any, imgTrans: any) => {
-      const imgTransCopy = imgTrans.clone();
+    const promisesX = async (playerIndex: number, category: Category, info: any, imgTransCopy: any) => {
       const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
 
@@ -314,91 +339,84 @@ const App = () => {
       const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
 
-      // TODO: activate for debugging only
-      // extractedFin.getBase64(MIME_JPEG, (err: any, src: string) => {
-      //   var img = document.createElement('img');
-      //   img.setAttribute('src', src);
-      //   const div = document.getElementsByClassName('img-show')[0];
-      //   if (div) div.appendChild(img);
-      // });
-
       const bufferFin: any = await extractedFin.getBufferAsync(MIME_JPEG);
       return scheduler.addJob('recognize', bufferFin);
     };
 
-    setStep(2);
-    setOcr('Reading the image...');
-    let imgTrans: any;
-    try {
-      const imgJimp = await Jimp.read(imagesURLs[0]);
+    let resultsOcrTemp: Result[][] = [];
+    let croppedImagesTemp: string[] = [];
 
-      setOcr('Generating cropped image...');
-      imgTrans = imgJimp.rotate(-6.2);
+    for (let i = 0; i < imagesURLs.length; i++) {
+      let imgTrans: any;
 
-      const w = imgTrans.bitmap.width;
-      const h = imgTrans.bitmap.height;
-      const info = { width: w, height: h };
-      const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
+      try {
+        const imgJimp = await Jimp.read(imagesURLs[i]);
 
-      const imgTransCopy = imgTrans.clone();
-      const extractedCrop = imgTransCopy.crop(
-        dimensionsCrop.left,
-        dimensionsCrop.top,
-        dimensionsCrop.width,
-        dimensionsCrop.height
-      );
+        imgTrans = imgJimp.rotate(-6.2);
 
-      extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-        var img = document.createElement('img');
-        img.setAttribute('src', src);
-        const div = document.getElementsByClassName('img-show')[0];
-        if (div) div.appendChild(img);
-      });
+        const w = imgTrans.bitmap.width;
+        const h = imgTrans.bitmap.height;
+        const info = { width: w, height: h };
+        const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
 
-      const promisesNames = playerIndexes.map((playerIndex) =>
-        promisesX(playerIndex, Category.Username, info, imgTrans.grayscale())
-      );
+        const imgTransCopy = imgTrans.clone();
+        const extractedCrop = imgTransCopy.crop(
+          dimensionsCrop.left,
+          dimensionsCrop.top,
+          dimensionsCrop.width,
+          dimensionsCrop.height
+        );
 
-      setOcr('Starting text recognition...');
-      setStep(3);
-      const results = await Promise.all(promisesNames);
-      const resultsNames = results.map((r) => cleanString((r as any).data.text));
+        // eslint-disable-next-line no-loop-func
+        extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
+          croppedImagesTemp = [...croppedImagesTemp, src];
+        });
 
-      const data: Result[] = [];
-      const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
-      playerIndexes.forEach((playerIndex) => {
-        const playerGuess = resultsNames[playerIndex];
-        const d: Result = {
-          username: getCloserString(playerGuess, referencePlayers),
-          position: playerIndex + 1
-        };
+        const promisesNames = playerIndexes.map((playerIndex) =>
+          promisesX(playerIndex, Category.Username, info, imgTrans.grayscale().clone())
+        );
 
-        data.push(d as any);
-      });
+        setProgress(calculateProgress(1, i, imagesURLs.length));
+        const results = await Promise.all(promisesNames);
+        const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
-      setResultsOcr(data);
+        const dataResults: Result[] = [];
+        const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
+        playerIndexes.forEach((playerIndex) => {
+          const playerGuess = resultsNames[playerIndex];
+          const result: Result = {
+            username: getCloserString(playerGuess, referencePlayers),
+            position: playerIndex + 1
+          };
 
-      setOcr('');
-      setStep(LOADING_LAST_STATE);
-      setSelectIsDisabled(false);
+          dataResults.push(result);
+        });
 
-      await schedulerUsername.terminate();
-    } catch (err) {
-      setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
-      setSelectIsDisabled(false);
+        resultsOcrTemp = [...resultsOcrTemp, dataResults];
+      } catch (err) {
+        // TODO: have better error handling
+        setSelectIsDisabled(false);
+      }
     }
+
+    setResultsOcr(resultsOcrTemp);
+    setCroppedImages(croppedImagesTemp);
+    setProgress(1);
+    setSelectIsDisabled(false);
+
+    await schedulerUsername.terminate();
   };
 
   const { width, height } = useWindowSize();
-  const [step, setStep] = React.useState(0);
-  const [ocr, setOcr] = React.useState('');
+  const [progress, setProgress] = React.useState(0);
   const [images, setImages] = React.useState<any[]>([]);
   const [imagesURLs, setImagesURLs] = React.useState<any[]>([]);
+  const [croppedImages, setCroppedImages] = React.useState<any[]>([]);
   const [nbPlayers, setNbPlayers] = React.useState(CTR_MAX_PLAYERS);
   const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
-  const [resultsOcr, setResultsOcr] = React.useState<Result[]>([]);
+  const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState<string>('');
   const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
@@ -415,7 +433,8 @@ const App = () => {
   React.useEffect(() => {
     if (images.length < 1) return;
     const newImageUrls: any[] = [];
-    images.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
+    const sortImages = sortBy(images, (image: any) => image.name);
+    sortImages.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
     setImagesURLs(newImageUrls);
   }, [images]);
 
@@ -430,8 +449,8 @@ const App = () => {
   };
 
   const onChangeImage = (e: any) => {
-    console.log(e.target.files);
     setImages([...e.target.files]);
+    setResultsOcr([]);
   };
 
   const onChangeNbPlayers = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -443,12 +462,13 @@ const App = () => {
     setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
 
-  const onChangeResultsPlayer = (index: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (!resultsOcr || resultsOcr.length === 0) return;
-    const copy = [...resultsOcr];
-    copy[index].username = e.target.value;
-    setResultsOcr(copy);
-  };
+  const onChangeResultsPlayer =
+    (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (!resultsOcr || resultsOcr.length < indexResultOcr) return;
+      const copy = [...resultsOcr];
+      copy[indexResultOcr][indexPlayer].username = e.target.value;
+      setResultsOcr(copy);
+    };
 
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIncludeCpuPlayers(e.target.checked);
@@ -456,23 +476,24 @@ const App = () => {
 
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
+  const classBgDisabled = selectIsDisabled ? 'bg-grey' : 'bg-white';
 
   return (
     <HelmetProvider>
       <Helmet>
         <title>{WEBSITE_TITLE}</title>
-        <link rel="canonical" href="https://sebranly.github.io/ctr-ocr" />
+        <link rel="canonical" href={CANONICAL_URL} />
       </Helmet>
       <div className="main">
         <h1>{WEBSITE_TITLE}</h1>
-        {step === LOADING_LAST_STATE && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
-        <div className={`center main-content-${classPlatform}`}>
-          {renderDots()}
-          <div className="ocr">{ocr}</div>
+        <div className="w3-light-grey"></div>
+        {progress === FINAL_PROGRESS && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
+        <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
+          {renderProgressBar()}
           <h2>Players</h2>
           <h3>Number of players</h3>
           <div className="text-center mb">This includes CPUs if any</div>
-          <select onChange={onChangeNbPlayers} value={nbPlayers}>
+          <select disabled={selectIsDisabled} onChange={onChangeNbPlayers} value={nbPlayers}>
             {optionsNbPlayers.map((option: number) => {
               const label = `${option} players`;
               return (
@@ -486,6 +507,7 @@ const App = () => {
           <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
           <textarea
             className={`textarea-${classPlatform}`}
+            disabled={selectIsDisabled}
             placeholder={PLACEHOLDER_PLAYERS}
             rows={nbPlayers}
             value={players}

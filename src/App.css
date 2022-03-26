@@ -46,8 +46,9 @@ html {
 }
 
 .sticky {
-  position: sticky;
-  top: 5px;
+  position: fixed;
+  top: 50%;
+  left: 25%;
 }
 
 .center {
@@ -64,15 +65,34 @@ html {
   margin: 0 auto;
   padding: 10px 10px 30px 10px;
   border: 1px solid black;
-  background-color: white;
 }
 
 .main-content-mobile {
   max-width: 95%;
   margin: 0 auto;
   border: 1px solid black;
-  background-color: white;
   padding: 10px 10px 30px 10px;
+}
+
+.bg-white {
+  background-color: white;
+}
+
+.bg-grey {
+  background-color: #ddd;
+}
+
+.progress-bar {
+  z-index: 1;
+  min-width: 50%;
+  max-width: 50%;
+  border: 1px solid black;
+  background-color: white;
+
+}
+
+.progress {
+  background-color: green;
 }
 
 .ocr {
@@ -89,10 +109,20 @@ h1, h2, h3, h4, h5, h6 {
   font-family: Verdana
 }
 
-.img-full {
+.max-width-100 {
   max-width: 100%;
+}
+
+.max-width-50 {
+  max-width: 50%;
+}
+
+.max-width-45 {
+  max-width: 45%;
+}
+
+.img-full {
   margin: 0 auto;
-  display: block;
 }
 
 .textarea-desktop {
@@ -121,15 +151,14 @@ h1 {
 
 .flex-container {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .flex-1 {
   flex: 1;
-  margin: 1%;
 }
 
-.img-show > img {
-  max-width: 100%;
+.img-show {
   margin: 0 auto;
   display: block;
 }
@@ -154,16 +183,6 @@ h1 {
   background-color: rgb(0, 56, 20)
 }
 
-.dot {
-  height: 50px;
-  width: 50px;
-  border-radius: 50%;
-  border: 1px solid black;
-  display: inline-block;
-  margin-right: 5px;
-}
-
-.dots {
-  margin: 5px;
-  text-align: center;
+.pl {
+  padding-left: 5px;
 }

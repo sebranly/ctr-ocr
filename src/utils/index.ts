@@ -14,6 +14,12 @@ import { Category, Coord, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 
+const calculateProgress = (ratioPreImage: number, imageIndex = 0, imagesLength?: number) => {
+  if (!imagesLength) return (ratioPreImage * 1) / 4;
+
+  return (ratioPreImage * 1) / 4 + (1 - (ratioPreImage * 1) / 4) * (imageIndex / imagesLength);
+};
+
 const formatCpuPlayers = (cpuPlayers: string[]) => {
   if (!cpuPlayers || cpuPlayers.length === 0) return '';
 
@@ -298,6 +304,7 @@ const validateTimes = (times: string[]) => {
 
 export {
   applyRatio,
+  calculateProgress,
   charRange,
   cleanString,
   convertToMs,
