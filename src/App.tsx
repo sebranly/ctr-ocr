@@ -71,7 +71,7 @@ const App = () => {
   const renderCroppedImage = () => {
     if (!croppedImages || croppedImages.length === 0) return null;
 
-    const classes = isMobile ? 'img-show max-width-100' : 'img-show max-width-50';
+    const classes = isMobile ? 'img-show max-width-100' : 'img-show max-width-45';
 
     return <img alt="Cropped Results" className={classes} src={croppedImages[0]} />;
   };
@@ -120,7 +120,7 @@ const App = () => {
 
     return (
       <tbody>
-        {resultsOcr.map((rawLine: Result, index: number) => {
+        {resultsOcr[0].map((rawLine: Result, index: number) => {
           const { position, username } = rawLine;
           const key = `${position}-${username}`;
 
@@ -142,7 +142,7 @@ const App = () => {
 
   const renderRace = () => {
     if (!resultsOcr || resultsOcr.length === 0) return null;
-    const validationUsernames = validateUsernames(resultsOcr.map((r: Result) => r.username));
+    const validationUsernames = validateUsernames(resultsOcr[0].map((r: Result) => r.username));
 
     return (
       <>
@@ -303,8 +303,7 @@ const App = () => {
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
 
-    const promisesX = async (playerIndex: number, category: Category, info: any, imgTrans: any) => {
-      const imgTransCopy = imgTrans.clone();
+    const promisesX = async (playerIndex: number, category: Category, info: any, imgTransCopy: any) => {
       const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
 
@@ -327,63 +326,71 @@ const App = () => {
     };
 
     setStep(2);
-    setOcr('Reading the image...');
-    let imgTrans: any;
-    try {
-      const imgJimp = await Jimp.read(imagesURLs[0]);
+    setOcr('Reading the images...');
 
-      setOcr('Generating cropped image...');
-      imgTrans = imgJimp.rotate(-6.2);
+    for (let i = 0; i < imagesURLs.length; i++) {
+      let imgTrans: any;
 
-      const w = imgTrans.bitmap.width;
-      const h = imgTrans.bitmap.height;
-      const info = { width: w, height: h };
-      const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
+      try {
+        const imgJimp = await Jimp.read(imagesURLs[i]);
+        const imageIndicator = `${i + 1}/${imagesURLs.length}`;
 
-      const imgTransCopy = imgTrans.clone();
-      const extractedCrop = imgTransCopy.crop(
-        dimensionsCrop.left,
-        dimensionsCrop.top,
-        dimensionsCrop.width,
-        dimensionsCrop.height
-      );
+        setOcr(`Generating cropped image ${imageIndicator}...`);
+        imgTrans = imgJimp.rotate(-6.2);
 
-      extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-        setCroppedImages([src]);
-      });
+        const w = imgTrans.bitmap.width;
+        const h = imgTrans.bitmap.height;
+        const info = { width: w, height: h };
+        const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
 
-      const promisesNames = playerIndexes.map((playerIndex) =>
-        promisesX(playerIndex, Category.Username, info, imgTrans.grayscale())
-      );
+        const imgTransCopy = imgTrans.clone();
+        const extractedCrop = imgTransCopy.crop(
+          dimensionsCrop.left,
+          dimensionsCrop.top,
+          dimensionsCrop.width,
+          dimensionsCrop.height
+        );
 
-      setOcr('Starting text recognition...');
-      setStep(3);
-      const results = await Promise.all(promisesNames);
-      const resultsNames = results.map((r) => cleanString((r as any).data.text));
+        extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
+          setCroppedImages([src]);
+        });
 
-      const data: Result[] = [];
-      const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
-      playerIndexes.forEach((playerIndex) => {
-        const playerGuess = resultsNames[playerIndex];
-        const d: Result = {
-          username: getCloserString(playerGuess, referencePlayers),
-          position: playerIndex + 1
-        };
+        const promisesNames = playerIndexes.map((playerIndex) =>
+          promisesX(playerIndex, Category.Username, info, imgTrans.grayscale().clone())
+        );
 
-        data.push(d as any);
-      });
+        setOcr(`Starting text recognition ${imageIndicator}...`);
+        // TODO: cannot anymore
+        // setStep(3);
+        const results = await Promise.all(promisesNames);
+        const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
-      setResultsOcr(data);
+        const dataResults: Result[] = [];
+        const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
+        playerIndexes.forEach((playerIndex) => {
+          const playerGuess = resultsNames[playerIndex];
+          const result: Result = {
+            username: getCloserString(playerGuess, referencePlayers),
+            position: playerIndex + 1
+          };
 
-      setOcr('');
-      setStep(LOADING_LAST_STATE);
-      setSelectIsDisabled(false);
+          dataResults.push(result);
+          console.log('🚀 ~ file: App.tsx ~ line 378 ~ playerIndexes.forEach ~ result', result);
+        });
 
-      await schedulerUsername.terminate();
-    } catch (err) {
-      setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
-      setSelectIsDisabled(false);
+        setResultsOcr([dataResults]);
+      } catch (err) {
+        // TODO: have better error handling
+        setOcr(`Unable to open image ${(err as any).toString()}. Please restart.`);
+        setSelectIsDisabled(false);
+      }
     }
+
+    setOcr('');
+    setStep(LOADING_LAST_STATE);
+    setSelectIsDisabled(false);
+
+    await schedulerUsername.terminate();
   };
 
   const { width, height } = useWindowSize();
@@ -396,7 +403,7 @@ const App = () => {
   const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
-  const [resultsOcr, setResultsOcr] = React.useState<Result[]>([]);
+  const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState<string>('');
   const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
@@ -443,9 +450,9 @@ const App = () => {
 
   const onChangeResultsPlayer = (index: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!resultsOcr || resultsOcr.length === 0) return;
-    const copy = [...resultsOcr];
+    const copy = [...resultsOcr[0]];
     copy[index].username = e.target.value;
-    setResultsOcr(copy);
+    setResultsOcr([copy]);
   };
 
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
