@@ -22,6 +22,7 @@ export const WEBSITE_VERSION = '1.0.0';
 export const WEBSITE_DEFAULT_LANGUAGE = 'en';
 export const PLACEHOLDER_CPUS = 'Loading CPUs...';
 export const URL_CPUS = 'https://sebranly.github.io/json/ctrocr/players.json';
+export const LOADING_LAST_STATE = 4;
 export const PLACEHOLDER_PLAYERS = `Hyène_JurassX
 Alexiz
 Colonel_Hay

@@ -2,7 +2,7 @@ import * as React from 'react';
 import './App.css';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { createWorker, createScheduler } from 'tesseract.js';
-import { Category } from './types';
+import { Category, Result } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -11,6 +11,7 @@ import { isMobile } from 'react-device-detect';
 
 import {
   CTR_MAX_PLAYERS,
+  LOADING_LAST_STATE,
   MIME_JPEG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
@@ -27,7 +28,9 @@ import {
   getParams,
   getPlayers,
   getReferencePlayers,
-  numberRange
+  isHumanPlayer,
+  numberRange,
+  validateUsernames
 } from './utils';
 
 const language = 'eng';
@@ -36,13 +39,13 @@ const App = () => {
   const renderDots = () => {
     if (step === 0) return null;
 
-    const classes = step === 4 ? 'dots' : 'dots sticky';
+    const classes = step === LOADING_LAST_STATE ? 'dots' : 'dots sticky';
 
-    return <div className={classes}>{numberRange(1, 4).map(renderDot)}</div>;
+    return <div className={classes}>{numberRange(1, LOADING_LAST_STATE).map(renderDot)}</div>;
   };
 
   const renderDot = (index: number) => {
-    const classColorPrefix = index === 4 ? 'green' : 'red';
+    const classColorPrefix = index === LOADING_LAST_STATE ? 'bg-green' : 'bg-red';
     const classColorSuffix = index > step ? '-off' : '';
     const classColor = `${classColorPrefix}${classColorSuffix}`;
     const classes = `dot ${classColor}`;
@@ -55,6 +58,7 @@ const App = () => {
         <thead>
           <tr>
             <th>Position</th>
+            {includeCpuPlayers && <th>Type</th>}
             <th>Name</th>
           </tr>
         </thead>
@@ -83,16 +87,46 @@ const App = () => {
   };
 
   const renderBody = () => {
+    const renderOption = (option: string) => {
+      const label = `${option}`;
+      return (
+        <option key={option} label={label} value={option}>
+          {label}
+        </option>
+      );
+    };
+
+    const renderOptions = () => {
+      const optionsResultsPlayerHuman = getPlayers(players).sort();
+      if (!includeCpuPlayers) {
+        return optionsResultsPlayerHuman.map(renderOption);
+      }
+
+      const optionsResultsPlayerCpu = getPlayers(cpuPlayers).sort();
+
+      return (
+        <>
+          <optgroup label="Human">{optionsResultsPlayerHuman.map(renderOption)}</optgroup>
+          <optgroup label="CPUs">{optionsResultsPlayerCpu.map(renderOption)}</optgroup>
+        </>
+      );
+    };
+
     return (
       <tbody>
-        {(resultsOcr as any).map((rawLine: any) => {
-          const { position, username, time } = rawLine;
-          const key = `${position}-${username}-${time}`;
+        {resultsOcr.map((rawLine: Result, index: number) => {
+          const { position, username } = rawLine;
+          const key = `${position}-${username}`;
 
           return (
             <tr key={key}>
               <td>{position}</td>
-              <td>{username}</td>
+              {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
+              <td>
+                <select onChange={onChangeResultsPlayer(index)} value={username}>
+                  {renderOptions()}
+                </select>
+              </td>
             </tr>
           );
         })}
@@ -112,15 +146,11 @@ const App = () => {
   const renderMainSection = () => {
     if (nbPlayersTyped === 0) return null;
 
+    const validationUsernames = validateUsernames(resultsOcr.map((r: Result) => r.username));
+
     return (
       <>
         {renderCpuMainSection()}
-        {!!resultsOcr && (
-          <div className="center">
-            <h2>Results</h2>
-            <div className="flex-container results">{renderTable()}</div>
-          </div>
-        )}
         <h2>Image</h2>
         <div className="center">
           <select disabled={selectIsDisabled} onChange={onChange}>
@@ -142,6 +172,13 @@ const App = () => {
           />
         </div>
         {renderImages()}
+        {resultsOcr && resultsOcr.length > 0 && (
+          <div className="center">
+            <h2>Results</h2>
+            <div className="flex-container results">{renderTable()}</div>
+            {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
+          </div>
+        )}
       </>
     );
   };
@@ -212,7 +249,7 @@ const App = () => {
 
     setSelectIsDisabled(true);
     setStep(0);
-    setResultsOcr(undefined);
+    setResultsOcr([]);
 
     const schedulerUsername = createScheduler();
 
@@ -312,11 +349,11 @@ const App = () => {
       const results = await Promise.all(promisesNames);
       const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
-      const data: any = [];
+      const data: Result[] = [];
       const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
       playerIndexes.forEach((playerIndex) => {
         const playerGuess = resultsNames[playerIndex];
-        const d = {
+        const d: Result = {
           username: getCloserString(playerGuess, referencePlayers),
           position: playerIndex + 1
         };
@@ -327,7 +364,7 @@ const App = () => {
       setResultsOcr(data);
 
       setOcr('');
-      setStep(4);
+      setStep(LOADING_LAST_STATE);
       setSelectIsDisabled(false);
 
       await schedulerUsername.terminate();
@@ -345,7 +382,7 @@ const App = () => {
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [imgIndex, setImgIndex] = React.useState(1);
-  const [resultsOcr, setResultsOcr] = React.useState(undefined);
+  const [resultsOcr, setResultsOcr] = React.useState<Result[]>([]);
   const [players, setPlayers] = React.useState<string>('');
   const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
@@ -378,6 +415,13 @@ const App = () => {
     setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
 
+  const onChangeResultsPlayer = (index: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!resultsOcr || resultsOcr.length === 0) return;
+    const copy = [...resultsOcr];
+    copy[index].username = e.target.value;
+    setResultsOcr(copy);
+  };
+
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setImgIndex(Number(e.target.value));
   };
@@ -399,7 +443,7 @@ const App = () => {
       </Helmet>
       <div className="main">
         <h1>{WEBSITE_TITLE}</h1>
-        {step === 4 && <Confetti width={width} height={height} numberOfPieces={400} recycle={false} />}
+        {step === LOADING_LAST_STATE && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
         <div className={`center main-content-${classPlatform}`}>
           {renderDots()}
           <div className="ocr">{ocr}</div>

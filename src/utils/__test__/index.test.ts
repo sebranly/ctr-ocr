@@ -18,6 +18,7 @@ import {
   getParams,
   getPlayers,
   getReferencePlayers,
+  isHumanPlayer,
   numberRange,
   positionIsValid,
   validateTimes,
@@ -28,6 +29,13 @@ const correctResponse: Validation = {
   correct: true,
   errMsg: ''
 };
+
+test('isHumanPlayer', () => {
+  expect(isHumanPlayer('bonjour', '')).toBe(false);
+  expect(isHumanPlayer('bonjour', 'bonjour')).toBe(true);
+  expect(isHumanPlayer('bonjour', 'bonsoir')).toBe(false);
+  expect(isHumanPlayer('bonjour', 'bonsoir\nbonjour')).toBe(true);
+});
 
 test('formatCpuPlayers', () => {
   expect(formatCpuPlayers([])).toBe('');
