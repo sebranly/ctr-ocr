@@ -21,6 +21,7 @@ import {
   MIME_PNG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
+  STEP_NUMBER,
   SUPPORTED_PLATFORMS,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
@@ -28,7 +29,6 @@ import {
   WEBSITE_VERSION
 } from './constants';
 import {
-  calculateProgress,
   cleanString,
   formatCpuPlayers,
   getCloserString,
@@ -38,7 +38,6 @@ import {
   getPlayers,
   getReferencePlayers,
   isHumanPlayer,
-  logError,
   logTime,
   numberRange,
   validateUsernames
@@ -330,17 +329,21 @@ const App = () => {
     schedulerUsername.addWorker(workerUsername);
 
     await workerUsername.load();
-    setProgress(calculateProgress(1 / 4));
+
+    setProgress(1 / STEP_NUMBER);
 
     await workerUsername.loadLanguage(language);
-    setProgress(calculateProgress(2 / 4));
+
+    setProgress(2 / STEP_NUMBER);
 
     await workerUsername.initialize(language);
-    setProgress(calculateProgress(3 / 4));
+
+    setProgress(3 / STEP_NUMBER);
 
     const usernameParams = getParams(Category.Username);
     await workerUsername.setParameters(usernameParams);
-    setProgress(calculateProgress(4 / 4));
+
+    setProgress(4 / STEP_NUMBER);
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
 
@@ -348,8 +351,7 @@ const App = () => {
       playerIndex: number,
       category: Category,
       info: any, // TODO: type it better
-      imgTransCopy: any,
-      imageIndex: number
+      imgTransCopy: any
     ) => {
       const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
@@ -371,8 +373,6 @@ const App = () => {
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
 
       const bufferFin: any = await extractedFin.getBufferAsync(mimeType);
-      const newProgress = calculateProgress(1, imageIndex, imagesURLs.length, playerIndex, nbPlayers);
-      if (newProgress > progress) setProgress(newProgress);
       return scheduler.addJob('recognize', bufferFin);
     };
 
@@ -389,6 +389,8 @@ const App = () => {
       logTime('imgRead', true);
     }
 
+    setProgress(5 / STEP_NUMBER);
+
     for (let i = 0; i < imagesURLs.length; i++) {
       const imgJimpTemp = jimpImg[i];
       const initialHeight = imgJimpTemp.bitmap.height;
@@ -402,6 +404,8 @@ const App = () => {
       if (shouldResize) logTime('imgResize', true);
     }
 
+    setProgress(6 / STEP_NUMBER);
+
     for (let i = 0; i < imagesURLs.length; i++) {
       const imgJimp = jimpImg[i];
       logTime('imgRotate');
@@ -411,6 +415,8 @@ const App = () => {
 
       logTime('imgRotate', true);
     }
+
+    setProgress(7 / STEP_NUMBER);
 
     for (let i = 0; i < imagesURLs.length; i++) {
       logTime('imgRest');
@@ -442,6 +448,8 @@ const App = () => {
       logTime('imgRest', true);
     }
 
+    setProgress(8 / STEP_NUMBER);
+
     for (let i = 0; i < imagesURLs.length; i++) {
       logTime('promisesCreation');
 
@@ -449,12 +457,11 @@ const App = () => {
       const imgTransGray = jimpImg[i];
 
       const promisesNames = playerIndexes.map((playerIndex) =>
-        promisesX(playerIndex, Category.Username, info, imgTransGray.clone(), i)
+        promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
       );
 
       logTime('promisesCreation', true);
 
-      setProgress(calculateProgress(1, i, imagesURLs.length));
       logTime('promisesResolve');
 
       const results = await Promise.all(promisesNames);
@@ -478,9 +485,10 @@ const App = () => {
       resultsOcrTemp = [...resultsOcrTemp, dataResults];
     }
 
+    setProgress(9 / STEP_NUMBER);
+
     setResultsOcr(resultsOcrTemp);
     setCroppedImages(croppedImagesTemp);
-    setProgress(1);
     setSelectIsDisabled(false);
 
     await schedulerUsername.terminate();

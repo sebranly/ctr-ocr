@@ -33,6 +33,7 @@ export const INITIAL_PROGRESS = 1 / 100;
 export const EXAMPLE_IMAGES_FOLDER = `https://raw.githubusercontent.com/${AUTHOR_NAME}/${PROJECT_NAME}/main/src/img/examples/`;
 export const FINAL_PROGRESS = 1;
 export const SUPPORTED_PLATFORMS = ['PS5'];
+export const STEP_NUMBER = 9;
 export const PLACEHOLDER_PLAYERS = `Hyène_JurassX
 Alexiz
 Colonel_Hay
