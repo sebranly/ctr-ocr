@@ -20,6 +20,7 @@ import {
   MIME_PNG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
+  SUPPORTED_PLATFORMS,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
@@ -198,6 +199,10 @@ const App = () => {
         {renderCpuMainSection()}
         <h2>Images</h2>
         <div className="text-center mb">
+          <div className="ml block mb bold">Screenshots will be ordered alphabetically by name</div>
+          <div className="ml block mb italic">
+            {`Only screenshots from the following platforms have been tested so far: ${SUPPORTED_PLATFORMS}`}
+          </div>
           <div className="ml block mb">
             Select screenshots in JPG/JPEG (recommended) or PNG format, taken right when Returning to Lobby was around
             14 seconds
@@ -205,7 +210,6 @@ const App = () => {
           <div className="ml block mb">
             JPG/JPEG is recommended because it provides the same quality of results and is lighter than PNG
           </div>
-          <div className="ml block mb bold">Screenshots will be ordered alphabetically by name</div>
           <div className="ml block mb">
             <a href={jpgImage} rel="noopener noreferrer" title="Example of valid JPEG screenshot" target="_blank">
               Example of a valid JPG/JPEG screenshot
