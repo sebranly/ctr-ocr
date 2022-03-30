@@ -432,7 +432,7 @@ const App = () => {
 
       // eslint-disable-next-line no-loop-func
       extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-        croppedImagesTemp = [...croppedImagesTemp, src];
+        croppedImagesTemp.push(src);
       });
 
       const imgTransGray = imgTrans.grayscale();
@@ -475,7 +475,7 @@ const App = () => {
         dataResults.push(result);
       });
 
-      resultsOcrTemp = [...resultsOcrTemp, dataResults];
+      resultsOcrTemp.push(dataResults);
     }
 
     setResultsOcr(resultsOcrTemp);
