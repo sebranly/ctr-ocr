@@ -171,6 +171,10 @@ h1 {
   display: block;
 }
 
+.red {
+  color: red;
+}
+
 .bg-orange {
   background-color: orange;
 }

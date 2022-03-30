@@ -347,7 +347,7 @@ const App = () => {
     const promisesX = async (
       playerIndex: number,
       category: Category,
-      info: any,
+      info: any, // TODO: type it better
       imgTransCopy: any,
       imageIndex: number
     ) => {
@@ -381,63 +381,65 @@ const App = () => {
     let jimpImg: any[] = [];
     let infoImg: any[] = [];
 
+    // TODO: have better error handling
     for (let i = 0; i < imagesURLs.length; i++) {
-      // TODO: type it as well as info
-      let imgTrans: any;
+      logTime('imgRead');
+      const imgJimpTemp = await Jimp.read(imagesURLs[i]);
+      jimpImg.push(imgJimpTemp);
+      logTime('imgRead', true);
+    }
 
-      try {
-        logTime('imgRead');
+    for (let i = 0; i < imagesURLs.length; i++) {
+      const imgJimpTemp = jimpImg[i];
+      const initialHeight = imgJimpTemp.bitmap.height;
+      const shouldResize = initialHeight > MAX_HEIGHT_IMG;
 
-        const imgJimpTemp = await Jimp.read(imagesURLs[i]);
+      if (shouldResize) logTime('imgResize');
 
-        logTime('imgRead', true);
+      const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
+      jimpImg[i] = imgJimp;
 
-        const initialHeight = imgJimpTemp.bitmap.height;
-        const shouldResize = initialHeight > MAX_HEIGHT_IMG;
+      if (shouldResize) logTime('imgResize', true);
+    }
 
-        if (shouldResize) logTime('imgResize');
+    for (let i = 0; i < imagesURLs.length; i++) {
+      const imgJimp = jimpImg[i];
+      logTime('imgRotate');
 
-        const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
+      const imgTrans = imgJimp.rotate(-6.2);
+      jimpImg[i] = imgTrans;
 
-        if (shouldResize) logTime('imgResize', true);
+      logTime('imgRotate', true);
+    }
 
-        logTime('imgRotate');
+    for (let i = 0; i < imagesURLs.length; i++) {
+      logTime('imgRest');
 
-        imgTrans = imgJimp.rotate(-6.2);
+      const imgTrans = jimpImg[i];
+      const h = imgTrans.bitmap.height;
+      const w = imgTrans.bitmap.width;
+      const extension = imgTrans.getExtension();
+      const info = { height: h, extension, width: w };
+      const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
 
-        logTime('imgRotate', true);
+      const imgTransCopy = imgTrans.clone();
+      const extractedCrop = imgTransCopy.crop(
+        dimensionsCrop.left,
+        dimensionsCrop.top,
+        dimensionsCrop.width,
+        dimensionsCrop.height
+      );
 
-        logTime('imgRest');
+      // eslint-disable-next-line no-loop-func
+      extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
+        croppedImagesTemp = [...croppedImagesTemp, src];
+      });
 
-        const h = imgTrans.bitmap.height;
-        const w = imgTrans.bitmap.width;
-        const extension = imgTrans.getExtension();
-        const info = { height: h, extension, width: w };
-        const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
+      const imgTransGray = imgTrans.grayscale();
+      jimpImg[i] = imgTransGray;
+      infoImg.push(info);
 
-        const imgTransCopy = imgTrans.clone();
-        const extractedCrop = imgTransCopy.crop(
-          dimensionsCrop.left,
-          dimensionsCrop.top,
-          dimensionsCrop.width,
-          dimensionsCrop.height
-        );
-
-        // eslint-disable-next-line no-loop-func
-        extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-          croppedImagesTemp = [...croppedImagesTemp, src];
-        });
-
-        const imgTransGray = imgTrans.grayscale();
-        jimpImg = [...jimpImg, imgTransGray];
-        infoImg = [...infoImg, info];
-
-        logTime('imgRest', true);
-      } catch (err) {
-        // TODO: have better error handling
-        logError(err);
-        setSelectIsDisabled(false);
-      }
+      logTime('imgRest', true);
     }
 
     for (let i = 0; i < imagesURLs.length; i++) {
