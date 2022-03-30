@@ -378,6 +378,8 @@ const App = () => {
 
     let resultsOcrTemp: Result[][] = [];
     let croppedImagesTemp: string[] = [];
+    let jimpImg: any[] = [];
+    let infoImg: any[] = [];
 
     for (let i = 0; i < imagesURLs.length; i++) {
       // TODO: type it as well as info
@@ -427,44 +429,51 @@ const App = () => {
         });
 
         const imgTransGray = imgTrans.grayscale();
+        jimpImg = [...jimpImg, imgTransGray];
+        infoImg = [...infoImg, info];
 
         logTime('imgRest', true);
-
-        logTime('promisesCreation');
-
-        const promisesNames = playerIndexes.map((playerIndex) =>
-          promisesX(playerIndex, Category.Username, info, imgTransGray.clone(), i)
-        );
-
-        logTime('promisesCreation', true);
-
-        setProgress(calculateProgress(1, i, imagesURLs.length));
-        logTime('promisesResolve');
-
-        const results = await Promise.all(promisesNames);
-
-        logTime('promisesResolve', true);
-
-        const resultsNames = results.map((r) => cleanString((r as any).data.text));
-
-        const dataResults: Result[] = [];
-        const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
-        playerIndexes.forEach((playerIndex) => {
-          const playerGuess = resultsNames[playerIndex];
-          const result: Result = {
-            username: getCloserString(playerGuess, referencePlayers),
-            position: playerIndex + 1
-          };
-
-          dataResults.push(result);
-        });
-
-        resultsOcrTemp = [...resultsOcrTemp, dataResults];
       } catch (err) {
         // TODO: have better error handling
         logError(err);
         setSelectIsDisabled(false);
       }
+    }
+
+    for (let i = 0; i < imagesURLs.length; i++) {
+      logTime('promisesCreation');
+
+      const info = infoImg[i];
+      const imgTransGray = jimpImg[i];
+
+      const promisesNames = playerIndexes.map((playerIndex) =>
+        promisesX(playerIndex, Category.Username, info, imgTransGray.clone(), i)
+      );
+
+      logTime('promisesCreation', true);
+
+      setProgress(calculateProgress(1, i, imagesURLs.length));
+      logTime('promisesResolve');
+
+      const results = await Promise.all(promisesNames);
+
+      logTime('promisesResolve', true);
+
+      const resultsNames = results.map((r) => cleanString((r as any).data.text));
+
+      const dataResults: Result[] = [];
+      const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
+      playerIndexes.forEach((playerIndex) => {
+        const playerGuess = resultsNames[playerIndex];
+        const result: Result = {
+          username: getCloserString(playerGuess, referencePlayers),
+          position: playerIndex + 1
+        };
+
+        dataResults.push(result);
+      });
+
+      resultsOcrTemp = [...resultsOcrTemp, dataResults];
     }
 
     setResultsOcr(resultsOcrTemp);
