@@ -9,6 +9,7 @@ import {
 import { Category, Validation } from '../../types';
 import {
   applyRatio,
+  calculateProgress,
   charRange,
   cleanString,
   convertToMs,
@@ -39,6 +40,19 @@ test('getMimeType', () => {
   expect(getMimeType('JPG')).toBe('image/jpeg');
   expect(getMimeType('png')).toBe('image/png');
   expect(getMimeType('PNG')).toBe('image/png');
+});
+
+test('calculateProgress', () => {
+  expect(calculateProgress(1 / 4)).toBe(1 / 16);
+  expect(calculateProgress(2 / 4)).toBe(1 / 8);
+  expect(calculateProgress(4 / 4)).toBe(1 / 4);
+  expect(calculateProgress(1, 0, 10)).toBe(1 / 4);
+  expect(calculateProgress(1, 1, 10)).toBe(0.325);
+  expect(calculateProgress(1, 1, 10, 0, 8)).toBe(0.325);
+  expect(calculateProgress(1, 1, 10, 2, 8)).toBe(0.34375);
+  expect(calculateProgress(1, 2, 10)).toBe(0.4);
+  expect(calculateProgress(1, 9, 10)).toBe(0.925);
+  expect(calculateProgress(1, 10, 10)).toBe(1);
 });
 
 test('isHumanPlayer', () => {
