@@ -378,11 +378,11 @@ const App = () => {
         const initialHeight = imgJimpTemp.bitmap.height;
         const shouldResize = initialHeight > MAX_HEIGHT_IMG;
 
-        if (shouldResize) logTime('imgResizeBe');
+        if (shouldResize) logTime('imgResize');
 
         const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
 
-        if (shouldResize) logTime('imgResizeBe', true);
+        if (shouldResize) logTime('imgResize', true);
 
         logTime('imgRotate');
 
