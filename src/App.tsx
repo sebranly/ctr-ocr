@@ -411,12 +411,14 @@ const App = () => {
           croppedImagesTemp = [...croppedImagesTemp, src];
         });
 
+        const imgTransGray = imgTrans.grayscale();
+
         logTime('imgRest', true);
 
         logTime('promisesCreation');
 
         const promisesNames = playerIndexes.map((playerIndex) =>
-          promisesX(playerIndex, Category.Username, info, imgTrans.grayscale().clone())
+          promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
         );
 
         logTime('promisesCreation', true);
