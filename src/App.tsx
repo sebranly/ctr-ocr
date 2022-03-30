@@ -337,7 +337,13 @@ const App = () => {
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
 
-    const promisesX = async (playerIndex: number, category: Category, info: any, imgTransCopy: any) => {
+    const promisesX = async (
+      playerIndex: number,
+      category: Category,
+      info: any,
+      imgTransCopy: any,
+      imageIndex: number
+    ) => {
       const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
       const { extension } = info;
@@ -358,6 +364,8 @@ const App = () => {
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
 
       const bufferFin: any = await extractedFin.getBufferAsync(mimeType);
+      const newProgress = calculateProgress(1, imageIndex, imagesURLs.length, playerIndex, nbPlayers);
+      if (newProgress > progress) setProgress(newProgress);
       return scheduler.addJob('recognize', bufferFin);
     };
 
@@ -418,7 +426,7 @@ const App = () => {
         logTime('promisesCreation');
 
         const promisesNames = playerIndexes.map((playerIndex) =>
-          promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
+          promisesX(playerIndex, Category.Username, info, imgTransGray.clone(), i)
         );
 
         logTime('promisesCreation', true);

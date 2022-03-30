@@ -48,6 +48,9 @@ test('calculateProgress', () => {
   expect(calculateProgress(4 / 4)).toBe(1 / 4);
   expect(calculateProgress(1, 0, 10)).toBe(1 / 4);
   expect(calculateProgress(1, 1, 10)).toBe(0.325);
+  expect(calculateProgress(1, 1, 10, 0, 8)).toBe(0.325);
+  expect(calculateProgress(1, 1, 10, 2, 8)).toBe(0.34375);
+  expect(calculateProgress(1, 2, 10)).toBe(0.4);
   expect(calculateProgress(1, 9, 10)).toBe(0.925);
   expect(calculateProgress(1, 10, 10)).toBe(1);
 });
