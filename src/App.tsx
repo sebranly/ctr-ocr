@@ -348,8 +348,7 @@ const App = () => {
       playerIndex: number,
       category: Category,
       info: any, // TODO: type it better
-      imgTransCopy: any,
-      imageIndex: number
+      imgTransCopy: any
     ) => {
       const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
@@ -371,8 +370,6 @@ const App = () => {
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
 
       const bufferFin: any = await extractedFin.getBufferAsync(mimeType);
-      const newProgress = calculateProgress(1, imageIndex, imagesURLs.length, playerIndex, nbPlayers);
-      if (newProgress > progress) setProgress(newProgress);
       return scheduler.addJob('recognize', bufferFin);
     };
 
@@ -449,7 +446,7 @@ const App = () => {
       const imgTransGray = jimpImg[i];
 
       const promisesNames = playerIndexes.map((playerIndex) =>
-        promisesX(playerIndex, Category.Username, info, imgTransGray.clone(), i)
+        promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
       );
 
       logTime('promisesCreation', true);
