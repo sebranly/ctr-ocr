@@ -444,6 +444,7 @@ const App = () => {
 
         resultsOcrTemp = [...resultsOcrTemp, dataResults];
       } catch (err) {
+        // TODO: have better error handling
         logError(err);
         setSelectIsDisabled(false);
       }
