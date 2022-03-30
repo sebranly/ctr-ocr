@@ -43,6 +43,7 @@ import {
   numberRange,
   validateUsernames
 } from './utils';
+import classnames from 'classnames';
 
 const language = 'eng';
 
@@ -51,9 +52,15 @@ const App = () => {
     if ([0, FINAL_PROGRESS].includes(progress)) return null;
     const percent = Math.floor(progress * 100);
     const percentString = `${percent}%`;
+    const classes = classnames('pl progress', {
+      'bg-red': percent >= 0 && percent < 34,
+      'bg-orange': percent >= 34 && percent < 67,
+      'bg-green': percent >= 67
+    });
+
     return (
       <div className="progress-bar sticky">
-        <div className="pl progress" style={{ maxWidth: percentString }}>
+        <div className={classes} style={{ maxWidth: percentString }}>
           {percentString}
         </div>
       </div>
