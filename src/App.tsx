@@ -16,6 +16,7 @@ import {
   EXAMPLE_IMAGES_FOLDER,
   FINAL_PROGRESS,
   INITIAL_PROGRESS,
+  MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
   PLACEHOLDER_CPUS,
@@ -37,6 +38,8 @@ import {
   getPlayers,
   getReferencePlayers,
   isHumanPlayer,
+  logError,
+  logTime,
   numberRange,
   validateUsernames
 } from './utils';
@@ -366,12 +369,31 @@ const App = () => {
       let imgTrans: any;
 
       try {
-        const imgJimp = await Jimp.read(imagesURLs[i]);
+        logTime('imgRead');
+
+        const imgJimpTemp = await Jimp.read(imagesURLs[i]);
+
+        logTime('imgRead', true);
+
+        const initialHeight = imgJimpTemp.bitmap.height;
+        const shouldResize = initialHeight > MAX_HEIGHT_IMG;
+
+        if (shouldResize) logTime('imgResizeBe');
+
+        const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
+
+        if (shouldResize) logTime('imgResizeBe', true);
+
+        logTime('imgRotate');
 
         imgTrans = imgJimp.rotate(-6.2);
 
-        const w = imgTrans.bitmap.width;
+        logTime('imgRotate', true);
+
+        logTime('imgRest');
+
         const h = imgTrans.bitmap.height;
+        const w = imgTrans.bitmap.width;
         const extension = imgTrans.getExtension();
         const info = { height: h, extension, width: w };
         const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
@@ -389,12 +411,23 @@ const App = () => {
           croppedImagesTemp = [...croppedImagesTemp, src];
         });
 
+        logTime('imgRest', true);
+
+        logTime('promisesCreation');
+
         const promisesNames = playerIndexes.map((playerIndex) =>
           promisesX(playerIndex, Category.Username, info, imgTrans.grayscale().clone())
         );
 
+        logTime('promisesCreation', true);
+
         setProgress(calculateProgress(1, i, imagesURLs.length));
+        logTime('promisesResolve');
+
         const results = await Promise.all(promisesNames);
+
+        logTime('promisesResolve', true);
+
         const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
         const dataResults: Result[] = [];
@@ -411,7 +444,7 @@ const App = () => {
 
         resultsOcrTemp = [...resultsOcrTemp, dataResults];
       } catch (err) {
-        // TODO: have better error handling
+        logError(err);
         setSelectIsDisabled(false);
       }
     }

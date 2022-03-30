@@ -5,6 +5,7 @@ import {
   CHARLIST_USERNAME,
   CTR_MAX_PLAYERS,
   CTR_MAX_TIME_DIFF_SEC,
+  LOG_CONSOLE,
   MIME_JPEG,
   MIME_PNG,
   PSM_SINGLE_CHAR,
@@ -312,6 +313,22 @@ const validateTimes = (times: string[]) => {
   return validation;
 };
 
+const logTime = (label: string, end = false) => {
+  if (!LOG_CONSOLE) return;
+
+  if (end) {
+    console.timeEnd(label);
+  } else {
+    console.time(label);
+  }
+};
+
+const logError = (err: any) => {
+  if (!LOG_CONSOLE) return;
+
+  console.log(err);
+};
+
 export {
   applyRatio,
   calculateProgress,
@@ -326,6 +343,8 @@ export {
   getExtract,
   getParams,
   isHumanPlayer,
+  logError,
+  logTime,
   numberRange,
   positionIsValid,
   validateTimes,
