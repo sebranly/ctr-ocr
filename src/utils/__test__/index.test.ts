@@ -16,6 +16,7 @@ import {
   formatCpuPlayers,
   getCloserString,
   getExtract,
+  getMimeType,
   getParams,
   getPlayers,
   getReferencePlayers,
@@ -30,6 +31,16 @@ const correctResponse: Validation = {
   correct: true,
   errMsg: ''
 };
+
+test('getMimeType', () => {
+  expect(getMimeType('')).toBe('image/jpeg');
+  expect(getMimeType('jpeg')).toBe('image/jpeg');
+  expect(getMimeType('JPEG')).toBe('image/jpeg');
+  expect(getMimeType('jpg')).toBe('image/jpeg');
+  expect(getMimeType('JPG')).toBe('image/jpeg');
+  expect(getMimeType('png')).toBe('image/png');
+  expect(getMimeType('PNG')).toBe('image/png');
+});
 
 test('calculateProgress', () => {
   expect(calculateProgress(1 / 4)).toBe(1 / 16);

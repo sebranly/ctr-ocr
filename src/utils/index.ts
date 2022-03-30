@@ -5,6 +5,8 @@ import {
   CHARLIST_USERNAME,
   CTR_MAX_PLAYERS,
   CTR_MAX_TIME_DIFF_SEC,
+  MIME_JPEG,
+  MIME_PNG,
   PSM_SINGLE_CHAR,
   PSM_SINGLE_LINE,
   SEPARATOR_PLAYERS,
@@ -13,6 +15,14 @@ import {
 import { Category, Coord, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
+
+const getMimeType = (extension: string) => {
+  if (!extension) return MIME_JPEG;
+
+  const isPng = extension.toLowerCase() === 'png';
+
+  return isPng ? MIME_PNG : MIME_JPEG;
+};
 
 const calculateProgress = (ratioPreImage: number, imageIndex = 0, imagesLength?: number) => {
   if (!imagesLength) return (ratioPreImage * 1) / 4;
@@ -309,6 +319,7 @@ export {
   cleanString,
   convertToMs,
   formatCpuPlayers,
+  getMimeType,
   getPlayers,
   getReferencePlayers,
   getCloserString,

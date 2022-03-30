@@ -74,6 +74,14 @@ html {
   padding: 10px 10px 30px 10px;
 }
 
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
 .bg-white {
   background-color: white;
 }

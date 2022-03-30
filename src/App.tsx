@@ -13,11 +13,14 @@ import { sortBy } from 'lodash';
 import {
   CANONICAL_URL,
   CTR_MAX_PLAYERS,
+  EXAMPLE_IMAGES_FOLDER,
   FINAL_PROGRESS,
   INITIAL_PROGRESS,
   MIME_JPEG,
+  MIME_PNG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
+  SUPPORTED_PLATFORMS,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
@@ -29,6 +32,7 @@ import {
   formatCpuPlayers,
   getCloserString,
   getExtract,
+  getMimeType,
   getParams,
   getPlayers,
   getReferencePlayers,
@@ -187,32 +191,41 @@ const App = () => {
   const renderMainSection = () => {
     if (nbPlayersTyped === 0) return null;
 
+    const jpgImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.JPG`;
+    const pngImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.PNG`;
+
     return (
       <>
         {renderCpuMainSection()}
         <h2>Images</h2>
         <div className="text-center mb">
-          <div className="ml block mb">
-            Select screenshots in JPEG format, taken right when Returning to Lobby was around 14 seconds
+          <div className="ml block mb bold">Screenshots will be ordered alphabetically by name</div>
+          <div className="ml block mb italic">
+            {`Only screenshots from the following platforms have been tested so far: ${SUPPORTED_PLATFORMS}`}
           </div>
-          <div className="ml block mb">Screenshots will be ordered alphabetically by name</div>
           <div className="ml block mb">
-            An example:{' '}
-            <a
-              href="https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/input/IMG1.JPG"
-              rel="noopener noreferrer"
-              title="Example of valid JPEG screenshot"
-              target="_blank"
-            >
-              Example of valid JPEG screenshot
+            Select screenshots in JPG/JPEG (recommended) or PNG format, taken right when Returning to Lobby was around
+            14 seconds
+          </div>
+          <div className="ml block mb">
+            JPG/JPEG is recommended because it provides the same quality of results and is lighter than PNG
+          </div>
+          <div className="ml block mb">
+            <a href={jpgImage} rel="noopener noreferrer" title="Example of valid JPEG screenshot" target="_blank">
+              Example of a valid JPG/JPEG screenshot
+            </a>
+          </div>
+          <div className="ml block mb">
+            <a href={pngImage} rel="noopener noreferrer" title="Example of valid PNG screenshot" target="_blank">
+              Example of a valid PNG screenshot
             </a>
           </div>
           <input
-            className="inline"
+            className="inline mt"
             disabled={selectIsDisabled}
             type="file"
             multiple
-            accept={MIME_JPEG}
+            accept={[MIME_JPEG, MIME_PNG].join(', ')}
             onChange={onChangeImage}
           />
           <input
@@ -324,14 +337,16 @@ const App = () => {
     const promisesX = async (playerIndex: number, category: Category, info: any, imgTransCopy: any) => {
       const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
+      const { extension } = info;
+      const mimeType = getMimeType(extension);
 
       const extracted = imgTransCopy.crop(dimensions.left, dimensions.top, dimensions.width, dimensions.height);
       const options = {
         count: 2,
-        type: MIME_JPEG
+        type: mimeType
       };
 
-      const buffer: any = await extracted.getBufferAsync(MIME_JPEG);
+      const buffer: any = await extracted.getBufferAsync(mimeType);
       const rgb = await getColors(buffer, options).then((colors: any) => {
         return [colors[0].rgb(), colors[1].rgb()];
       });
@@ -339,7 +354,7 @@ const App = () => {
       const shouldInvert = rgb[0][0] < rgb[1][0] && rgb[0][1] < rgb[1][1] && rgb[0][2] < rgb[1][2];
       const extractedFin = shouldInvert ? extracted.invert() : extracted;
 
-      const bufferFin: any = await extractedFin.getBufferAsync(MIME_JPEG);
+      const bufferFin: any = await extractedFin.getBufferAsync(mimeType);
       return scheduler.addJob('recognize', bufferFin);
     };
 
@@ -347,6 +362,7 @@ const App = () => {
     let croppedImagesTemp: string[] = [];
 
     for (let i = 0; i < imagesURLs.length; i++) {
+      // TODO: type it as well as info
       let imgTrans: any;
 
       try {
@@ -356,7 +372,8 @@ const App = () => {
 
         const w = imgTrans.bitmap.width;
         const h = imgTrans.bitmap.height;
-        const info = { width: w, height: h };
+        const extension = imgTrans.getExtension();
+        const info = { height: h, extension, width: w };
         const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
 
         const imgTransCopy = imgTrans.clone();
