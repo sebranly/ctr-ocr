@@ -378,80 +378,86 @@ const App = () => {
 
     // TODO: have better error handling
     for (let i = 0; i < imagesURLs.length; i++) {
-      logTime('imgRead');
-      const imgJimpTemp = await Jimp.read(imagesURLs[i]);
-      logTime('imgRead', true);
+      try {
+        logTime('imgRead');
+        const imgJimpTemp = await Jimp.read(imagesURLs[i]);
+        logTime('imgRead', true);
 
-      const initialHeight = imgJimpTemp.bitmap.height;
-      const shouldResize = initialHeight > MAX_HEIGHT_IMG;
+        const initialHeight = imgJimpTemp.bitmap.height;
+        const shouldResize = initialHeight > MAX_HEIGHT_IMG;
 
-      if (shouldResize) logTime('imgResize');
+        if (shouldResize) logTime('imgResize');
 
-      const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
+        const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
 
-      if (shouldResize) logTime('imgResize', true);
+        if (shouldResize) logTime('imgResize', true);
 
-      logTime('imgRotate');
+        logTime('imgRotate');
 
-      const imgTrans = imgJimp.rotate(-6.2);
+        const imgTrans = imgJimp.rotate(-6.2);
 
-      logTime('imgRotate', true);
+        logTime('imgRotate', true);
 
-      logTime('imgRest');
+        logTime('imgRest');
 
-      const h = imgTrans.bitmap.height;
-      const w = imgTrans.bitmap.width;
-      const extension = imgTrans.getExtension();
-      const info = { height: h, extension, width: w };
-      const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
+        const h = imgTrans.bitmap.height;
+        const w = imgTrans.bitmap.width;
+        const extension = imgTrans.getExtension();
+        const info = { height: h, extension, width: w };
+        const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
 
-      const imgTransCopy = imgTrans.clone();
-      const extractedCrop = imgTransCopy.crop(
-        dimensionsCrop.left,
-        dimensionsCrop.top,
-        dimensionsCrop.width,
-        dimensionsCrop.height
-      );
+        const imgTransCopy = imgTrans.clone();
+        const extractedCrop = imgTransCopy.crop(
+          dimensionsCrop.left,
+          dimensionsCrop.top,
+          dimensionsCrop.width,
+          dimensionsCrop.height
+        );
 
-      // eslint-disable-next-line no-loop-func
-      extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-        croppedImagesTemp.push(src);
-      });
+        // eslint-disable-next-line no-loop-func
+        extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
+          croppedImagesTemp.push(src);
+        });
 
-      const imgTransGray = imgTrans.grayscale();
+        const imgTransGray = imgTrans.grayscale();
 
-      logTime('imgRest', true);
+        logTime('imgRest', true);
 
-      logTime('promisesCreation');
+        logTime('promisesCreation');
 
-      const promisesNames = playerIndexes.map((playerIndex) =>
-        promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
-      );
+        const promisesNames = playerIndexes.map((playerIndex) =>
+          promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
+        );
 
-      logTime('promisesCreation', true);
+        logTime('promisesCreation', true);
 
-      setProgress(calculateProgress(1, i, imagesURLs.length));
-      logTime('promisesResolve');
+        setProgress(calculateProgress(1, i, imagesURLs.length));
+        logTime('promisesResolve');
 
-      const results = await Promise.all(promisesNames);
+        const results = await Promise.all(promisesNames);
 
-      logTime('promisesResolve', true);
+        logTime('promisesResolve', true);
 
-      const resultsNames = results.map((r) => cleanString((r as any).data.text));
+        const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
-      const dataResults: Result[] = [];
-      const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
-      playerIndexes.forEach((playerIndex) => {
-        const playerGuess = resultsNames[playerIndex];
-        const result: Result = {
-          username: getCloserString(playerGuess, referencePlayers),
-          position: playerIndex + 1
-        };
+        const dataResults: Result[] = [];
+        const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
+        playerIndexes.forEach((playerIndex) => {
+          const playerGuess = resultsNames[playerIndex];
+          const result: Result = {
+            username: getCloserString(playerGuess, referencePlayers),
+            position: playerIndex + 1
+          };
 
-        dataResults.push(result);
-      });
+          dataResults.push(result);
+        });
 
-      resultsOcrTemp.push(dataResults);
+        resultsOcrTemp.push(dataResults);
+      } catch (err) {
+        // TODO: have better error handling
+        logError(err);
+        setSelectIsDisabled(false);
+      }
     }
 
     setResultsOcr(resultsOcrTemp);
