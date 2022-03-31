@@ -375,44 +375,30 @@ const App = () => {
 
     let resultsOcrTemp: Result[][] = [];
     let croppedImagesTemp: string[] = [];
-    let jimpImg: any[] = [];
-    let infoImg: any[] = [];
 
     // TODO: have better error handling
     for (let i = 0; i < imagesURLs.length; i++) {
       logTime('imgRead');
       const imgJimpTemp = await Jimp.read(imagesURLs[i]);
-      jimpImg.push(imgJimpTemp);
       logTime('imgRead', true);
-    }
 
-    for (let i = 0; i < imagesURLs.length; i++) {
-      const imgJimpTemp = jimpImg[i];
       const initialHeight = imgJimpTemp.bitmap.height;
       const shouldResize = initialHeight > MAX_HEIGHT_IMG;
 
       if (shouldResize) logTime('imgResize');
 
       const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
-      jimpImg[i] = imgJimp;
 
       if (shouldResize) logTime('imgResize', true);
-    }
 
-    for (let i = 0; i < imagesURLs.length; i++) {
-      const imgJimp = jimpImg[i];
       logTime('imgRotate');
 
       const imgTrans = imgJimp.rotate(-6.2);
-      jimpImg[i] = imgTrans;
 
       logTime('imgRotate', true);
-    }
 
-    for (let i = 0; i < imagesURLs.length; i++) {
       logTime('imgRest');
 
-      const imgTrans = jimpImg[i];
       const h = imgTrans.bitmap.height;
       const w = imgTrans.bitmap.width;
       const extension = imgTrans.getExtension();
@@ -433,17 +419,10 @@ const App = () => {
       });
 
       const imgTransGray = imgTrans.grayscale();
-      jimpImg[i] = imgTransGray;
-      infoImg.push(info);
 
       logTime('imgRest', true);
-    }
 
-    for (let i = 0; i < imagesURLs.length; i++) {
       logTime('promisesCreation');
-
-      const info = infoImg[i];
-      const imgTransGray = jimpImg[i];
 
       const promisesNames = playerIndexes.map((playerIndex) =>
         promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
