@@ -5,6 +5,7 @@ import {
   CHARLIST_USERNAME,
   CTR_MAX_PLAYERS,
   CTR_MAX_TIME_DIFF_SEC,
+  LOG_CONSOLE,
   MIME_JPEG,
   MIME_PNG,
   PSM_SINGLE_CHAR,
@@ -24,10 +25,26 @@ const getMimeType = (extension: string) => {
   return isPng ? MIME_PNG : MIME_JPEG;
 };
 
-const calculateProgress = (ratioPreImage: number, imageIndex = 0, imagesLength?: number) => {
-  if (!imagesLength) return (ratioPreImage * 1) / 4;
+const calculateProgress = (
+  ratioPreImage: number,
+  imageIndex = 0,
+  imagesLength?: number,
+  rowIndex?: number,
+  rowsLength?: number
+) => {
+  const progressNoImage = (ratioPreImage * 1) / 4;
 
-  return (ratioPreImage * 1) / 4 + (1 - (ratioPreImage * 1) / 4) * (imageIndex / imagesLength);
+  if (!imagesLength) return progressNoImage;
+
+  const progressCurrentImage = progressNoImage + (1 - progressNoImage) * (imageIndex / imagesLength);
+  const progressNextImage = progressNoImage + (1 - progressNoImage) * ((imageIndex + 1) / imagesLength);
+  const progressOneImage = progressNextImage - progressCurrentImage;
+
+  if (!rowsLength) return progressCurrentImage;
+
+  const newRowIndex = rowIndex || 0;
+
+  return progressCurrentImage + (progressOneImage * newRowIndex) / rowsLength;
 };
 
 const formatCpuPlayers = (cpuPlayers: string[]) => {
@@ -87,7 +104,7 @@ const convertToMs = (time: string) => {
   const seconds = Number(secondsStr);
   const centiseconds = Number(centisecondsStr);
 
-  const milliseconds = centiseconds * 10 + seconds * 1000 + minutes * 60 * 1000;
+  const milliseconds = centiseconds * 10 + seconds * 1_000 + minutes * 60 * 1_000;
 
   return milliseconds;
 };
@@ -301,7 +318,7 @@ const validateTimes = (times: string[]) => {
     const minTime = sortedTimesMs[0];
 
     const diffTime = maxTime - minTime;
-    if (diffTime > CTR_MAX_TIME_DIFF_SEC * 1000) {
+    if (diffTime > CTR_MAX_TIME_DIFF_SEC * 1_000) {
       validation.errMsg = `There are more than ${CTR_MAX_TIME_DIFF_SEC} seconds separating players`;
 
       return validation;
@@ -310,6 +327,22 @@ const validateTimes = (times: string[]) => {
 
   validation.correct = true;
   return validation;
+};
+
+const logTime = (label: string, end = false) => {
+  if (!LOG_CONSOLE) return;
+
+  if (end) {
+    console.timeEnd(label);
+  } else {
+    console.time(label);
+  }
+};
+
+const logError = (err: any) => {
+  if (!LOG_CONSOLE) return;
+
+  console.log(err);
 };
 
 export {
@@ -326,6 +359,8 @@ export {
   getExtract,
   getParams,
   isHumanPlayer,
+  logError,
+  logTime,
   numberRange,
   positionIsValid,
   validateTimes,

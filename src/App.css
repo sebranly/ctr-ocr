@@ -100,7 +100,7 @@ html {
 }
 
 .progress {
-  background-color: green;
+  color: white;
 }
 
 .ocr {
@@ -173,6 +173,14 @@ h1 {
 
 .red {
   color: red;
+}
+
+.bg-orange {
+  background-color: orange;
+}
+
+.bg-yellow {
+  background-color: yellow;
 }
 
 .bg-red {

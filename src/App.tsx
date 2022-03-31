@@ -16,6 +16,7 @@ import {
   EXAMPLE_IMAGES_FOLDER,
   FINAL_PROGRESS,
   INITIAL_PROGRESS,
+  MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
   PLACEHOLDER_CPUS,
@@ -37,9 +38,12 @@ import {
   getPlayers,
   getReferencePlayers,
   isHumanPlayer,
+  logError,
+  logTime,
   numberRange,
   validateUsernames
 } from './utils';
+import classnames from 'classnames';
 
 const language = 'eng';
 
@@ -48,9 +52,15 @@ const App = () => {
     if ([0, FINAL_PROGRESS].includes(progress)) return null;
     const percent = Math.floor(progress * 100);
     const percentString = `${percent}%`;
+    const classes = classnames('pl progress', {
+      'bg-red': percent >= 0 && percent < 34,
+      'bg-orange': percent >= 34 && percent < 67,
+      'bg-green': percent >= 67
+    });
+
     return (
       <div className="progress-bar sticky">
-        <div className="pl progress" style={{ maxWidth: percentString }}>
+        <div className={classes} style={{ maxWidth: percentString }}>
           {percentString}
         </div>
       </div>
@@ -334,7 +344,12 @@ const App = () => {
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
 
-    const promisesX = async (playerIndex: number, category: Category, info: any, imgTransCopy: any) => {
+    const promisesX = async (
+      playerIndex: number,
+      category: Category,
+      info: any, // TODO: type it better
+      imgTransCopy: any
+    ) => {
       const scheduler = schedulerUsername;
       const dimensions = getExtract(info, playerIndex, category);
       const { extension } = info;
@@ -361,17 +376,32 @@ const App = () => {
     let resultsOcrTemp: Result[][] = [];
     let croppedImagesTemp: string[] = [];
 
+    // TODO: have better error handling
     for (let i = 0; i < imagesURLs.length; i++) {
-      // TODO: type it as well as info
-      let imgTrans: any;
-
       try {
-        const imgJimp = await Jimp.read(imagesURLs[i]);
+        logTime('imgRead');
+        const imgJimpTemp = await Jimp.read(imagesURLs[i]);
+        logTime('imgRead', true);
 
-        imgTrans = imgJimp.rotate(-6.2);
+        const initialHeight = imgJimpTemp.bitmap.height;
+        const shouldResize = initialHeight > MAX_HEIGHT_IMG;
 
-        const w = imgTrans.bitmap.width;
+        if (shouldResize) logTime('imgResize');
+
+        const imgJimp = shouldResize ? imgJimpTemp.resize(Jimp.AUTO, MAX_HEIGHT_IMG) : imgJimpTemp;
+
+        if (shouldResize) logTime('imgResize', true);
+
+        logTime('imgRotate');
+
+        const imgTrans = imgJimp.rotate(-6.2);
+
+        logTime('imgRotate', true);
+
+        logTime('imgRest');
+
         const h = imgTrans.bitmap.height;
+        const w = imgTrans.bitmap.width;
         const extension = imgTrans.getExtension();
         const info = { height: h, extension, width: w };
         const dimensionsCrop = getExtract(info, nbPlayers, Category.All);
@@ -386,15 +416,28 @@ const App = () => {
 
         // eslint-disable-next-line no-loop-func
         extractedCrop.getBase64(MIME_JPEG, (err: any, src: string) => {
-          croppedImagesTemp = [...croppedImagesTemp, src];
+          croppedImagesTemp.push(src);
         });
 
+        const imgTransGray = imgTrans.grayscale();
+
+        logTime('imgRest', true);
+
+        logTime('promisesCreation');
+
         const promisesNames = playerIndexes.map((playerIndex) =>
-          promisesX(playerIndex, Category.Username, info, imgTrans.grayscale().clone())
+          promisesX(playerIndex, Category.Username, info, imgTransGray.clone())
         );
 
+        logTime('promisesCreation', true);
+
         setProgress(calculateProgress(1, i, imagesURLs.length));
+        logTime('promisesResolve');
+
         const results = await Promise.all(promisesNames);
+
+        logTime('promisesResolve', true);
+
         const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
         const dataResults: Result[] = [];
@@ -409,9 +452,10 @@ const App = () => {
           dataResults.push(result);
         });
 
-        resultsOcrTemp = [...resultsOcrTemp, dataResults];
+        resultsOcrTemp.push(dataResults);
       } catch (err) {
         // TODO: have better error handling
+        logError(err);
         setSelectIsDisabled(false);
       }
     }
