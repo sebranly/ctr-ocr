@@ -104,7 +104,7 @@ const convertToMs = (time: string) => {
   const seconds = Number(secondsStr);
   const centiseconds = Number(centisecondsStr);
 
-  const milliseconds = centiseconds * 10 + seconds * 1000 + minutes * 60 * 1000;
+  const milliseconds = centiseconds * 10 + seconds * 1_000 + minutes * 60 * 1_000;
 
   return milliseconds;
 };
@@ -318,7 +318,7 @@ const validateTimes = (times: string[]) => {
     const minTime = sortedTimesMs[0];
 
     const diffTime = maxTime - minTime;
-    if (diffTime > CTR_MAX_TIME_DIFF_SEC * 1000) {
+    if (diffTime > CTR_MAX_TIME_DIFF_SEC * 1_000) {
       validation.errMsg = `There are more than ${CTR_MAX_TIME_DIFF_SEC} seconds separating players`;
 
       return validation;
