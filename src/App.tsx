@@ -361,7 +361,7 @@ const App = () => {
     // TODO: have better error handling
     for (let i = 0; i < imagesURLs.length; i++) {
       try {
-        const progressText = `Image ${i + 1} out of ${imagesURLs.length}`;
+        const progressText = `Image ${i + 1} out of ${imagesURLs.length}...`;
         setOcrProgressText(progressText);
 
         logTime('imgRead');
