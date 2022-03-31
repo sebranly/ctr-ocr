@@ -25,28 +25,6 @@ const getMimeType = (extension: string) => {
   return isPng ? MIME_PNG : MIME_JPEG;
 };
 
-const calculateProgress = (
-  ratioPreImage: number,
-  imageIndex = 0,
-  imagesLength?: number,
-  rowIndex?: number,
-  rowsLength?: number
-) => {
-  const progressNoImage = (ratioPreImage * 1) / 4;
-
-  if (!imagesLength) return progressNoImage;
-
-  const progressCurrentImage = progressNoImage + (1 - progressNoImage) * (imageIndex / imagesLength);
-  const progressNextImage = progressNoImage + (1 - progressNoImage) * ((imageIndex + 1) / imagesLength);
-  const progressOneImage = progressNextImage - progressCurrentImage;
-
-  if (!rowsLength) return progressCurrentImage;
-
-  const newRowIndex = rowIndex || 0;
-
-  return progressCurrentImage + (progressOneImage * newRowIndex) / rowsLength;
-};
-
 const formatCpuPlayers = (cpuPlayers: string[]) => {
   if (!cpuPlayers || cpuPlayers.length === 0) return '';
 
@@ -347,7 +325,6 @@ const logError = (err: any) => {
 
 export {
   applyRatio,
-  calculateProgress,
   charRange,
   cleanString,
   convertToMs,

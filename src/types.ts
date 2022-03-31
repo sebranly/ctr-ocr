@@ -5,6 +5,12 @@ export enum Category {
   All = 'all'
 }
 
+export enum Progress {
+  NotStarted = 'not_started',
+  Started = 'started',
+  Done = 'done'
+}
+
 export type Validation = {
   correct: boolean;
   errMsg: string;
