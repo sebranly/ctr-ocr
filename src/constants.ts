@@ -29,9 +29,7 @@ export const WEBSITE_VERSION = '1.0.1';
 export const WEBSITE_DEFAULT_LANGUAGE = 'en';
 export const PLACEHOLDER_CPUS = 'Loading CPUs...';
 export const URL_CPUS = `${AUTHOR_GITHUB}/json/ctrocr/players.json`;
-export const INITIAL_PROGRESS = 1 / 100;
 export const EXAMPLE_IMAGES_FOLDER = `https://raw.githubusercontent.com/${AUTHOR_NAME}/${PROJECT_NAME}/main/src/img/examples/`;
-export const FINAL_PROGRESS = 1;
 export const SUPPORTED_PLATFORMS = ['PS5'];
 export const PLACEHOLDER_PLAYERS = `Hyène_JurassX
 Alexiz

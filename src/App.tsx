@@ -2,7 +2,7 @@ import * as React from 'react';
 import './App.css';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { createWorker, createScheduler } from 'tesseract.js';
-import { Category, Result } from './types';
+import { Category, Progress, Result } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -14,8 +14,6 @@ import {
   CANONICAL_URL,
   CTR_MAX_PLAYERS,
   EXAMPLE_IMAGES_FOLDER,
-  FINAL_PROGRESS,
-  INITIAL_PROGRESS,
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
@@ -28,7 +26,6 @@ import {
   WEBSITE_VERSION
 } from './constants';
 import {
-  calculateProgress,
   cleanString,
   formatCpuPlayers,
   getCloserString,
@@ -43,26 +40,17 @@ import {
   numberRange,
   validateUsernames
 } from './utils';
-import classnames from 'classnames';
 
 const language = 'eng';
 
 const App = () => {
   const renderProgressBar = () => {
-    if ([0, FINAL_PROGRESS].includes(progress)) return null;
-    const percent = Math.floor(progress * 100);
-    const percentString = `${percent}%`;
-    const classes = classnames('pl progress', {
-      'bg-red': percent >= 0 && percent < 34,
-      'bg-orange': percent >= 34 && percent < 67,
-      'bg-green': percent >= 67
-    });
+    if (ocrProgress !== Progress.Started) return null;
 
     return (
-      <div className="progress-bar sticky">
-        <div className={classes} style={{ maxWidth: percentString }}>
-          {percentString}
-        </div>
+      <div className="progress-bar">
+        <div className="progress-bar-value"></div>
+        <div className="progress-bar-text">{ocrProgressText}</div>
       </div>
     );
   };
@@ -317,7 +305,8 @@ const App = () => {
     if (!onMountOver) return;
 
     setSelectIsDisabled(true);
-    setProgress(INITIAL_PROGRESS);
+    setOcrProgress(Progress.Started);
+    setOcrProgressText('Initialization...');
     setResultsOcr([]);
     setCroppedImages([]);
 
@@ -330,17 +319,10 @@ const App = () => {
     schedulerUsername.addWorker(workerUsername);
 
     await workerUsername.load();
-    setProgress(calculateProgress(1 / 4));
-
     await workerUsername.loadLanguage(language);
-    setProgress(calculateProgress(2 / 4));
-
     await workerUsername.initialize(language);
-    setProgress(calculateProgress(3 / 4));
-
     const usernameParams = getParams(Category.Username);
     await workerUsername.setParameters(usernameParams);
-    setProgress(calculateProgress(4 / 4));
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
 
@@ -379,6 +361,9 @@ const App = () => {
     // TODO: have better error handling
     for (let i = 0; i < imagesURLs.length; i++) {
       try {
+        const progressText = `Image ${i + 1} out of ${imagesURLs.length}...`;
+        setOcrProgressText(progressText);
+
         logTime('imgRead');
         const imgJimpTemp = await Jimp.read(imagesURLs[i]);
         logTime('imgRead', true);
@@ -431,7 +416,6 @@ const App = () => {
 
         logTime('promisesCreation', true);
 
-        setProgress(calculateProgress(1, i, imagesURLs.length));
         logTime('promisesResolve');
 
         const results = await Promise.all(promisesNames);
@@ -462,14 +446,16 @@ const App = () => {
 
     setResultsOcr(resultsOcrTemp);
     setCroppedImages(croppedImagesTemp);
-    setProgress(1);
+    setOcrProgress(Progress.Done);
+    setOcrProgressText('');
     setSelectIsDisabled(false);
 
     await schedulerUsername.terminate();
   };
 
   const { width, height } = useWindowSize();
-  const [progress, setProgress] = React.useState(0);
+  const [ocrProgress, setOcrProgress] = React.useState(Progress.NotStarted);
+  const [ocrProgressText, setOcrProgressText] = React.useState('');
   const [images, setImages] = React.useState<any[]>([]);
   const [imagesURLs, setImagesURLs] = React.useState<any[]>([]);
   const [croppedImages, setCroppedImages] = React.useState<any[]>([]);
@@ -548,7 +534,9 @@ const App = () => {
       <div className="main">
         <h1>{WEBSITE_TITLE}</h1>
         <div className="w3-light-grey"></div>
-        {progress === FINAL_PROGRESS && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
+        {ocrProgress === Progress.Done && (
+          <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />
+        )}
         <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
           {renderProgressBar()}
           <h2>Players</h2>
