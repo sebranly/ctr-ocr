@@ -20,7 +20,7 @@
     "react-icons": "^3.11.0",
     "react-scripts": "3.4.3",
     "react-use": "^17.2.4",
-    "tesseract.js": "^2.1.0",
+    "tesseract.js": "2.1.0",
     "typescript": "^3.9.9"
   },
   "scripts": {
