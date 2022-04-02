@@ -14,12 +14,13 @@ import {
   CANONICAL_URL,
   CTR_MAX_PLAYERS,
   EXAMPLE_IMAGES_FOLDER,
+  EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
+  GUIDE_FOLDER,
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
-  SUPPORTED_PLATFORMS,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
@@ -191,6 +192,7 @@ const App = () => {
 
     const jpgImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.JPG`;
     const pngImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.PNG`;
+    const guideImage = `${GUIDE_FOLDER}Images.md`;
 
     return (
       <>
@@ -198,24 +200,34 @@ const App = () => {
         <h2>Images</h2>
         <div className="text-center mb">
           <div className="ml block mb bold">Screenshots will be ordered alphabetically by name</div>
-          <div className="ml block mb italic">
-            {`Only screenshots from the following platforms have been tested so far: ${SUPPORTED_PLATFORMS}`}
+          <div className="ml block mb">
+            Select screenshots in JPG/JPEG or PNG format, taken right when Returning to Lobby was around 14 seconds
           </div>
           <div className="ml block mb">
-            Select screenshots in JPG/JPEG (recommended) or PNG format, taken right when Returning to Lobby was around
-            14 seconds
-          </div>
-          <div className="ml block mb">
-            JPG/JPEG is recommended because it provides the same quality of results and is lighter than PNG
-          </div>
-          <div className="ml block mb">
+            Examples of valid screenshots:{' '}
             <a href={jpgImage} rel="noopener noreferrer" title="Example of valid JPEG screenshot" target="_blank">
-              Example of a valid JPG/JPEG screenshot
+              JPG/JPEG
+            </a>{' '}
+            and{' '}
+            <a href={pngImage} rel="noopener noreferrer" title="Example of valid PNG screenshot" target="_blank">
+              PNG
             </a>
           </div>
           <div className="ml block mb">
-            <a href={pngImage} rel="noopener noreferrer" title="Example of valid PNG screenshot" target="_blank">
-              Example of a valid PNG screenshot
+            You can upload multiple images at once, as in this{' '}
+            <a
+              href={EXAMPLE_IMAGES_FOLDER_FULL_EVENT}
+              rel="noopener noreferrer"
+              title="Example of a valid 10-race event"
+              target="_blank"
+            >
+              10-race example
+            </a>
+          </div>
+          <div className="ml block mb">
+            For more information, please refer to the{' '}
+            <a href={guideImage} rel="noopener noreferrer" title="Guide about Images" target="_blank">
+              images guide
             </a>
           </div>
           <input
@@ -243,6 +255,8 @@ const App = () => {
   const renderCpuSection = () => {
     if (!cpuData || Object.keys(cpuData).length === 0) return <div className="text-center mb">{PLACEHOLDER_CPUS}</div>;
 
+    const guideCpu = `${GUIDE_FOLDER}CPUs.md`;
+
     const optionsCpuLanguages = Object.keys(cpuData);
     const textCheckbox = shouldIncludeCpuPlayers
       ? `Automatically activated bots because ${nbPlayersTyped} human player(s) was/were filled out of a total of ${nbPlayers} players`
@@ -264,6 +278,12 @@ const App = () => {
           <>
             <div className="text-center mb">
               Bots are automatically determined based on the language and cannot be edited
+            </div>
+            <div className="ml block mb">
+              For more information, please refer to the{' '}
+              <a href={guideCpu} rel="noopener noreferrer" title="Guide about CPUs" target="_blank">
+                CPUs guide
+              </a>
             </div>
             <div className="inline mr">Language in images</div>
             <select disabled={selectIsDisabled} onChange={onChangeCpuLanguage} value={cpuLanguage}>
