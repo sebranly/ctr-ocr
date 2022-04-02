@@ -3,25 +3,25 @@
   "name": "ctr-ocr",
   "version": "0.1.0",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.5",
+    "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
-    "classnames": "^2.2.6",
+    "classnames": "^2.3.1",
     "fast-levenshtein": "^3.0.0",
     "get-image-colors": "^4.0.1",
-    "gh-pages": "^3.1.0",
+    "gh-pages": "^3.2.3",
     "jimp": "^0.16.1",
     "lodash": "^4.17.21",
     "react": "^16.14.0",
     "react-confetti": "^6.0.1",
     "react-device-detect": "^1.17.0",
     "react-dom": "^16.14.0",
-    "react-helmet-async": "^1.0.7",
+    "react-helmet-async": "^1.2.3",
     "react-icons": "^3.11.0",
     "react-scripts": "3.4.3",
-    "react-use": "^17.2.4",
-    "tesseract.js": "^2.1.0",
-    "typescript": "^3.9.9"
+    "react-use": "^17.3.2",
+    "tesseract.js": "2.1.0",
+    "typescript": "^3.9.10"
   },
   "scripts": {
     "predeploy": "npm run build",
@@ -48,17 +48,17 @@
     ]
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.10",
+    "@types/classnames": "^2.3.1",
     "@types/fast-levenshtein": "0.0.2",
     "@types/get-image-colors": "^4.0.1",
-    "@types/jest": "^26.0.15",
-    "@types/lodash": "^4.14.179",
-    "@types/node": "^14.14.2",
-    "@types/react": "^16.9.53",
-    "@types/react-dom": "^16.9.8",
+    "@types/jest": "^26.0.24",
+    "@types/lodash": "^4.14.181",
+    "@types/node": "^14.18.12",
+    "@types/react": "^16.14.24",
+    "@types/react-dom": "^16.9.14",
     "@types/react-helmet-async": "^1.0.3",
     "@types/react-icons": "^3.0.0",
     "http-server": "^14.1.0",
-    "prettier": "^2.2.1"
+    "prettier": "^2.6.1"
   }
 }
