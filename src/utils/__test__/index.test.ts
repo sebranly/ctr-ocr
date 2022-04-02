@@ -15,6 +15,7 @@ import {
   formatCpuPlayers,
   getCloserString,
   getExtract,
+  getFilenameWithoutExtension,
   getMimeType,
   getParams,
   getPlayers,
@@ -22,6 +23,8 @@ import {
   isHumanPlayer,
   numberRange,
   positionIsValid,
+  sortAlphanumeric,
+  sortImagesByFilename,
   validateTimes,
   validateUsernames
 } from '../index';
@@ -30,6 +33,79 @@ const correctResponse: Validation = {
   correct: true,
   errMsg: ''
 };
+
+test('sortAlphanumeric', () => {
+  expect(sortAlphanumeric('a', 'a')).toBe(-1);
+  expect(sortAlphanumeric('a', 'b')).toBe(-1);
+  expect(sortAlphanumeric('b', 'a')).toBe(1);
+  expect(sortAlphanumeric('1', '0')).toBe(1);
+  expect(sortAlphanumeric('0', '0')).toBe(0);
+  expect(sortAlphanumeric('0', '1')).toBe(-1);
+  expect(sortAlphanumeric('1', '10')).toBe(-1);
+  expect(sortAlphanumeric('10', '1')).toBe(1);
+  expect(sortAlphanumeric('IMG1', 'IMG10')).toBe(-1);
+  expect(sortAlphanumeric('IMG01', 'IMG10')).toBe(-1);
+  expect(sortAlphanumeric('IMG10', 'IMG1')).toBe(1);
+  expect(sortAlphanumeric('IMG10', 'IMG01')).toBe(1);
+});
+
+test('getFilenameWithoutExtension', () => {
+  expect(getFilenameWithoutExtension('')).toBe('');
+  expect(getFilenameWithoutExtension('name')).toBe('name');
+  expect(getFilenameWithoutExtension('name.JPG')).toBe('name');
+  expect(getFilenameWithoutExtension('name.JPEG')).toBe('name');
+  expect(getFilenameWithoutExtension('name.PNG')).toBe('name');
+  expect(getFilenameWithoutExtension('name.PNG.JPG')).toBe('name');
+});
+
+test('sortImagesByFilename', () => {
+  const image1 = { name: 'IMG1.JPG' };
+  const image2 = { name: 'IMG02.JPEG' };
+  const image3 = { name: 'IMG000003.PNG' };
+  const image4 = { name: 'IMG4.PNG' };
+  const image5 = { name: 'IMG5.JPG' };
+  const image6 = { name: 'IMG6' };
+  const image7 = { name: 'IMG7.JPG' };
+  const image8 = { name: 'IMG08.JPG' };
+  const image9 = { name: 'IMG9.JPG' };
+  const image10 = { name: 'IMG10.JPG' };
+  const image11 = { name: 'IMG0011.JPG' };
+  const image12 = { name: 'IMG12.JPG' };
+
+  const notSortedImages = [
+    image2,
+    image11,
+    image1,
+    image3,
+    image4,
+    image6,
+    image5,
+    image7,
+    image8,
+    image9,
+    image12,
+    image10
+  ];
+
+  const sortedImages = [
+    image1,
+    image2,
+    image3,
+    image4,
+    image5,
+    image6,
+    image7,
+    image8,
+    image9,
+    image10,
+    image11,
+    image12
+  ];
+
+  expect(sortImagesByFilename([])).toStrictEqual([]);
+  expect(sortImagesByFilename([{ name: 'any.JPG' }])).toStrictEqual([{ name: 'any.JPG' }]);
+  expect(sortImagesByFilename(notSortedImages)).toStrictEqual(sortedImages);
+});
 
 test('getMimeType', () => {
   expect(getMimeType('')).toBe('image/jpeg');

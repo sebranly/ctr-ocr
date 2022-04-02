@@ -10,6 +10,7 @@ export const AUTHOR_GITHUB = `https://${AUTHOR_NAME}.github.io`;
 export const PROJECT_NAME = 'ctr-ocr';
 export const JSON_FOLDER = 'ctr-ocr';
 export const PROJECT_URL = `https://github.com/${AUTHOR_NAME}/${PROJECT_NAME}`;
+export const CRASH_TEAM_RANKING_AUTHOR_URL = 'https://crashteamranking.com/members/siblingbling/tt/';
 export const GUIDE_FOLDER = `${PROJECT_URL}/blob/main/doc/guide/`;
 export const LOG_CONSOLE = false;
 export const MAX_HEIGHT_IMG = 1_000;

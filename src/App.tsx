@@ -8,10 +8,10 @@ import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { isMobile } from 'react-device-detect';
-import { sortBy } from 'lodash';
 
 import {
   CANONICAL_URL,
+  CRASH_TEAM_RANKING_AUTHOR_URL,
   CTR_MAX_PLAYERS,
   EXAMPLE_IMAGES_FOLDER,
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
@@ -21,6 +21,7 @@ import {
   MIME_PNG,
   PLACEHOLDER_CPUS,
   PLACEHOLDER_PLAYERS,
+  PROJECT_URL,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
@@ -39,6 +40,7 @@ import {
   logError,
   logTime,
   numberRange,
+  sortImagesByFilename,
   validateUsernames
 } from './utils';
 
@@ -174,6 +176,30 @@ const App = () => {
           <h2>Results</h2>
           {resultsOcr.map((_resultOcr: Result[], index: number) => renderRace(index))}
         </div>
+      </>
+    );
+  };
+
+  const renderFooter = () => {
+    return (
+      <>
+        <div className="mt2 text-center">
+          Developed by{' '}
+          <a href={PROJECT_URL} rel="noopener noreferrer" title="GitHub page for repository" target="_blank">
+            sebranly
+          </a>{' '}
+          (PSN:{' '}
+          <a
+            href={CRASH_TEAM_RANKING_AUTHOR_URL}
+            rel="noopener noreferrer"
+            title="Crash Team Ranking for ZouGui28"
+            target="_blank"
+          >
+            ZouGui28
+          </a>
+          ) with ❤️
+        </div>
+        <div className="mt2 text-center">{`Website version ${WEBSITE_VERSION}`}</div>
       </>
     );
   };
@@ -500,8 +526,10 @@ const App = () => {
   React.useEffect(() => {
     if (images.length < 1) return;
     const newImageUrls: any[] = [];
-    const sortImages = sortBy(images, (image: any) => image.name);
-    sortImages.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
+    const sortImages = sortImagesByFilename(images);
+    sortImages.forEach((image) => {
+      newImageUrls.push(URL.createObjectURL(image));
+    });
     setImagesURLs(newImageUrls);
   }, [images]);
 
@@ -584,7 +612,7 @@ const App = () => {
           />
           {renderMainSection()}
         </div>
-        <div className="mt2 text-center">{`v${WEBSITE_VERSION}`}</div>
+        {renderFooter()}
       </div>
     </HelmetProvider>
   );
