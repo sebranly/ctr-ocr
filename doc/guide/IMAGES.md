@@ -10,9 +10,15 @@ The website is primarily an image-to-text tool that converts an image of results
 
 The website supports the following formats: `JPG`/`JPEG`/`PNG`.
 
-## Dimensions
+### Dimensions
 
 The website supports any dimensions as long as the **ratio of width/height is 1.78**. For example the following dimensions are supported: 3840x2160 (maximum allowed on PS5), 1280x720 (maximum allowed on Switch), etc.
+
+### Name
+
+If uploading multiple images, they will be sorted alphabetically by their name for the results. We advise you to name them with numbers, for example as follows: `IMG1.JPG`, `IMG2.JPG`, ..., `IMG15.JPG` for an event containing 15 races.
+
+An example with 10 races is available in this [example folder](https://github.com/sebranly/ctr-ocr/tree/main/src/img/examples/full-event).
 
 ## Platforms
 
@@ -27,6 +33,12 @@ On PS5, screenshots can be taken in two formats: `JPG`/`PNG`. I noticed that `PN
 Screenshots can be taken by pressing the Share button on the left part of the DualSense controller then hitting the button in the middle.
 
 By using PS App on your mobile device, you can additionally set up an automatic upload of your screenshots from your PS5 to your PS App to save time. See this [Sony guide](https://www.playstation.com/en-ca/support/games/ps5-game-captures-ps-app/) for more information. Otherwise you can also share your screenshots to a Party or social media first.
+
+### Xbox
+
+Follow this [Xbox guide](https://support.xbox.com/en-US/help/friends-social-activity/share-socialize/capture-game-clips-and-screenshots) in order to take screenshots on Xbox.
+
+I don't own an Xbox so I do not have more information. If you do, please feel free to open a [GitHub issue](https://github.com/sebranly/ctr-ocr/issues) or a Pull Request to complete this section.
 
 ### Switch
 
