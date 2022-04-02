@@ -39,6 +39,7 @@ import {
   logError,
   logTime,
   numberRange,
+  sortImagesByFilename,
   validateUsernames
 } from './utils';
 
@@ -500,8 +501,10 @@ const App = () => {
   React.useEffect(() => {
     if (images.length < 1) return;
     const newImageUrls: any[] = [];
-    const sortImages = sortBy(images, (image: any) => image.name);
-    sortImages.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
+    const sortImages = sortImagesByFilename(images);
+    sortImages.forEach((image) => {
+      newImageUrls.push(URL.createObjectURL(image));
+    });
     setImagesURLs(newImageUrls);
   }, [images]);
 

@@ -323,12 +323,54 @@ const logError = (err: any) => {
   console.log(err);
 };
 
+const sortAlphanumeric = (strA: string, strB: string) => {
+  const regexAlpha = /[^a-zA-Z]/g;
+  const regexNumeric = /[^0-9]/g;
+
+  var newA = strA.replace(regexAlpha, '');
+  var newB = strB.replace(regexAlpha, '');
+
+  if (newA === newB) {
+    var aN = parseInt(strA.replace(regexNumeric, ''), 10);
+    var bN = parseInt(strB.replace(regexNumeric, ''), 10);
+    return aN === bN ? 0 : aN > bN ? 1 : -1;
+  }
+
+  return newA > newB ? 1 : -1;
+};
+
+const getFilenameWithoutExtension = (filename: string) => {
+  if (!filename) return '';
+
+  const splits = filename.split('.');
+
+  return splits[0];
+};
+
+const sortImagesByFilename = (images: any[]) => {
+  if (images.length === 0) return [];
+  if (images.length === 1) return images;
+
+  const sortedImages = images.sort((imageA: any, imageB: any) => {
+    const { name: nameA } = imageA;
+    const { name: nameB } = imageB;
+
+    const newNameA = getFilenameWithoutExtension(nameA);
+    const newNameB = getFilenameWithoutExtension(nameB);
+
+    return sortAlphanumeric(newNameA, newNameB);
+  });
+
+  return sortedImages;
+};
+
 export {
   applyRatio,
   charRange,
   cleanString,
   convertToMs,
   formatCpuPlayers,
+  getFilenameWithoutExtension,
   getMimeType,
   getPlayers,
   getReferencePlayers,
@@ -340,6 +382,8 @@ export {
   logTime,
   numberRange,
   positionIsValid,
+  sortAlphanumeric,
+  sortImagesByFilename,
   validateTimes,
   validateUsernames
 };
