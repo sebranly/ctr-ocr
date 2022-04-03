@@ -225,6 +225,32 @@ const App = () => {
     );
   };
 
+  const renderStart = () => {
+    const isFFA = nbTeams === nbPlayers;
+
+    if (!includeCpuPlayers && !isFFA && !validationTeams.correct) return null;
+
+    const colorText = ocrProgress === Progress.Done ? 'orange' : 'red';
+    const classesText = `ml block mb bold ${colorText}`;
+    const text =
+      ocrProgress === Progress.Done
+        ? 'Images were analyzed successfully. Please check the results below are correct. Feel free to tweak any mistake'
+        : 'Please ensure all the information entered above is correct, as none of it can be edited afterwards';
+
+    return (
+      <div className="text-center mb">
+        <div className={classesText}>{text}</div>
+        <input
+          className="inline-block ml"
+          type="button"
+          value="Get results"
+          disabled={selectIsDisabled || !imagesURLs || imagesURLs.length === 0}
+          onClick={doOCR}
+        />
+      </div>
+    );
+  };
+
   const renderImagesUpload = () => {
     const jpgImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.JPG`;
     const pngImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.PNG`;
@@ -277,13 +303,6 @@ const App = () => {
             accept={[MIME_JPEG, MIME_PNG].join(', ')}
             onChange={onChangeImage}
           />
-          <input
-            className="inline-block ml"
-            type="button"
-            value="Start recognition"
-            disabled={selectIsDisabled || !imagesURLs || imagesURLs.length === 0}
-            onClick={doOCR}
-          />
         </div>
       </>
     );
@@ -298,6 +317,7 @@ const App = () => {
         {renderTeamMainSection()}
         {renderImagesUpload()}
         {renderImages()}
+        {renderStart()}
         {renderRaces()}
       </>
     );
