@@ -29,12 +29,14 @@ export const PSM_SINGLE_LINE = '7';
 export const SEPARATOR_PLAYERS = '\n';
 export const TIME_DNF = '--:--:--';
 export const WEBSITE_TITLE = 'Crash Team Results';
-export const WEBSITE_VERSION = '1.0.3';
+export const WEBSITE_VERSION = '1.0.4';
 export const WEBSITE_DEFAULT_LANGUAGE = 'en';
 export const PLACEHOLDER_CPUS = 'Loading CPUs...';
 export const URL_CPUS = `${AUTHOR_GITHUB}/json/${JSON_FOLDER}/players.json`;
 export const EXAMPLE_IMAGES_FOLDER = `https://raw.githubusercontent.com/${AUTHOR_NAME}/${PROJECT_NAME}/main/src/img/examples/`;
 export const EXAMPLE_IMAGES_FOLDER_FULL_EVENT = `${PROJECT_URL}/tree/main/src/img/examples/full-event/`;
+// There will always be a possibility for 2 teams
+export const INITIAL_TEAM_NB = 2;
 export const PLACEHOLDER_PLAYERS = `Hyène_JurassX
 Alexiz
 Colonel_Hay

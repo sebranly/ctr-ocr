@@ -104,6 +104,14 @@ const getCloserString = (str: string, list: string[]) => {
   return name;
 };
 
+const getOptionsTeams = (nbPlayers: number) => {
+  if ([0, 1, 2].includes(nbPlayers)) return [nbPlayers];
+
+  const teams = uniq([nbPlayers, ...numberRange(2, nbPlayers - 1).sort()]);
+
+  return teams;
+};
+
 // TODO: for All, index is actually the number of players
 const getExtract = (info: any, index = 0, category: Category) => {
   const { width, height } = info;
@@ -212,6 +220,54 @@ const charRange = (startChar: string, stopChar: string) => {
   }
 
   return result;
+};
+
+const validateTeams = (players: string[], teams: string[], playerTeams: Record<string, string>) => {
+  const validation: Validation = {
+    correct: false,
+    errMsg: ''
+  };
+
+  const missingTeamForPlayers: string[] = [];
+  const incorrectTeamForPlayers: string[] = [];
+  const seenTeams: string[] = [];
+
+  players.forEach((player: string) => {
+    const team = playerTeams[player];
+    if (!team) {
+      missingTeamForPlayers.push(player);
+    }
+
+    if (!teams.includes(team)) {
+      incorrectTeamForPlayers.push(player);
+    }
+
+    if (teams.includes(team)) {
+      seenTeams.push(team);
+    }
+  });
+
+  if (missingTeamForPlayers.length > 0) {
+    validation.errMsg = `The following players have no assigned team: ${missingTeamForPlayers.join(', ')}`;
+    validation.isWarning = true;
+
+    return validation;
+  }
+
+  if (incorrectTeamForPlayers.length > 0) {
+    validation.errMsg = `The following players have an invalid team: ${incorrectTeamForPlayers.join(', ')}`;
+
+    return validation;
+  }
+
+  if (uniq(seenTeams).length === 1) {
+    validation.errMsg = 'You cannot have all players under the same team';
+
+    return validation;
+  }
+
+  validation.correct = true;
+  return validation;
 };
 
 const validateUsernames = (usernames: string[]) => {
@@ -364,6 +420,49 @@ const sortImagesByFilename = (images: any[]) => {
   return sortedImages;
 };
 
+const getTeamNames = (nbTeams: number) => {
+  if (nbTeams === 0) return [];
+
+  return numberRange(1, nbTeams).map((n: number) => `Team ${n}`);
+};
+
+const getColorPlayer = (player: string, teams: string[], playerTeams: Record<string, string>) => {
+  const playerTeam = playerTeams[player];
+
+  if (!playerTeam) return 'black';
+
+  const index = teams.indexOf(playerTeam);
+
+  switch (index) {
+    case 0:
+      return 'blue';
+    case 1:
+      return 'red';
+    case 2:
+      return 'green';
+    case 3:
+      return 'orange';
+    case 4:
+      return 'purple';
+    case 5:
+      return 'brown';
+    case 6:
+      return 'grey';
+    default:
+      return 'black';
+  }
+};
+
+const sortCaseInsensitive = (a: string, b: string) => {
+  if (!a || !b) return 1;
+  const lowerA = a.toLowerCase();
+  const lowerB = b.toLowerCase();
+
+  if (lowerA === lowerB) return 0;
+
+  return lowerA > lowerB ? 1 : -1;
+};
+
 export {
   applyRatio,
   charRange,
@@ -372,8 +471,11 @@ export {
   formatCpuPlayers,
   getFilenameWithoutExtension,
   getMimeType,
+  getOptionsTeams,
   getPlayers,
   getReferencePlayers,
+  getTeamNames,
+  getColorPlayer,
   getCloserString,
   getExtract,
   getParams,
@@ -384,6 +486,8 @@ export {
   positionIsValid,
   sortAlphanumeric,
   sortImagesByFilename,
+  sortCaseInsensitive,
+  validateTeams,
   validateTimes,
   validateUsernames
 };

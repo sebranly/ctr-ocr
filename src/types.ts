@@ -14,6 +14,7 @@ export enum Progress {
 export type Validation = {
   correct: boolean;
   errMsg: string;
+  isWarning?: boolean;
 };
 
 export type Coord = {

@@ -14,17 +14,22 @@ import {
   convertToMs,
   formatCpuPlayers,
   getCloserString,
+  getColorPlayer,
   getExtract,
   getFilenameWithoutExtension,
   getMimeType,
+  getOptionsTeams,
   getParams,
   getPlayers,
   getReferencePlayers,
+  getTeamNames,
   isHumanPlayer,
   numberRange,
   positionIsValid,
   sortAlphanumeric,
+  sortCaseInsensitive,
   sortImagesByFilename,
+  validateTeams,
   validateTimes,
   validateUsernames
 } from '../index';
@@ -47,6 +52,61 @@ test('sortAlphanumeric', () => {
   expect(sortAlphanumeric('IMG01', 'IMG10')).toBe(-1);
   expect(sortAlphanumeric('IMG10', 'IMG1')).toBe(1);
   expect(sortAlphanumeric('IMG10', 'IMG01')).toBe(1);
+});
+
+test('getTeamNames', () => {
+  expect(getTeamNames(0)).toStrictEqual([]);
+  expect(getTeamNames(1)).toStrictEqual(['Team 1']);
+  expect(getTeamNames(4)).toStrictEqual(['Team 1', 'Team 2', 'Team 3', 'Team 4']);
+});
+
+test('getColorPlayer', () => {
+  const sevenTeams = ['t1', 't2', 't3', 't4', 't5', 't6', 't7'];
+
+  expect(getColorPlayer('a', sevenTeams, { a: 't1' })).toBe('blue');
+  expect(getColorPlayer('a', sevenTeams, { a: 't2' })).toBe('red');
+  expect(getColorPlayer('a', sevenTeams, { a: 't3' })).toBe('green');
+  expect(getColorPlayer('a', sevenTeams, { a: 't4' })).toBe('orange');
+  expect(getColorPlayer('a', sevenTeams, { a: 't5' })).toBe('purple');
+  expect(getColorPlayer('a', sevenTeams, { a: 't6' })).toBe('brown');
+  expect(getColorPlayer('a', sevenTeams, { a: 't7' })).toBe('grey');
+  expect(getColorPlayer('a', sevenTeams, { a: 't8' })).toBe('black');
+  expect(getColorPlayer('a', [], { a: 't1' })).toBe('black');
+  expect(getColorPlayer('', [], { a: 't1' })).toBe('black');
+  expect(getColorPlayer('', sevenTeams, { a: 't1' })).toBe('black');
+});
+
+test('sortCaseInsensitive', () => {
+  expect(sortCaseInsensitive('', '')).toBe(1);
+  expect(sortCaseInsensitive('a', '')).toBe(1);
+  expect(sortCaseInsensitive('', 'a')).toBe(1);
+  expect(sortCaseInsensitive('a', 'a')).toBe(0);
+  expect(sortCaseInsensitive('a', 'A')).toBe(0);
+  expect(sortCaseInsensitive('A', 'a')).toBe(0);
+  expect(sortCaseInsensitive('A', 'A')).toBe(0);
+  expect(sortCaseInsensitive('A', 'b')).toBe(-1);
+  expect(sortCaseInsensitive('a', 'b')).toBe(-1);
+  expect(sortCaseInsensitive('a', 'B')).toBe(-1);
+  expect(sortCaseInsensitive('A', 'B')).toBe(-1);
+  expect(sortCaseInsensitive('b', 'A')).toBe(1);
+  expect(sortCaseInsensitive('b', 'a')).toBe(1);
+  expect(sortCaseInsensitive('B', 'a')).toBe(1);
+  expect(sortCaseInsensitive('B', 'A')).toBe(1);
+  expect(sortCaseInsensitive('Bonjour', 'Au revoir')).toBe(1);
+  expect(sortCaseInsensitive('B', 'Au revoir')).toBe(1);
+  expect(sortCaseInsensitive('Bonjour', 'A')).toBe(1);
+});
+
+test('getOptionsTeams', () => {
+  expect(getOptionsTeams(0)).toStrictEqual([0]);
+  expect(getOptionsTeams(1)).toStrictEqual([1]);
+  expect(getOptionsTeams(2)).toStrictEqual([2]);
+  expect(getOptionsTeams(3)).toStrictEqual([3, 2]);
+  expect(getOptionsTeams(4)).toStrictEqual([4, 2, 3]);
+  expect(getOptionsTeams(5)).toStrictEqual([5, 2, 3, 4]);
+  expect(getOptionsTeams(6)).toStrictEqual([6, 2, 3, 4, 5]);
+  expect(getOptionsTeams(7)).toStrictEqual([7, 2, 3, 4, 5, 6]);
+  expect(getOptionsTeams(8)).toStrictEqual([8, 2, 3, 4, 5, 6, 7]);
 });
 
 test('getFilenameWithoutExtension', () => {
@@ -175,6 +235,25 @@ test('validateUsernames', () => {
   expect(validateUsernames(['bonjour', 'bonjour'])).toStrictEqual(duplicatedUsernameResponse);
   expect(validateUsernames(['bonjour', 'bonsoir', 'bonjour'])).toStrictEqual(duplicatedUsernameResponse);
   expect(validateUsernames(['bonjour', 'bonsoir'])).toStrictEqual(correctResponse);
+});
+
+test('validateTeams', () => {
+  expect(validateTeams(['a', 'b'], ['t1', 't2'], { a: 't1', b: 't2' })).toStrictEqual(correctResponse);
+  expect(validateTeams(['a', 'b', 'c'], ['t1', 't2'], { c: 't1' })).toStrictEqual({
+    correct: false,
+    isWarning: true,
+    errMsg: 'The following players have no assigned team: a, b'
+  });
+
+  expect(validateTeams(['a', 'b', 'c'], ['t1', 't2'], { a: 't3', b: 't4', c: 't1' })).toStrictEqual({
+    correct: false,
+    errMsg: 'The following players have an invalid team: a, b'
+  });
+
+  expect(validateTeams(['a', 'b'], ['t1', 't2'], { a: 't1', b: 't1' })).toStrictEqual({
+    correct: false,
+    errMsg: 'You cannot have all players under the same team'
+  });
 });
 
 test('validateTimes', () => {
