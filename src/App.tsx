@@ -145,11 +145,7 @@ const App = () => {
               <td>{position}</td>
               {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
-                <select
-                  disabled={selectIsDisabled}
-                  onChange={onChangeResultsPlayer(index, indexPlayer)}
-                  value={username}
-                >
+                <select onChange={onChangeResultsPlayer(index, indexPlayer)} value={username}>
                   {renderOptions()}
                 </select>
               </td>
@@ -402,7 +398,7 @@ const App = () => {
             type="checkbox"
             checked={includeCpuPlayers}
             onChange={onCpuCheckboxChange}
-            disabled={shouldIncludeCpuPlayers}
+            disabled={shouldIncludeCpuPlayers || selectIsDisabled}
           />
           <div className="ml inline">{textCheckbox}</div>
         </div>
@@ -592,7 +588,7 @@ const App = () => {
       } catch (err) {
         // TODO: have better error handling
         logError(err);
-        setSelectIsDisabled(false);
+        // setSelectIsDisabled(false);
       }
     }
 
@@ -600,7 +596,7 @@ const App = () => {
     setCroppedImages(croppedImagesTemp);
     setOcrProgress(Progress.Done);
     setOcrProgressText('');
-    setSelectIsDisabled(false);
+    // setSelectIsDisabled(false);
 
     await schedulerUsername.terminate();
   };
@@ -699,7 +695,7 @@ const App = () => {
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
   const optionsNbTeams = getOptionsTeams(nbPlayers);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
-  const classBgDisabled = selectIsDisabled ? 'bg-grey' : 'bg-white';
+  const classBgDisabled = selectIsDisabled && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
 
