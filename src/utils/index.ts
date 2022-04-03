@@ -177,6 +177,20 @@ const getExtract = (info: any, index = 0, category: Category) => {
   return extract;
 };
 
+const getPositionString = (position: number) => {
+  if (position < 1) return `${position}`;
+
+  if ([11, 12, 13].includes(position)) return `${position}th`;
+
+  const lastDigit = position % 10;
+
+  if (lastDigit === 1) return `${position}st`;
+  if (lastDigit === 2) return `${position}nd`;
+  if (lastDigit === 3) return `${position}rd`;
+
+  return `${position}th`;
+};
+
 const numberRange = (min: number, max: number) => {
   const numbers = [];
   for (let i = min; i <= max; i += 1) numbers.push(i);
@@ -477,6 +491,7 @@ export {
   getTeamNames,
   getColorPlayer,
   getCloserString,
+  getPositionString,
   getExtract,
   getParams,
   isHumanPlayer,

@@ -38,6 +38,7 @@ import {
   getOptionsTeams,
   getParams,
   getPlayers,
+  getPositionString,
   getReferencePlayers,
   getTeamNames,
   isHumanPlayer,
@@ -142,7 +143,7 @@ const App = () => {
 
           return (
             <tr key={key}>
-              <td>{position}</td>
+              <td>{getPositionString(position)}</td>
               {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
                 <select onChange={onChangeResultsPlayer(index, indexPlayer)} value={username}>
