@@ -54,6 +54,22 @@ html {
   text-align: center;
 }
 
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
 .main-content-desktop {
   max-width: 75%;
   margin: 0 auto;
@@ -196,8 +212,40 @@ h1 {
   display: block;
 }
 
+.black {
+  color: black;
+}
+
+.blue {
+  color: blue;
+}
+
 .red {
   color: red;
+}
+
+.green {
+  color: green;
+}
+
+.no-padding {
+  padding: 0px;
+}
+
+.purple {
+  color: purple;
+}
+
+.orange {
+  color: orange;
+}
+
+.brown {
+  color: brown;
+}
+
+.grey {
+  color: grey;
 }
 
 .bg-orange {

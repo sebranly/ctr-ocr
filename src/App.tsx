@@ -16,6 +16,7 @@ import {
   EXAMPLE_IMAGES_FOLDER,
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
   GUIDE_FOLDER,
+  INITIAL_TEAM_NB,
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
@@ -31,18 +32,24 @@ import {
   cleanString,
   formatCpuPlayers,
   getCloserString,
+  getColorPlayer,
   getExtract,
   getMimeType,
+  getOptionsTeams,
   getParams,
   getPlayers,
   getReferencePlayers,
+  getTeamNames,
   isHumanPlayer,
   logError,
   logTime,
   numberRange,
+  sortCaseInsensitive,
   sortImagesByFilename,
+  validateTeams,
   validateUsernames
 } from './utils';
+import { uniq } from 'lodash';
 
 const language = 'eng';
 
@@ -108,12 +115,12 @@ const App = () => {
     };
 
     const renderOptions = () => {
-      const optionsResultsPlayerHuman = getPlayers(players).sort();
+      const optionsResultsPlayerHuman = getPlayers(players).sort(sortCaseInsensitive);
       if (!includeCpuPlayers) {
         return optionsResultsPlayerHuman.map(renderOption);
       }
 
-      const optionsResultsPlayerCpu = getPlayers(cpuPlayers).sort();
+      const optionsResultsPlayerCpu = getPlayers(cpuPlayers).sort(sortCaseInsensitive);
 
       return (
         <>
@@ -213,16 +220,26 @@ const App = () => {
     );
   };
 
-  const renderMainSection = () => {
-    if (nbPlayersTyped === 0) return null;
+  const renderTeamMainSection = () => {
+    return (
+      <>
+        <h3>Teams</h3>
+        {renderTeamSection()}
+      </>
+    );
+  };
 
+  const renderImagesUpload = () => {
     const jpgImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.JPG`;
     const pngImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.PNG`;
     const guideImage = `${GUIDE_FOLDER}Images.md`;
 
+    const isFFA = nbTeams === nbPlayers;
+
+    if (!includeCpuPlayers && !isFFA && !validationTeams.correct) return null;
+
     return (
       <>
-        {renderCpuMainSection()}
         <h2>Images</h2>
         <div className="text-center mb">
           <div className="ml block mb bold">Screenshots will be ordered alphabetically by name</div>
@@ -272,8 +289,97 @@ const App = () => {
             onClick={doOCR}
           />
         </div>
+      </>
+    );
+  };
+
+  const renderMainSection = () => {
+    if (nbPlayersTyped === 0) return null;
+
+    return (
+      <>
+        {renderCpuMainSection()}
+        {renderTeamMainSection()}
+        {renderImagesUpload()}
         {renderImages()}
         {renderRaces()}
+      </>
+    );
+  };
+
+  const renderTeamSection = () => {
+    if (includeCpuPlayers) return <div className="text-center mb">Teams are not available when CPUs are activated</div>;
+
+    return (
+      <>
+        <select disabled={selectIsDisabled} onChange={onChangeNbTeams} value={nbTeams}>
+          {optionsNbTeams.map((option: number) => {
+            const label = option === nbPlayers ? 'FFA' : `${option} teams`;
+            return (
+              <option key={option} label={label} value={option}>
+                {label}
+              </option>
+            );
+          })}
+        </select>
+        {renderTeamRepartition()}
+      </>
+    );
+  };
+
+  const onChangeTeam = (player: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.currentTarget;
+    const newPlayerTeams = { ...playerTeams, [player]: value };
+    setPlayerTeams(newPlayerTeams);
+  };
+
+  const renderPlayerTeams = (player: string) => {
+    return teams.map((team: string) => {
+      const key = `${player}-${team}`;
+      const isChecked = playerTeams[player] === team;
+
+      return (
+        <div className="ml inline" key={key}>
+          <input
+            type="radio"
+            disabled={selectIsDisabled}
+            id={key}
+            name={player}
+            value={team}
+            checked={isChecked}
+            onChange={onChangeTeam(player)}
+          />
+          <label htmlFor={key}>{team}</label>
+        </div>
+      );
+    });
+  };
+
+  const renderPlayerTeamRepartition = (player: string) => {
+    const colorPlayer = getColorPlayer(player, teams, playerTeams);
+    const playerClassnames = `inline float-left ${colorPlayer}`;
+
+    return (
+      <li className="block" key={player}>
+        <div className={playerClassnames}>{player}</div>
+        <div className="ml inline float-right">{renderPlayerTeams(player)}</div>
+      </li>
+    );
+  };
+
+  const renderTeamRepartition = () => {
+    const isFFA = nbTeams === nbPlayers;
+    if (includeCpuPlayers) return null;
+    if (isFFA) return <div className="ml block mb">Free For All means there is no need to set up teams!</div>;
+
+    const classesValidation = validationTeams.isWarning ? 'orange' : 'red';
+
+    return (
+      <>
+        <ul className="text-center no-padding mt2">
+          <div className="inline-block">{playersNames.map(renderPlayerTeamRepartition)}</div>
+          {!validationTeams.correct && <div className={classesValidation}>{validationTeams.errMsg}</div>}
+        </ul>
       </>
     );
   };
@@ -514,9 +620,11 @@ const App = () => {
   const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
+  const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAM_NB));
+  const [nbTeams, setNbTeams] = React.useState(INITIAL_TEAM_NB);
+  const [playerTeams, setPlayerTeams] = React.useState<Record<string, string>>({});
 
-  // TODO: do uniq
-  const nbPlayersTyped = getPlayers(players).length;
+  const nbPlayersTyped = uniq(getPlayers(players)).length;
   const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
 
   React.useEffect(() => {
@@ -541,6 +649,10 @@ const App = () => {
 
   const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPlayers(e.currentTarget.value);
+
+    setNbTeams(INITIAL_TEAM_NB);
+    setTeams(getTeamNames(INITIAL_TEAM_NB));
+    setPlayerTeams({});
   };
 
   const onChangeImage = (e: any) => {
@@ -550,6 +662,21 @@ const App = () => {
 
   const onChangeNbPlayers = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setNbPlayers(Number(e.target.value));
+
+    setPlayers('');
+
+    setNbTeams(INITIAL_TEAM_NB);
+    setTeams(getTeamNames(INITIAL_TEAM_NB));
+    setPlayerTeams({});
+  };
+
+  const onChangeNbTeams = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newNbTeams = Number(e.target.value);
+    const teamNames = getTeamNames(newNbTeams);
+
+    setNbTeams(newNbTeams);
+    setTeams(teamNames);
+    setPlayerTeams({});
   };
 
   const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -570,8 +697,11 @@ const App = () => {
   };
 
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
+  const optionsNbTeams = getOptionsTeams(nbPlayers);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
   const classBgDisabled = selectIsDisabled ? 'bg-grey' : 'bg-white';
+  const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
+  const validationTeams = validateTeams(playersNames, teams, playerTeams);
 
   return (
     <HelmetProvider>
@@ -587,6 +717,9 @@ const App = () => {
         )}
         <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
           {renderProgressBar()}
+          <h2>Introduction</h2>
+          <div className="text-center mb">Please enter information from top to bottom for a smooth experience</div>
+          <div className="text-center mb">At the end, we'll produce the Lorenzi markdown for you</div>
           <h2>Players</h2>
           <h3>Number of players</h3>
           <div className="text-center mb">This includes CPUs if any</div>
