@@ -12,7 +12,13 @@ export const TIME_DNF = '--:--:--';
 export const PLACEHOLDER_CPUS = 'Loading CPUs...';
 // There will always be a possibility for 2 teams
 export const INITIAL_TEAM_NB = 2;
-export const PLACEHOLDER_PLAYERS = `Hyène_JurassX
-Alexiz
-Colonel_Hay
-TATANE`;
+export const PLACEHOLDER_PLAYERS = [
+  'ZouGui28',
+  'Nefarious_CTR',
+  'Kyo-Bomba',
+  'WadaDim-PatroL',
+  'Hyène_JurassX',
+  'Alexiz',
+  'Colonel_Hay',
+  'TATANE'
+];
