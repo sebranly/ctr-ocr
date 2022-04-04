@@ -12,44 +12,40 @@ import { isMobile } from 'react-device-detect';
 import {
   CANONICAL_URL,
   CRASH_TEAM_RANKING_AUTHOR_URL,
-  CTR_MAX_PLAYERS,
   EXAMPLE_IMAGES_FOLDER,
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
   GUIDE_FOLDER,
-  INITIAL_TEAM_NB,
-  MAX_HEIGHT_IMG,
-  MIME_JPEG,
-  MIME_PNG,
-  PLACEHOLDER_CPUS,
-  PLACEHOLDER_PLAYERS,
   PROJECT_URL,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
   WEBSITE_VERSION
-} from './constants';
+} from './constants/general';
 import {
-  cleanString,
+  CTR_MAX_PLAYERS,
+  INITIAL_TEAM_NB,
+  MAX_HEIGHT_IMG,
+  MIME_JPEG,
+  MIME_PNG,
+  PLACEHOLDER_CPUS,
+  PLACEHOLDER_PLAYERS
+} from './constants';
+import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
+import {
   formatCpuPlayers,
-  getCloserString,
   getColorPlayer,
-  getExtract,
-  getMimeType,
   getOptionsTeams,
   getParams,
   getPlayers,
   getPositionString,
   getReferencePlayers,
   getTeamNames,
-  isHumanPlayer,
-  logError,
-  logTime,
-  numberRange,
-  sortCaseInsensitive,
-  sortImagesByFilename,
-  validateTeams,
-  validateUsernames
+  isHumanPlayer
 } from './utils';
+import { numberRange } from './utils/number';
+import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
+import { logError, logTime } from './utils/log';
+import { validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 
 const language = 'eng';
