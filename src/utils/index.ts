@@ -3,6 +3,7 @@ import { Category } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 import { getCharListPosition, getCharListTime, getCharListUsername } from './charList';
+import { numberRange } from './number';
 
 const formatCpuPlayers = (cpuPlayers: string[]) => {
   if (!cpuPlayers || cpuPlayers.length === 0) return '';
@@ -86,12 +87,6 @@ const getPositionString = (position: number) => {
   return `${position}th`;
 };
 
-const numberRange = (min: number, max: number) => {
-  const numbers = [];
-  for (let i = min; i <= max; i += 1) numbers.push(i);
-  return numbers;
-};
-
 const getParams = (category: Category) => {
   const { Position, Time, Username } = Category;
 
@@ -116,8 +111,6 @@ const getParams = (category: Category) => {
       };
   }
 };
-
-const applyRatio = (ratio: number, nb: number) => Math.floor(ratio * nb);
 
 const getTeamNames = (nbTeams: number) => {
   if (nbTeams === 0) return [];
@@ -153,7 +146,6 @@ const getColorPlayer = (player: string, teams: string[], playerTeams: Record<str
 };
 
 export {
-  applyRatio,
   convertToMs,
   formatCpuPlayers,
   getOptionsTeams,
@@ -164,6 +156,5 @@ export {
   getPositionString,
   getParams,
   isHumanPlayer,
-  numberRange,
   positionIsValid
 };

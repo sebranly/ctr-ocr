@@ -38,9 +38,9 @@ import {
   getPositionString,
   getReferencePlayers,
   getTeamNames,
-  isHumanPlayer,
-  numberRange
+  isHumanPlayer
 } from './utils';
+import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logError, logTime } from './utils/log';
 import { validateTeams, validateUsernames } from './utils/validation';

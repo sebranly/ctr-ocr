@@ -2,7 +2,6 @@ import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE, TIME_DNF } from '../../constants';
 import { Category } from '../../types';
 import { getCharListPosition, getCharListTime, getCharListUsername } from '../charList';
 import {
-  applyRatio,
   convertToMs,
   formatCpuPlayers,
   getColorPlayer,
@@ -13,7 +12,6 @@ import {
   getReferencePlayers,
   getTeamNames,
   isHumanPlayer,
-  numberRange,
   positionIsValid
 } from '../index';
 
@@ -130,23 +128,6 @@ test('convertToMs', () => {
   expect(convertToMs('0:18:19')).toBe(18190);
   expect(convertToMs('1:18:19')).toBe(78190);
   expect(convertToMs('10:18:19')).toBe(618190);
-});
-
-test('numberRange', () => {
-  expect(numberRange(0, 3)).toStrictEqual([0, 1, 2, 3]);
-  expect(numberRange(1, 8)).toStrictEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-});
-
-test('applyRatio', () => {
-  expect(applyRatio(1, 1)).toBe(1);
-  expect(applyRatio(1.1, 1)).toBe(1);
-  expect(applyRatio(1.49, 1)).toBe(1);
-  expect(applyRatio(1.5, 1)).toBe(1);
-  expect(applyRatio(1.7, 1)).toBe(1);
-  expect(applyRatio(1.9, 1)).toBe(1);
-  expect(applyRatio(2, 1)).toBe(2);
-  expect(applyRatio(2.1, 1.5)).toBe(3);
-  expect(applyRatio(2.1, 2)).toBe(4);
 });
 
 test('getParams', () => {

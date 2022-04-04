@@ -1,4 +1,4 @@
-import { applyRatio } from '.';
+import { applyRatio } from './number';
 import { CTR_MAX_PLAYERS, MIME_JPEG, MIME_PNG } from '../constants';
 import { Category, Coord } from '../types';
 import { sortAlphanumeric } from './string';

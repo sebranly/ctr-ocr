@@ -1,5 +1,5 @@
 import { CTR_MAX_PLAYERS } from '../constants';
-import { numberRange } from './index';
+import { numberRange } from './number';
 import { charRange } from './string';
 
 const getCharListPosition = () => numberRange(1, CTR_MAX_PLAYERS).join('');
