@@ -60,7 +60,6 @@ const getReferencePlayers = (humanPlayers: string, cpuPlayers: string, includeCp
   return [...humanPlayersSplit, ...cpuPlayersSplit];
 };
 
-// TODO: use replaceAll
 const cleanString = (str: string) => str.replaceAll('\n', '').replaceAll(' ', '');
 
 const positionIsValid = (position: string, max: number) => {

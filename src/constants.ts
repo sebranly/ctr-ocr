@@ -1,7 +1,7 @@
 import { charRange, numberRange } from './utils';
 
 // In the game CTR:NF, once player 1 finishes, online players have 30 seconds to complete the race
-// TODO: verify behavior in offline races
+// The following is applicable to online races
 export const CTR_MAX_TIME_DIFF_SEC = 30;
 export const CTR_MAX_PLAYERS = 8;
 
