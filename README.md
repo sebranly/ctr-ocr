@@ -9,12 +9,13 @@ Deployed on [GitHub pages](https://sebranly.github.io/ctr-ocr).
 
 - Clone the repository with `git clone git@github.com:sebranly/ctr-ocr.git`
 - Go into the repository (e.g. with `cd`)
-- Run `npm i` to install the dependencies
+- Make sure you use node 16 (`node -v`) and npm 8 (`npm -v`)
+- Run `npm ci` to install the dependencies
 
 ### Start
 
-- To run it locally, run `npm start`, it has hot reloading
-- To run the test suite (no need to run command above), run `npm test`
+- To run it locally, run `npm run start`, it has hot reloading
+- To run the test suite (no need to run command above), run `npm run test`
 
 ### Deploy
 
