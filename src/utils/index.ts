@@ -1,8 +1,5 @@
 import levenshtein from 'fast-levenshtein';
 import {
-  CHARLIST_POSITION,
-  CHARLIST_TIME,
-  CHARLIST_USERNAME,
   CTR_MAX_PLAYERS,
   LOG_CONSOLE,
   MIME_JPEG,
@@ -14,6 +11,7 @@ import {
 import { Category, Coord } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
+import { getCharListPosition, getCharListTime, getCharListUsername } from './charList';
 
 const getMimeType = (extension: string) => {
   if (!extension) return MIME_JPEG;
@@ -201,20 +199,20 @@ const getParams = (category: Category) => {
   switch (category) {
     case Position:
       return {
-        tessedit_char_whitelist: CHARLIST_POSITION,
+        tessedit_char_whitelist: getCharListPosition(),
         tessedit_pageseg_mode: PSM_SINGLE_CHAR as any
       };
 
     case Username:
       return {
-        tessedit_char_whitelist: CHARLIST_USERNAME,
+        tessedit_char_whitelist: getCharListUsername(),
         tessedit_pageseg_mode: PSM_SINGLE_LINE as any
       };
 
     case Time:
     default:
       return {
-        tessedit_char_whitelist: CHARLIST_TIME,
+        tessedit_char_whitelist: getCharListTime(),
         tessedit_pageseg_mode: PSM_SINGLE_LINE as any
       };
   }

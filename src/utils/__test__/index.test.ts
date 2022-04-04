@@ -1,12 +1,6 @@
-import {
-  CHARLIST_POSITION,
-  CHARLIST_TIME,
-  CHARLIST_USERNAME,
-  PSM_SINGLE_CHAR,
-  PSM_SINGLE_LINE,
-  TIME_DNF
-} from '../../constants';
+import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE, TIME_DNF } from '../../constants';
 import { Category } from '../../types';
+import { getCharListPosition, getCharListTime, getCharListUsername } from '../charList';
 import {
   applyRatio,
   charRange,
@@ -364,17 +358,17 @@ test('getParams', () => {
   const { Position, Time, Username } = Category;
 
   expect(getParams(Position)).toStrictEqual({
-    tessedit_char_whitelist: CHARLIST_POSITION,
+    tessedit_char_whitelist: getCharListPosition(),
     tessedit_pageseg_mode: PSM_SINGLE_CHAR
   });
 
   expect(getParams(Username)).toStrictEqual({
-    tessedit_char_whitelist: CHARLIST_USERNAME,
+    tessedit_char_whitelist: getCharListUsername(),
     tessedit_pageseg_mode: PSM_SINGLE_LINE
   });
 
   expect(getParams(Time)).toStrictEqual({
-    tessedit_char_whitelist: CHARLIST_TIME,
+    tessedit_char_whitelist: getCharListTime(),
     tessedit_pageseg_mode: PSM_SINGLE_LINE
   });
 });
