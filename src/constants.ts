@@ -5,13 +5,14 @@ import { charRange, numberRange } from './utils';
 export const CTR_MAX_TIME_DIFF_SEC = 30;
 export const CTR_MAX_PLAYERS = 8;
 
+export const WEBSITE_LANGUAGE = 'en';
 export const AUTHOR_NAME = 'sebranly';
 export const AUTHOR_GITHUB = `https://${AUTHOR_NAME}.github.io`;
 export const PROJECT_NAME = 'ctr-ocr';
 export const JSON_FOLDER = 'ctr-ocr';
 export const PROJECT_URL = `https://github.com/${AUTHOR_NAME}/${PROJECT_NAME}`;
 export const CRASH_TEAM_RANKING_AUTHOR_URL = 'https://crashteamranking.com/members/siblingbling/tt/';
-export const GUIDE_FOLDER = `${PROJECT_URL}/blob/main/doc/guide/`;
+export const GUIDE_FOLDER = `${PROJECT_URL}/blob/main/doc/guide/${WEBSITE_LANGUAGE}/`;
 export const LOG_CONSOLE = false;
 export const MAX_HEIGHT_IMG = 1_000;
 export const CANONICAL_URL = `${AUTHOR_GITHUB}/${PROJECT_NAME}`;
