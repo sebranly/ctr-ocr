@@ -1,9 +1,10 @@
-import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE, SEPARATOR_PLAYERS } from '../constants';
+import { PLACEHOLDER_PLAYERS, PSM_SINGLE_CHAR, PSM_SINGLE_LINE, SEPARATOR_PLAYERS } from '../constants';
 import { Category } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 import { getCharListPosition, getCharListTime, getCharListUsername } from './charList';
 import { numberRange } from './number';
+import { isChromeUA, isFirefoxUA, isMobileUA } from './userAgent';
 
 const formatCpuPlayers = (cpuPlayers: string[]) => {
   if (!cpuPlayers || cpuPlayers.length === 0) return '';
@@ -12,6 +13,20 @@ const formatCpuPlayers = (cpuPlayers: string[]) => {
     .filter((s: string) => !!s)
     .sort()
     .join(SEPARATOR_PLAYERS);
+};
+
+const getPlayersPlaceholder = (nbPlayers: number, userAgent: UAParser.IResult) => {
+  if (nbPlayers < 1) return '';
+
+  const isChrome = isChromeUA(userAgent);
+  const isFirefox = isFirefoxUA(userAgent);
+  const isMobile = isMobileUA(userAgent);
+
+  const canBeMultiLine = nbPlayers > 1 && (isChrome || isFirefox) && !isMobile;
+
+  if (!canBeMultiLine) return PLACEHOLDER_PLAYERS[0];
+
+  return PLACEHOLDER_PLAYERS.slice(0, nbPlayers).join('\n');
 };
 
 const getPlayers = (players: string) => {
@@ -150,6 +165,7 @@ export {
   formatCpuPlayers,
   getOptionsTeams,
   getPlayers,
+  getPlayersPlaceholder,
   getReferencePlayers,
   getTeamNames,
   getColorPlayer,

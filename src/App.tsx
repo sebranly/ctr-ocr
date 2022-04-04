@@ -21,15 +21,7 @@ import {
   WEBSITE_TITLE,
   WEBSITE_VERSION
 } from './constants/general';
-import {
-  CTR_MAX_PLAYERS,
-  INITIAL_TEAM_NB,
-  MAX_HEIGHT_IMG,
-  MIME_JPEG,
-  MIME_PNG,
-  PLACEHOLDER_CPUS,
-  PLACEHOLDER_PLAYERS
-} from './constants';
+import { CTR_MAX_PLAYERS, INITIAL_TEAM_NB, MAX_HEIGHT_IMG, MIME_JPEG, MIME_PNG, PLACEHOLDER_CPUS } from './constants';
 import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
 import {
   formatCpuPlayers,
@@ -37,6 +29,7 @@ import {
   getOptionsTeams,
   getParams,
   getPlayers,
+  getPlayersPlaceholder,
   getPositionString,
   getReferencePlayers,
   getTeamNames,
@@ -47,6 +40,7 @@ import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logError, logTime } from './utils/log';
 import { validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
+import UAParser from 'ua-parser-js';
 
 const language = 'eng';
 
@@ -370,12 +364,12 @@ const App = () => {
 
   const renderPlayerTeamRepartition = (player: string) => {
     const colorPlayer = getColorPlayer(player, teams, playerTeams);
-    const playerClassnames = `inline float-left ${colorPlayer}`;
+    const playerClassnames = `inline ${colorPlayer}`;
 
     return (
       <li className="block" key={player}>
         <div className={playerClassnames}>{player}</div>
-        <div className="ml inline float-right">{renderPlayerTeams(player)}</div>
+        <div className="ml mb block text-center">{renderPlayerTeams(player)}</div>
       </li>
     );
   };
@@ -715,6 +709,9 @@ const App = () => {
   const classBgDisabled = selectIsDisabled && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
+  const userAgent = navigator?.userAgent ?? '';
+  const userAgentResult = new UAParser(userAgent).getResult();
+  const placeholderPlayers = getPlayersPlaceholder(nbPlayers, userAgentResult);
 
   return (
     <HelmetProvider>
@@ -751,7 +748,7 @@ const App = () => {
           <textarea
             className={`textarea-${classPlatform}`}
             disabled={selectIsDisabled}
-            placeholder={PLACEHOLDER_PLAYERS}
+            placeholder={placeholderPlayers}
             rows={nbPlayers}
             value={players}
             onChange={onPlayersChange}
