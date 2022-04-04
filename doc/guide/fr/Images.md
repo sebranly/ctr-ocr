@@ -18,11 +18,11 @@ Le site web gère n'importe quelles dimensions du moment que le **rapport entre 
 
 ### Noms
 
-Si vous téléchargez en amont plusieurs images, elles seront triées alphabétiquement par leur nom pour les résultats. Nous vous conseillons de les nommer avec un préfixe commun et un suffixe avec un numéro différent, par exemple comme ceci : `IMG1.JPG`, `IMG2.JPG`, ..., `IMG10.JPG` pour un événement à 10 courses.
+Si vous téléchargez en amont plusieurs images, elles seront triées alphabétiquement par leur nom pour les résultats. Nous vous conseillons de les nommer avec un préfixe commun et un suffixe avec un numéro différent, par exemple comme ceci : `IMG1.JPG`, `IMG2.JPG`, ..., `IMG10.JPG` pour un événement à 10 courses. Veuillez noter que vous pouvez utiliser des formats d'image différents pour un même événement par exemple `IMG1.JPG` vs `IMG2.PNG`.
 
 Un exemple avec 10 courses est disponible dans ce [dossier d'exemple](https://github.com/sebranly/ctr-ocr/tree/main/src/img/examples/full-event).
 
-## Platformes
+## Plateformes
 
 ### PS5
 
@@ -50,4 +50,4 @@ Les captures d'écran peuvent être prises en appuyant sur le bouton de capture 
 
 Vous pouvez transférer ces captures d'écran vers votre ordinateur ou téléphone portable (Smart Device) en utilisant une de ces méthodes :
 - [Guide Nintendo pour transfert par USB](https://www.nintendo.ch/fr/Assistance/Nintendo-Switch/Comment-transferer-des-captures-d-ecran-et-des-videos-vers-un-ordinateur-via-un-cable-USB-1886300.html)
-- [Guide Nintendo pour Smart Device](https://www.nintendo.fr/Assistance/Nintendo-Switch/Comment-transferer-des-captures-d-ecran-et-des-videos-vers-un-smartphone-ou-une-tablette-via-une-connexion-sans-fil-1886298.html)
+- [Guide Nintendo pour transfert vers smartphone](https://www.nintendo.fr/Assistance/Nintendo-Switch/Comment-transferer-des-captures-d-ecran-et-des-videos-vers-un-smartphone-ou-une-tablette-via-une-connexion-sans-fil-1886298.html)
