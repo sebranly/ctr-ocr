@@ -18,7 +18,7 @@ The website supports any dimensions as long as the **ratio of width/height is 1.
 
 ### Names
 
-If uploading multiple images, they will be sorted alphabetically by their name for the results. We advise you to name them with a common prefix and a specific suffix number, for example as follows: `IMG1.JPG`, `IMG2.JPG`, ..., `IMG10.JPG` for an event containing 10 races.
+If uploading multiple images, they will be sorted alphabetically by their name for the results. We advise you to name them with a common prefix and a different suffix number, for example as follows: `IMG1.JPG`, `IMG2.JPG`, ..., `IMG10.JPG` for an event containing 10 races.
 
 An example with 10 races is available in this [example folder](https://github.com/sebranly/ctr-ocr/tree/main/src/img/examples/full-event).
 

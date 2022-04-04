@@ -18,7 +18,7 @@ Le site web gère n'importe quelles dimensions du moment que le **rapport entre 
 
 ### Noms
 
-Si vous téléchargez en amont plusieurs images, elles seront triées alphabétiquement par leur nom pour les résultats. Nous vous conseillons de les nommer avec un préfix commun et un suffixe avec un numéro spécifique, par exemple comme ceci : `IMG1.JPG`, `IMG2.JPG`, ..., `IMG10.JPG` pour un événement à 10 courses.
+Si vous téléchargez en amont plusieurs images, elles seront triées alphabétiquement par leur nom pour les résultats. Nous vous conseillons de les nommer avec un préfixe commun et un suffixe avec un numéro différent, par exemple comme ceci : `IMG1.JPG`, `IMG2.JPG`, ..., `IMG10.JPG` pour un événement à 10 courses.
 
 Un exemple avec 10 courses est disponible dans ce [dossier d'exemple](https://github.com/sebranly/ctr-ocr/tree/main/src/img/examples/full-event).
 
