@@ -1,4 +1,4 @@
-import { LOG_CONSOLE } from '../constants';
+import { LOG_CONSOLE } from '../constants/general';
 
 const logTime = (label: string, end = false) => {
   if (!LOG_CONSOLE) return;

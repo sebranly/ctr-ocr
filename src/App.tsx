@@ -12,21 +12,23 @@ import { isMobile } from 'react-device-detect';
 import {
   CANONICAL_URL,
   CRASH_TEAM_RANKING_AUTHOR_URL,
-  CTR_MAX_PLAYERS,
   EXAMPLE_IMAGES_FOLDER,
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
   GUIDE_FOLDER,
-  INITIAL_TEAM_NB,
-  MAX_HEIGHT_IMG,
-  MIME_JPEG,
-  MIME_PNG,
-  PLACEHOLDER_CPUS,
-  PLACEHOLDER_PLAYERS,
   PROJECT_URL,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
   WEBSITE_VERSION
+} from './constants/general';
+import {
+  CTR_MAX_PLAYERS,
+  INITIAL_TEAM_NB,
+  MAX_HEIGHT_IMG,
+  MIME_JPEG,
+  MIME_PNG,
+  PLACEHOLDER_CPUS,
+  PLACEHOLDER_PLAYERS
 } from './constants';
 import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
 import {
