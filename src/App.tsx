@@ -46,10 +46,9 @@ import {
   logTime,
   numberRange,
   sortCaseInsensitive,
-  sortImagesByFilename,
-  validateTeams,
-  validateUsernames
+  sortImagesByFilename
 } from './utils';
+import { validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 
 const language = 'eng';

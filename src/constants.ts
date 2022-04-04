@@ -1,4 +1,4 @@
-import { charRange, numberRange } from './utils';
+import { charRange, numberRange } from './utils/index';
 
 // In the game CTR:NF, once player 1 finishes, online players have 30 seconds to complete the race
 // The following is applicable to online races
@@ -16,11 +16,12 @@ export const GUIDE_FOLDER = `${PROJECT_URL}/blob/main/doc/guide/${WEBSITE_LANGUA
 export const LOG_CONSOLE = false;
 export const MAX_HEIGHT_IMG = 1_000;
 export const CANONICAL_URL = `${AUTHOR_GITHUB}/${PROJECT_NAME}`;
-export const CHARLIST_UPPERCASE_LETTERS = charRange('A', 'Z').join('');
-export const CHARLIST_LOWERCASE_LETTERS = charRange('a', 'z').join('');
-export const CHARLIST_LETTERS = `${CHARLIST_LOWERCASE_LETTERS}${CHARLIST_UPPERCASE_LETTERS}`;
-export const CHARLIST_DIGITS = numberRange(0, 9).join('');
-export const CHARLIST_POSITION = numberRange(1, CTR_MAX_PLAYERS).join('');
+// TODO: have it back
+// export const CHARLIST_UPPERCASE_LETTERS = charRange('A', 'Z').join('');
+// export const CHARLIST_LOWERCASE_LETTERS = charRange('a', 'z').join('');
+export const CHARLIST_LETTERS = `az`; // `${CHARLIST_LOWERCASE_LETTERS}${CHARLIST_UPPERCASE_LETTERS}`;
+export const CHARLIST_DIGITS = `01`; // numberRange(0, 9).join('');
+export const CHARLIST_POSITION = `12`; // numberRange(1, CTR_MAX_PLAYERS).join('');
 export const CHARLIST_TIME = `${CHARLIST_DIGITS}:-`;
 export const CHARLIST_USERNAME = `${CHARLIST_LETTERS}${CHARLIST_DIGITS}:-_. `;
 export const MIME_JPEG = 'image/jpeg';
