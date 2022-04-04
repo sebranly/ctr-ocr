@@ -41,11 +41,10 @@ import {
   getReferencePlayers,
   getTeamNames,
   isHumanPlayer,
-  logError,
-  logTime,
   numberRange,
   sortImagesByFilename
 } from './utils';
+import { logError, logTime } from './utils/log';
 import { validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 
