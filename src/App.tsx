@@ -28,10 +28,9 @@ import {
   WEBSITE_TITLE,
   WEBSITE_VERSION
 } from './constants';
+import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
 import {
-  cleanString,
   formatCpuPlayers,
-  getCloserString,
   getColorPlayer,
   getExtract,
   getMimeType,
@@ -45,7 +44,6 @@ import {
   logError,
   logTime,
   numberRange,
-  sortCaseInsensitive,
   sortImagesByFilename
 } from './utils';
 import { validateTeams, validateUsernames } from './utils/validation';

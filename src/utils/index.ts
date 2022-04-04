@@ -1,4 +1,3 @@
-import levenshtein from 'fast-levenshtein';
 import {
   CTR_MAX_PLAYERS,
   LOG_CONSOLE,
@@ -12,6 +11,7 @@ import { Category, Coord } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 import { getCharListPosition, getCharListTime, getCharListUsername } from './charList';
+import { sortAlphanumeric } from './string';
 
 const getMimeType = (extension: string) => {
   if (!extension) return MIME_JPEG;
@@ -56,8 +56,6 @@ const getReferencePlayers = (humanPlayers: string, cpuPlayers: string, includeCp
   return [...humanPlayersSplit, ...cpuPlayersSplit];
 };
 
-const cleanString = (str: string) => str.replaceAll('\n', '').replaceAll(' ', '');
-
 const positionIsValid = (position: string, max: number) => {
   if (!position) return false;
   const pos = Number(position);
@@ -81,23 +79,6 @@ const convertToMs = (time: string) => {
   const milliseconds = centiseconds * 10 + seconds * 1_000 + minutes * 60 * 1_000;
 
   return milliseconds;
-};
-
-const getCloserString = (str: string, list: string[]) => {
-  const listSafe = list.filter((s: string) => !!s);
-  let min = Infinity;
-  let name = str;
-
-  listSafe.forEach((s: string) => {
-    const lev = levenshtein.get(str, s);
-
-    if (lev < min) {
-      min = lev;
-      name = s;
-    }
-  });
-
-  return name;
 };
 
 const getOptionsTeams = (nbPlayers: number) => {
@@ -220,18 +201,6 @@ const getParams = (category: Category) => {
 
 const applyRatio = (ratio: number, nb: number) => Math.floor(ratio * nb);
 
-const charRange = (startChar: string, stopChar: string) => {
-  const startInt = startChar.charCodeAt(0);
-  const stopInt = stopChar.charCodeAt(0);
-  const result = [];
-
-  for (let i = startInt; i <= stopInt; i += 1) {
-    result.push(String.fromCharCode(i));
-  }
-
-  return result;
-};
-
 const logTime = (label: string, end = false) => {
   if (!LOG_CONSOLE) return;
 
@@ -246,22 +215,6 @@ const logError = (err: any) => {
   if (!LOG_CONSOLE) return;
 
   console.log(err);
-};
-
-const sortAlphanumeric = (strA: string, strB: string) => {
-  const regexAlpha = /[^a-zA-Z]/g;
-  const regexNumeric = /[^0-9]/g;
-
-  var newA = strA.replace(regexAlpha, '');
-  var newB = strB.replace(regexAlpha, '');
-
-  if (newA === newB) {
-    var aN = parseInt(strA.replace(regexNumeric, ''), 10);
-    var bN = parseInt(strB.replace(regexNumeric, ''), 10);
-    return aN === bN ? 0 : aN > bN ? 1 : -1;
-  }
-
-  return newA > newB ? 1 : -1;
 };
 
 const getFilenameWithoutExtension = (filename: string) => {
@@ -322,20 +275,8 @@ const getColorPlayer = (player: string, teams: string[], playerTeams: Record<str
   }
 };
 
-const sortCaseInsensitive = (a: string, b: string) => {
-  if (!a || !b) return 1;
-  const lowerA = a.toLowerCase();
-  const lowerB = b.toLowerCase();
-
-  if (lowerA === lowerB) return 0;
-
-  return lowerA > lowerB ? 1 : -1;
-};
-
 export {
   applyRatio,
-  charRange,
-  cleanString,
   convertToMs,
   formatCpuPlayers,
   getFilenameWithoutExtension,
@@ -345,7 +286,6 @@ export {
   getReferencePlayers,
   getTeamNames,
   getColorPlayer,
-  getCloserString,
   getPositionString,
   getExtract,
   getParams,
@@ -354,7 +294,5 @@ export {
   logTime,
   numberRange,
   positionIsValid,
-  sortAlphanumeric,
-  sortImagesByFilename,
-  sortCaseInsensitive
+  sortImagesByFilename
 };
