@@ -235,8 +235,8 @@ const App = () => {
     const classesText = `ml block mb bold ${colorText}`;
     const text =
       ocrProgress === Progress.Done
-        ? 'Images were analyzed successfully. Please check the results below are correct. Feel free to tweak any mistake'
-        : 'Please ensure all the information entered above is correct, as none of it can be edited afterwards';
+        ? 'Images were analyzed successfully. Please check the results below are correct. Feel free to tweak any mistake below.'
+        : 'Please ensure all the information entered above is correct, as none of it can be edited afterwards.';
 
     return (
       <div className="text-center mb">
