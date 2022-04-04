@@ -364,12 +364,12 @@ const App = () => {
 
   const renderPlayerTeamRepartition = (player: string) => {
     const colorPlayer = getColorPlayer(player, teams, playerTeams);
-    const playerClassnames = `inline float-left ${colorPlayer}`;
+    const playerClassnames = `inline ${colorPlayer}`;
 
     return (
       <li className="block" key={player}>
         <div className={playerClassnames}>{player}</div>
-        <div className="ml inline float-right">{renderPlayerTeams(player)}</div>
+        <div className="ml mb block text-center">{renderPlayerTeams(player)}</div>
       </li>
     );
   };

@@ -25,6 +25,10 @@ html {
   display: inline;
 }
 
+ul {
+  list-style-type: none;
+}
+
 .mb {
   margin-bottom: 5px;
 }
