@@ -21,7 +21,8 @@
     "react-scripts": "3.4.3",
     "react-use": "^17.3.2",
     "tesseract.js": "2.1.0",
-    "typescript": "^3.9.10"
+    "typescript": "^3.9.10",
+    "ua-parser-js": "^1.0.2"
   },
   "scripts": {
     "predeploy": "npm run build",
@@ -58,6 +59,7 @@
     "@types/react-dom": "^16.9.14",
     "@types/react-helmet-async": "^1.0.3",
     "@types/react-icons": "^3.0.0",
+    "@types/ua-parser-js": "^0.7.36",
     "http-server": "^14.1.0",
     "prettier": "^2.6.1"
   }
