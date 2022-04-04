@@ -8,6 +8,7 @@ import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { isMobile } from 'react-device-detect';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import {
   CANONICAL_URL,
@@ -623,8 +624,9 @@ const App = () => {
   const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
-  const [players, setPlayers] = React.useState<string>('');
-  const [cpuPlayers, setCpuPlayers] = React.useState<string>(PLACEHOLDER_CPUS);
+  const [players, setPlayers] = React.useState('');
+  const [copiedPlayers, setCopiedPlayers] = React.useState(false);
+  const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
   const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAM_NB));
@@ -656,6 +658,7 @@ const App = () => {
 
   const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPlayers(e.currentTarget.value);
+    setCopiedPlayers(false);
 
     setNbTeams(INITIAL_TEAM_NB);
     setTeams(getTeamNames(INITIAL_TEAM_NB));
@@ -753,6 +756,11 @@ const App = () => {
             value={players}
             onChange={onPlayersChange}
           />
+          <CopyToClipboard options={{ message: '' }} text={players} onCopy={() => setCopiedPlayers(true)}>
+            <button disabled={nbPlayersTyped === 0 || copiedPlayers} className="mt">
+              {copiedPlayers ? 'Copied' : 'Copy to clipboard'}
+            </button>
+          </CopyToClipboard>
           {renderMainSection()}
         </div>
         {renderFooter()}
