@@ -32,8 +32,6 @@ import { cleanString, getCloserString, sortCaseInsensitive } from './utils/strin
 import {
   formatCpuPlayers,
   getColorPlayer,
-  getExtract,
-  getMimeType,
   getOptionsTeams,
   getParams,
   getPlayers,
@@ -41,9 +39,9 @@ import {
   getReferencePlayers,
   getTeamNames,
   isHumanPlayer,
-  numberRange,
-  sortImagesByFilename
+  numberRange
 } from './utils';
+import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logError, logTime } from './utils/log';
 import { validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
