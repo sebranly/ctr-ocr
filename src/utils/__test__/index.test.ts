@@ -15,6 +15,7 @@ import {
   formatCpuPlayers,
   getCloserString,
   getColorPlayer,
+  getPositionString,
   getExtract,
   getFilenameWithoutExtension,
   getMimeType,
@@ -52,6 +53,35 @@ test('sortAlphanumeric', () => {
   expect(sortAlphanumeric('IMG01', 'IMG10')).toBe(-1);
   expect(sortAlphanumeric('IMG10', 'IMG1')).toBe(1);
   expect(sortAlphanumeric('IMG10', 'IMG01')).toBe(1);
+});
+
+test('getPositionString', () => {
+  expect(getPositionString(-1)).toBe('-1');
+  expect(getPositionString(0)).toBe('0');
+  expect(getPositionString(1)).toBe('1st');
+  expect(getPositionString(2)).toBe('2nd');
+  expect(getPositionString(3)).toBe('3rd');
+  expect(getPositionString(4)).toBe('4th');
+  expect(getPositionString(5)).toBe('5th');
+  expect(getPositionString(6)).toBe('6th');
+  expect(getPositionString(7)).toBe('7th');
+  expect(getPositionString(8)).toBe('8th');
+  expect(getPositionString(9)).toBe('9th');
+  expect(getPositionString(10)).toBe('10th');
+  expect(getPositionString(11)).toBe('11th');
+  expect(getPositionString(12)).toBe('12th');
+  expect(getPositionString(13)).toBe('13th');
+  expect(getPositionString(14)).toBe('14th');
+  expect(getPositionString(15)).toBe('15th');
+  expect(getPositionString(16)).toBe('16th');
+  expect(getPositionString(17)).toBe('17th');
+  expect(getPositionString(18)).toBe('18th');
+  expect(getPositionString(19)).toBe('19th');
+  expect(getPositionString(20)).toBe('20th');
+  expect(getPositionString(21)).toBe('21st');
+  expect(getPositionString(22)).toBe('22nd');
+  expect(getPositionString(23)).toBe('23rd');
+  expect(getPositionString(24)).toBe('24th');
 });
 
 test('getTeamNames', () => {

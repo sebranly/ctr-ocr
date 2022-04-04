@@ -1,5 +1,7 @@
 # CPUs
 
+Also available in: [French](../fr/CPUs.md)
+
 ## Introduction
 
 Races are played with human players and optionally CPUs. CPUs mean that the characters are bots. As their name is known in advance, we can generate the list, contrary to human players who are free to pick their own username.

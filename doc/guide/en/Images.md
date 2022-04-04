@@ -1,5 +1,7 @@
 # Images
 
+Also available in: [French](../fr/Images.md)
+
 ## Introduction
 
 The website is primarily an image-to-text tool that converts an image of results from a Crash Team Racing: Nitro Fueled race into text data representing those results. It's based on a technology called OCR that stands for Optimal Character Recognition. Thus, **it is important to provide high-quality images**, taken from the system directly (e.g. PlayStation system, Switch console, etc.) because it is based on a pattern of recognition.
@@ -14,9 +16,9 @@ The website supports the following formats: `JPG`/`JPEG`/`PNG`.
 
 The website supports any dimensions as long as the **ratio of width/height is 1.78**. For example the following dimensions are supported: 3840x2160 (maximum allowed on PS5), 1280x720 (maximum allowed on Switch), etc.
 
-### Name
+### Names
 
-If uploading multiple images, they will be sorted alphabetically by their name for the results. We advise you to name them with numbers, for example as follows: `IMG1.JPG`, `IMG2.JPG`, ..., `IMG15.JPG` for an event containing 15 races.
+If uploading multiple images, they will be sorted alphabetically by their name for the results. We advise you to name them with a common prefix and a different suffix number, for example as follows: `IMG1.JPG`, `IMG2.JPG`, ..., `IMG10.JPG` for an event containing 10 races.
 
 An example with 10 races is available in this [example folder](https://github.com/sebranly/ctr-ocr/tree/main/src/img/examples/full-event).
 
