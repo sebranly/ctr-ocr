@@ -48,7 +48,7 @@ import {
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logError, logTime } from './utils/log';
-import { validateTeams, validateUsernames } from './utils/validation';
+import { validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
 import { isEqual } from './utils/array';
@@ -105,6 +105,8 @@ const App = () => {
   };
 
   const renderImages = () => {
+    if (issueOnPointsScheme || issueOnTeams) return null;
+
     if (isMobile) {
       return imagesURLs.map((imageSrc: string, index: number) => (
         <img alt="tbd" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
@@ -125,7 +127,7 @@ const App = () => {
 
     return (
       <tbody>
-        {slicedPointsScheme.map((points: number, indexPoints: number) => {
+        {slicedPointsScheme.map((_points: number, indexPoints: number) => {
           const key = indexPoints;
 
           return (
@@ -260,27 +262,30 @@ const App = () => {
   };
 
   const renderPointsSchemeMainSection = () => {
+    if (issueOnTeams) return null;
+
+    const isFFASetup = isEqual(pointsScheme.slice(0, nbPlayers), FFA_POINTS_SCHEME.slice(0, nbPlayers));
+    const isWarSetup = isEqual(pointsScheme.slice(0, nbPlayers), WAR_POINTS_SCHEME.slice(0, nbPlayers));
+
     return (
       <>
         <h3>Points</h3>
         <div className="text-center mb">Choose a preset or edit each value individually for something more custom</div>
         <div className="mb">
-          <button
-            onClick={() => setPointsScheme(FFA_POINTS_SCHEME)}
-            disabled={selectIsDisabled || isEqual(pointsScheme, FFA_POINTS_SCHEME)}
-          >
+          <button onClick={() => setPointsScheme(FFA_POINTS_SCHEME)} disabled={selectIsDisabled || isFFASetup}>
             FFA preset
           </button>
 
           <button
             className="ml"
             onClick={() => setPointsScheme(WAR_POINTS_SCHEME)}
-            disabled={selectIsDisabled || isEqual(pointsScheme, WAR_POINTS_SCHEME)}
+            disabled={selectIsDisabled || isWarSetup}
           >
             WAR preset
           </button>
         </div>
         {renderPointsSchemeSection()}
+        {!validationPointsScheme.correct && <div className="red">{validationPointsScheme.errMsg}</div>}
       </>
     );
   };
@@ -295,9 +300,7 @@ const App = () => {
   };
 
   const renderStart = () => {
-    const isFFA = nbTeams === nbPlayers;
-
-    if (!includeCpuPlayers && !isFFA && !validationTeams.correct) return null;
+    if (issueOnPointsScheme || issueOnTeams) return null;
 
     const colorText = ocrProgress === Progress.Done ? 'orange' : 'red';
     const classesText = `ml block mb bold ${colorText}`;
@@ -325,9 +328,7 @@ const App = () => {
     const pngImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.PNG`;
     const guideImage = `${GUIDE_FOLDER}Images.md`;
 
-    const isFFA = nbTeams === nbPlayers;
-
-    if (!includeCpuPlayers && !isFFA && !validationTeams.correct) return null;
+    if (issueOnPointsScheme || issueOnTeams) return null;
 
     return (
       <>
@@ -384,6 +385,7 @@ const App = () => {
       <>
         {renderCpuMainSection()}
         {renderTeamMainSection()}
+        {renderPointsSchemeMainSection()}
         {renderImagesUpload()}
         {renderImages()}
         {renderStart()}
@@ -457,7 +459,6 @@ const App = () => {
   };
 
   const renderTeamRepartition = () => {
-    const isFFA = nbTeams === nbPlayers;
     if (includeCpuPlayers) return null;
     if (isFFA) return <div className="ml block mb">Free For All means there is no need to set up teams!</div>;
 
@@ -765,10 +766,14 @@ const App = () => {
   const onChangeNbTeams = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newNbTeams = Number(e.target.value);
     const teamNames = getTeamNames(newNbTeams);
+    const isFFA = newNbTeams === nbPlayers;
 
     setNbTeams(newNbTeams);
     setTeams(teamNames);
     setPlayerTeams({});
+
+    if (isFFA) setPointsScheme(FFA_POINTS_SCHEME);
+    else setPointsScheme(WAR_POINTS_SCHEME);
   };
 
   const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -793,7 +798,10 @@ const App = () => {
     };
 
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIncludeCpuPlayers(e.target.checked);
+    const newVal = e.target.checked;
+    setIncludeCpuPlayers(newVal);
+    if (newVal === true) setPointsScheme(FFA_POINTS_SCHEME);
+    else setPointsScheme(WAR_POINTS_SCHEME);
   };
 
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
@@ -802,9 +810,13 @@ const App = () => {
   const classBgDisabled = selectIsDisabled && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
+  const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
   const userAgent = navigator?.userAgent ?? '';
   const userAgentResult = new UAParser(userAgent).getResult();
   const placeholderPlayers = getPlayersPlaceholder(nbPlayers, userAgentResult);
+  const isFFA = nbTeams === nbPlayers;
+  const issueOnTeams = !includeCpuPlayers && !isFFA && !validationTeams.correct;
+  const issueOnPointsScheme = !validationPointsScheme.correct;
 
   return (
     <HelmetProvider>
@@ -851,7 +863,6 @@ const App = () => {
               {copiedPlayers ? 'Copied' : 'Copy to clipboard'}
             </button>
           </CopyToClipboard>
-          {renderPointsSchemeMainSection()}
           {renderMainSection()}
         </div>
         {renderFooter()}
