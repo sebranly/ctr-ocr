@@ -49,6 +49,10 @@ ul {
   margin-top: 10px;
 }
 
+.limited-table {
+  table-layout:fixed;
+}
+
 .center {
   text-align: center;
   margin: 0 auto;

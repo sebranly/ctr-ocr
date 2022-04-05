@@ -82,8 +82,10 @@ const App = () => {
   };
 
   const renderTable = (index: number) => {
+    const classes = isMobile ? 'flex-1 limited-table' : 'flex-1';
+
     return (
-      <table className="flex-1">
+      <table className={classes}>
         <thead>
           <tr>
             <th>Position</th>
@@ -151,10 +153,11 @@ const App = () => {
   };
 
   const renderBody = (index: number) => {
-    const renderOption = (option: string | number) => {
+    const renderOption = (option: string | number, indexOption: number) => {
+      const key = `${option}-${indexOption}`;
       const label = `${option}`;
       return (
-        <option key={label} label={label} value={option}>
+        <option key={key} label={label} value={option}>
           {label}
         </option>
       );
@@ -186,6 +189,8 @@ const App = () => {
       return optionsResultsPoints.map(renderOption);
     };
 
+    const classesSelectPlayer = isMobile ? 'max-width-100' : '';
+
     return (
       <tbody>
         {resultsOcr[index].map((resultOcr: Result, indexPlayer: number) => {
@@ -197,7 +202,11 @@ const App = () => {
               <td>{getPositionString(position)}</td>
               {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
-                <select onChange={onChangeResultsPlayer(index, indexPlayer)} value={username}>
+                <select
+                  className={classesSelectPlayer}
+                  onChange={onChangeResultsPlayer(index, indexPlayer)}
+                  value={username}
+                >
                   {renderOptions()}
                 </select>
               </td>
