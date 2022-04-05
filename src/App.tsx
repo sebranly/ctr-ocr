@@ -51,7 +51,7 @@ import { logError, logTime } from './utils/log';
 import { validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
-
+import { isEqual } from './utils/array';
 const language = 'eng';
 
 const App = () => {
@@ -136,6 +136,7 @@ const App = () => {
                   className="text-center"
                   type="number"
                   value={pointsScheme[indexPoints]}
+                  disabled={selectIsDisabled}
                   onChange={onChangePointsScheme(indexPoints)}
                 />
               </td>
@@ -264,8 +265,18 @@ const App = () => {
         <h3>Points</h3>
         <div className="text-center mb">Choose a preset or edit each value individually for something more custom</div>
         <div className="mb">
-          <button onClick={() => setPointsScheme(FFA_POINTS_SCHEME)}>FFA preset</button>
-          <button className="ml" onClick={() => setPointsScheme(WAR_POINTS_SCHEME)}>
+          <button
+            onClick={() => setPointsScheme(FFA_POINTS_SCHEME)}
+            disabled={selectIsDisabled || isEqual(pointsScheme, FFA_POINTS_SCHEME)}
+          >
+            FFA preset
+          </button>
+
+          <button
+            className="ml"
+            onClick={() => setPointsScheme(WAR_POINTS_SCHEME)}
+            disabled={selectIsDisabled || isEqual(pointsScheme, WAR_POINTS_SCHEME)}
+          >
             WAR preset
           </button>
         </div>
