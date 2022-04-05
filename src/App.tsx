@@ -89,6 +89,7 @@ const App = () => {
             <th>Position</th>
             {includeCpuPlayers && <th>Type</th>}
             <th>Name</th>
+            <th>Points</th>
           </tr>
         </thead>
         {renderBody(index)}
@@ -150,10 +151,10 @@ const App = () => {
   };
 
   const renderBody = (index: number) => {
-    const renderOption = (option: string) => {
+    const renderOption = (option: string | number) => {
       const label = `${option}`;
       return (
-        <option key={option} label={label} value={option}>
+        <option key={label} label={label} value={option}>
           {label}
         </option>
       );
@@ -179,10 +180,16 @@ const App = () => {
       );
     };
 
+    const renderOptionsPoints = () => {
+      const optionsResultsPoints = pointsScheme.slice(0, nbPlayers);
+
+      return optionsResultsPoints.map(renderOption);
+    };
+
     return (
       <tbody>
         {resultsOcr[index].map((resultOcr: Result, indexPlayer: number) => {
-          const { position, username } = resultOcr;
+          const { position, username, points } = resultOcr;
           const key = `${position}-${username}`;
 
           return (
@@ -192,6 +199,11 @@ const App = () => {
               <td>
                 <select onChange={onChangeResultsPlayer(index, indexPlayer)} value={username}>
                   {renderOptions()}
+                </select>
+              </td>
+              <td>
+                <select onChange={onChangeResultsPoints(index, indexPlayer)} value={points}>
+                  {renderOptionsPoints()}
                 </select>
               </td>
             </tr>
@@ -204,6 +216,7 @@ const App = () => {
   const renderRace = (index: number) => {
     const labelRace = `Race ${index + 1}`;
     const validationUsernames = validateUsernames(resultsOcr[index].map((r: Result) => r.username));
+    const validationPoints = validatePoints(resultsOcr[index].map((r: Result) => r.points));
 
     return (
       <div key={index}>
@@ -211,6 +224,7 @@ const App = () => {
         {renderCroppedImage(index)}
         <div className="flex-container mt">{renderTable(index)}</div>
         {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
+        {!validationPoints.correct && <div className="red">{validationPoints.errMsg}</div>}
       </div>
     );
   };
@@ -220,6 +234,7 @@ const App = () => {
 
     return (
       <>
+        <hr />
         <div className="center">
           <h2>Results</h2>
           {resultsOcr.map((_resultOcr: Result[], index: number) => renderRace(index))}
@@ -672,7 +687,8 @@ const App = () => {
           const playerGuess = resultsNames[playerIndex];
           const result: Result = {
             username: getCloserString(playerGuess, referencePlayers),
-            position: playerIndex + 1
+            position: playerIndex + 1,
+            points: pointsScheme[playerIndex]
           };
 
           dataResults.push(result);
@@ -788,6 +804,14 @@ const App = () => {
     copy[indexPointsScheme] = Number(value);
     setPointsScheme(copy);
   };
+
+  const onChangeResultsPoints =
+    (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (!resultsOcr || resultsOcr.length < indexResultOcr) return;
+      const copy = [...resultsOcr];
+      copy[indexResultOcr][indexPlayer].points = Number(e.target.value);
+      setResultsOcr(copy);
+    };
 
   const onChangeResultsPlayer =
     (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
