@@ -22,7 +22,16 @@ import {
   WEBSITE_TITLE,
   WEBSITE_VERSION
 } from './constants/general';
-import { CTR_MAX_PLAYERS, INITIAL_TEAM_NB, MAX_HEIGHT_IMG, MIME_JPEG, MIME_PNG, PLACEHOLDER_CPUS } from './constants';
+import {
+  CTR_MAX_PLAYERS,
+  FFA_POINTS_SCHEME,
+  INITIAL_TEAM_NB,
+  MAX_HEIGHT_IMG,
+  MIME_JPEG,
+  MIME_PNG,
+  PLACEHOLDER_CPUS,
+  WAR_POINTS_SCHEME
+} from './constants';
 import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
 import {
   formatCpuPlayers,
@@ -54,6 +63,20 @@ const App = () => {
         <div className="progress-bar-value"></div>
         <div className="progress-bar-text">{ocrProgressText}</div>
       </div>
+    );
+  };
+
+  const renderTablePointsScheme = () => {
+    return (
+      <table className="flex-1">
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        {renderBodyPointsScheme()}
+      </table>
     );
   };
 
@@ -93,6 +116,32 @@ const App = () => {
           <img alt="tbd" className="img-full max-width-45 flex-1" key={`${imageSrc}-${index}`} src={imageSrc} />
         ))}
       </div>
+    );
+  };
+
+  const renderBodyPointsScheme = () => {
+    const slicedPointsScheme = pointsScheme.slice(0, nbPlayers);
+
+    return (
+      <tbody>
+        {slicedPointsScheme.map((points: number, indexPoints: number) => {
+          const key = indexPoints;
+
+          return (
+            <tr key={key}>
+              <td>{getPositionString(indexPoints + 1)}</td>
+              <td>
+                <input
+                  className="text-center"
+                  type="number"
+                  value={pointsScheme[indexPoints]}
+                  onChange={onChangePointsScheme(indexPoints)}
+                />
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
     );
   };
 
@@ -156,7 +205,7 @@ const App = () => {
       <div key={index}>
         <h3>{labelRace}</h3>
         {renderCroppedImage(index)}
-        <div className="flex-container results">{renderTable(index)}</div>
+        <div className="flex-container mt">{renderTable(index)}</div>
         {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
       </div>
     );
@@ -204,6 +253,22 @@ const App = () => {
       <>
         <h3>CPUs</h3>
         {renderCpuSection()}
+      </>
+    );
+  };
+
+  const renderPointsSchemeMainSection = () => {
+    return (
+      <>
+        <h3>Points</h3>
+        <div className="text-center mb">Choose a preset or edit each value individually for something more custom</div>
+        <div className="mb">
+          <button onClick={() => setPointsScheme(FFA_POINTS_SCHEME)}>FFA preset</button>
+          <button className="ml" onClick={() => setPointsScheme(WAR_POINTS_SCHEME)}>
+            WAR preset
+          </button>
+        </div>
+        {renderPointsSchemeSection()}
       </>
     );
   };
@@ -313,6 +378,10 @@ const App = () => {
         {renderRaces()}
       </>
     );
+  };
+
+  const renderPointsSchemeSection = () => {
+    return renderTablePointsScheme();
   };
 
   const renderTeamSection = () => {
@@ -625,6 +694,7 @@ const App = () => {
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState('');
+  const [pointsScheme, setPointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
   const [copiedPlayers, setCopiedPlayers] = React.useState(false);
   const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
@@ -694,6 +764,14 @@ const App = () => {
     setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
 
+  const onChangePointsScheme = (indexPointsScheme: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!pointsScheme || pointsScheme.length < indexPointsScheme) return;
+    const { value } = e.currentTarget;
+    const copy = [...pointsScheme];
+    copy[indexPointsScheme] = Number(value);
+    setPointsScheme(copy);
+  };
+
   const onChangeResultsPlayer =
     (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
       if (!resultsOcr || resultsOcr.length < indexResultOcr) return;
@@ -761,6 +839,7 @@ const App = () => {
               {copiedPlayers ? 'Copied' : 'Copy to clipboard'}
             </button>
           </CopyToClipboard>
+          {renderPointsSchemeMainSection()}
           {renderMainSection()}
         </div>
         {renderFooter()}
