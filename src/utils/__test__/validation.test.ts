@@ -1,10 +1,26 @@
 import { Validation } from '../../types';
-import { validateTeams, validateTimes, validateUsernames } from '../validation';
+import { validatePoints, validateTeams, validateTimes, validateUsernames } from '../validation';
 
 const correctResponse: Validation = {
   correct: true,
   errMsg: ''
 };
+
+test('validatePoints', () => {
+  const incorrectResponse: Validation = {
+    correct: false,
+    errMsg: 'From best to worst player, points should be decreasing (equal values are permitted)'
+  };
+
+  expect(validatePoints([42])).toStrictEqual(correctResponse);
+  expect(validatePoints([42, 1])).toStrictEqual(correctResponse);
+  expect(validatePoints([42, 42, 42, 42])).toStrictEqual(correctResponse);
+  expect(validatePoints([42, 41, 40, 39])).toStrictEqual(correctResponse);
+  expect(validatePoints([42, 41, 41, 39])).toStrictEqual(correctResponse);
+  expect(validatePoints([10, 0])).toStrictEqual(correctResponse);
+  expect(validatePoints([1, 2, 3])).toStrictEqual(incorrectResponse);
+  expect(validatePoints([1, 42])).toStrictEqual(incorrectResponse);
+});
 
 test('validateUsernames', () => {
   const missingUsernameResponse = {

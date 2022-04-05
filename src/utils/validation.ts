@@ -4,6 +4,29 @@ import { CTR_MAX_TIME_DIFF_SEC, TIME_DNF } from '../constants';
 import { Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 
+const validatePoints = (points: number[]) => {
+  const validation: Validation = {
+    correct: false,
+    errMsg: ''
+  };
+
+  const copyPoints = [...points];
+
+  const sortedPoints = copyPoints.sort((a: number, b: number) => {
+    return b - a;
+  });
+
+  if (sortedPoints.toString() !== points.toString()) {
+    validation.errMsg = 'From best to worst player, points should be decreasing (equal values are permitted)';
+
+    return validation;
+  }
+
+  validation.correct = true;
+
+  return validation;
+};
+
 const validateTeams = (players: string[], teams: string[], playerTeams: Record<string, string>) => {
   const validation: Validation = {
     correct: false,
@@ -145,4 +168,4 @@ const validateTimes = (times: string[]) => {
   return validation;
 };
 
-export { validateTeams, validateTimes, validateUsernames };
+export { validatePoints, validateTeams, validateTimes, validateUsernames };
