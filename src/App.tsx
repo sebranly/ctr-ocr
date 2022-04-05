@@ -67,8 +67,9 @@ const App = () => {
   };
 
   const renderTablePointsScheme = () => {
+    const classes = isMobile ? 'flex-1' : 'flex-1 max-width-50 center';
     return (
-      <table className="flex-1">
+      <table className={classes}>
         <thead>
           <tr>
             <th>Position</th>
