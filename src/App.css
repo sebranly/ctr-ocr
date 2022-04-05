@@ -49,6 +49,10 @@ ul {
   margin-top: 10px;
 }
 
+.limited-table {
+  table-layout:fixed;
+}
+
 .center {
   text-align: center;
   margin: 0 auto;
@@ -196,10 +200,6 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   background-color: transparent;
-}
-
-.results {
-  margin-top: 5px;
 }
 
 .flex-container {

@@ -27,4 +27,5 @@ export type Coord = {
 export type Result = {
   username: string;
   position: number;
+  points: number;
 };

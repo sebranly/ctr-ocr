@@ -3,6 +3,7 @@ import { convertToMs } from './index';
 import { CTR_MAX_TIME_DIFF_SEC, TIME_DNF } from '../constants';
 import { Validation } from '../types';
 import { REGEX_TIME } from './regEx';
+import { isEqual } from './array';
 
 const validatePoints = (points: number[]) => {
   const validation: Validation = {
@@ -16,13 +17,13 @@ const validatePoints = (points: number[]) => {
     return b - a;
   });
 
-  if (sortedPoints.toString() !== points.toString()) {
-    validation.errMsg = 'From best to worst player, points should be decreasing (equal values are permitted)';
+  if (isEqual(sortedPoints, points)) {
+    validation.correct = true;
 
     return validation;
   }
 
-  validation.correct = true;
+  validation.errMsg = 'From best to worst player, points should be decreasing (equal values are permitted)';
 
   return validation;
 };
@@ -146,7 +147,7 @@ const validateTimes = (times: string[]) => {
     return a - b;
   });
 
-  if (finishedTimesMs.toString() !== sortedTimesMs.toString()) {
+  if (!isEqual(finishedTimesMs, sortedTimesMs)) {
     validation.errMsg = `From position 1 to position ${finishedTimesLength}, times are not in chronological order`;
 
     return validation;

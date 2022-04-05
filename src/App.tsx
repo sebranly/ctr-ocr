@@ -22,7 +22,16 @@ import {
   WEBSITE_TITLE,
   WEBSITE_VERSION
 } from './constants/general';
-import { CTR_MAX_PLAYERS, INITIAL_TEAM_NB, MAX_HEIGHT_IMG, MIME_JPEG, MIME_PNG, PLACEHOLDER_CPUS } from './constants';
+import {
+  CTR_MAX_PLAYERS,
+  FFA_POINTS_SCHEME,
+  INITIAL_TEAM_NB,
+  MAX_HEIGHT_IMG,
+  MIME_JPEG,
+  MIME_PNG,
+  PLACEHOLDER_CPUS,
+  WAR_POINTS_SCHEME
+} from './constants';
 import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
 import {
   formatCpuPlayers,
@@ -39,10 +48,10 @@ import {
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logError, logTime } from './utils/log';
-import { validateTeams, validateUsernames } from './utils/validation';
+import { validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
-
+import { isEqual } from './utils/array';
 const language = 'eng';
 
 const App = () => {
@@ -57,14 +66,32 @@ const App = () => {
     );
   };
 
-  const renderTable = (index: number) => {
+  const renderTablePointsScheme = () => {
+    const classes = isMobile ? 'flex-1' : 'flex-1 max-width-50 center';
     return (
-      <table className="flex-1">
+      <table className={classes}>
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        {renderBodyPointsScheme()}
+      </table>
+    );
+  };
+
+  const renderTable = (index: number) => {
+    const classes = isMobile ? 'flex-1 limited-table' : 'flex-1';
+
+    return (
+      <table className={classes}>
         <thead>
           <tr>
             <th>Position</th>
             {includeCpuPlayers && <th>Type</th>}
             <th>Name</th>
+            <th>Points</th>
           </tr>
         </thead>
         {renderBody(index)}
@@ -81,6 +108,8 @@ const App = () => {
   };
 
   const renderImages = () => {
+    if (issueOnPointsScheme || issueOnTeams) return null;
+
     if (isMobile) {
       return imagesURLs.map((imageSrc: string, index: number) => (
         <img alt="tbd" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
@@ -96,11 +125,39 @@ const App = () => {
     );
   };
 
+  const renderBodyPointsScheme = () => {
+    const slicedPointsScheme = pointsScheme.slice(0, nbPlayers);
+
+    return (
+      <tbody>
+        {slicedPointsScheme.map((_points: number, indexPoints: number) => {
+          const key = indexPoints;
+
+          return (
+            <tr key={key}>
+              <td>{getPositionString(indexPoints + 1)}</td>
+              <td>
+                <input
+                  className="text-center"
+                  type="number"
+                  value={pointsScheme[indexPoints]}
+                  disabled={selectIsDisabled}
+                  onChange={onChangePointsScheme(indexPoints)}
+                />
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    );
+  };
+
   const renderBody = (index: number) => {
-    const renderOption = (option: string) => {
+    const renderOption = (option: string | number, indexOption: number) => {
+      const key = `${option}-${indexOption}`;
       const label = `${option}`;
       return (
-        <option key={option} label={label} value={option}>
+        <option key={key} label={label} value={option}>
           {label}
         </option>
       );
@@ -126,10 +183,18 @@ const App = () => {
       );
     };
 
+    const renderOptionsPoints = () => {
+      const optionsResultsPoints = pointsScheme.slice(0, nbPlayers);
+
+      return optionsResultsPoints.map(renderOption);
+    };
+
+    const classesSelectPlayer = isMobile ? 'max-width-100' : '';
+
     return (
       <tbody>
         {resultsOcr[index].map((resultOcr: Result, indexPlayer: number) => {
-          const { position, username } = resultOcr;
+          const { position, username, points } = resultOcr;
           const key = `${position}-${username}`;
 
           return (
@@ -137,8 +202,17 @@ const App = () => {
               <td>{getPositionString(position)}</td>
               {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
-                <select onChange={onChangeResultsPlayer(index, indexPlayer)} value={username}>
+                <select
+                  className={classesSelectPlayer}
+                  onChange={onChangeResultsPlayer(index, indexPlayer)}
+                  value={username}
+                >
                   {renderOptions()}
+                </select>
+              </td>
+              <td>
+                <select onChange={onChangeResultsPoints(index, indexPlayer)} value={points}>
+                  {renderOptionsPoints()}
                 </select>
               </td>
             </tr>
@@ -151,13 +225,15 @@ const App = () => {
   const renderRace = (index: number) => {
     const labelRace = `Race ${index + 1}`;
     const validationUsernames = validateUsernames(resultsOcr[index].map((r: Result) => r.username));
+    const validationPoints = validatePoints(resultsOcr[index].map((r: Result) => r.points));
 
     return (
       <div key={index}>
         <h3>{labelRace}</h3>
         {renderCroppedImage(index)}
-        <div className="flex-container results">{renderTable(index)}</div>
+        <div className="flex-container mt">{renderTable(index)}</div>
         {!validationUsernames.correct && <div className="red">{validationUsernames.errMsg}</div>}
+        {!validationPoints.correct && <div className="red">{validationPoints.errMsg}</div>}
       </div>
     );
   };
@@ -167,6 +243,7 @@ const App = () => {
 
     return (
       <>
+        <hr />
         <div className="center">
           <h2>Results</h2>
           {resultsOcr.map((_resultOcr: Result[], index: number) => renderRace(index))}
@@ -208,6 +285,35 @@ const App = () => {
     );
   };
 
+  const renderPointsSchemeMainSection = () => {
+    if (issueOnTeams) return null;
+
+    const isFFASetup = isEqual(pointsScheme.slice(0, nbPlayers), FFA_POINTS_SCHEME.slice(0, nbPlayers));
+    const isWarSetup = isEqual(pointsScheme.slice(0, nbPlayers), WAR_POINTS_SCHEME.slice(0, nbPlayers));
+
+    return (
+      <>
+        <h3>Points</h3>
+        <div className="text-center mb">Choose a preset or edit each value individually for something more custom</div>
+        <div className="mb">
+          <button onClick={() => setPointsScheme(FFA_POINTS_SCHEME)} disabled={selectIsDisabled || isFFASetup}>
+            FFA preset
+          </button>
+
+          <button
+            className="ml"
+            onClick={() => setPointsScheme(WAR_POINTS_SCHEME)}
+            disabled={selectIsDisabled || isWarSetup}
+          >
+            WAR preset
+          </button>
+        </div>
+        {renderPointsSchemeSection()}
+        {!validationPointsScheme.correct && <div className="red">{validationPointsScheme.errMsg}</div>}
+      </>
+    );
+  };
+
   const renderTeamMainSection = () => {
     return (
       <>
@@ -218,9 +324,7 @@ const App = () => {
   };
 
   const renderStart = () => {
-    const isFFA = nbTeams === nbPlayers;
-
-    if (!includeCpuPlayers && !isFFA && !validationTeams.correct) return null;
+    if (issueOnPointsScheme || issueOnTeams) return null;
 
     const colorText = ocrProgress === Progress.Done ? 'orange' : 'red';
     const classesText = `ml block mb bold ${colorText}`;
@@ -248,9 +352,7 @@ const App = () => {
     const pngImage = `${EXAMPLE_IMAGES_FOLDER}IMG1.PNG`;
     const guideImage = `${GUIDE_FOLDER}Images.md`;
 
-    const isFFA = nbTeams === nbPlayers;
-
-    if (!includeCpuPlayers && !isFFA && !validationTeams.correct) return null;
+    if (issueOnPointsScheme || issueOnTeams) return null;
 
     return (
       <>
@@ -307,12 +409,17 @@ const App = () => {
       <>
         {renderCpuMainSection()}
         {renderTeamMainSection()}
+        {renderPointsSchemeMainSection()}
         {renderImagesUpload()}
         {renderImages()}
         {renderStart()}
         {renderRaces()}
       </>
     );
+  };
+
+  const renderPointsSchemeSection = () => {
+    return renderTablePointsScheme();
   };
 
   const renderTeamSection = () => {
@@ -376,7 +483,6 @@ const App = () => {
   };
 
   const renderTeamRepartition = () => {
-    const isFFA = nbTeams === nbPlayers;
     if (includeCpuPlayers) return null;
     if (isFFA) return <div className="ml block mb">Free For All means there is no need to set up teams!</div>;
 
@@ -590,7 +696,8 @@ const App = () => {
           const playerGuess = resultsNames[playerIndex];
           const result: Result = {
             username: getCloserString(playerGuess, referencePlayers),
-            position: playerIndex + 1
+            position: playerIndex + 1,
+            points: pointsScheme[playerIndex]
           };
 
           dataResults.push(result);
@@ -625,6 +732,7 @@ const App = () => {
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState('');
+  const [pointsScheme, setPointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
   const [copiedPlayers, setCopiedPlayers] = React.useState(false);
   const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
@@ -683,16 +791,36 @@ const App = () => {
   const onChangeNbTeams = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newNbTeams = Number(e.target.value);
     const teamNames = getTeamNames(newNbTeams);
+    const isFFA = newNbTeams === nbPlayers;
 
     setNbTeams(newNbTeams);
     setTeams(teamNames);
     setPlayerTeams({});
+
+    if (isFFA) setPointsScheme(FFA_POINTS_SCHEME);
+    else setPointsScheme(WAR_POINTS_SCHEME);
   };
 
   const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCpuLanguage(e.target.value);
     setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
+
+  const onChangePointsScheme = (indexPointsScheme: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!pointsScheme || pointsScheme.length < indexPointsScheme) return;
+    const { value } = e.currentTarget;
+    const copy = [...pointsScheme];
+    copy[indexPointsScheme] = Number(value);
+    setPointsScheme(copy);
+  };
+
+  const onChangeResultsPoints =
+    (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (!resultsOcr || resultsOcr.length < indexResultOcr) return;
+      const copy = [...resultsOcr];
+      copy[indexResultOcr][indexPlayer].points = Number(e.target.value);
+      setResultsOcr(copy);
+    };
 
   const onChangeResultsPlayer =
     (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -703,7 +831,10 @@ const App = () => {
     };
 
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIncludeCpuPlayers(e.target.checked);
+    const newVal = e.target.checked;
+    setIncludeCpuPlayers(newVal);
+    if (newVal === true) setPointsScheme(FFA_POINTS_SCHEME);
+    else setPointsScheme(WAR_POINTS_SCHEME);
   };
 
   const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
@@ -712,9 +843,13 @@ const App = () => {
   const classBgDisabled = selectIsDisabled && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
+  const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
   const userAgent = navigator?.userAgent ?? '';
   const userAgentResult = new UAParser(userAgent).getResult();
   const placeholderPlayers = getPlayersPlaceholder(nbPlayers, userAgentResult);
+  const isFFA = nbTeams === nbPlayers;
+  const issueOnTeams = !includeCpuPlayers && !isFFA && !validationTeams.correct;
+  const issueOnPointsScheme = !validationPointsScheme.correct;
 
   return (
     <HelmetProvider>
