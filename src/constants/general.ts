@@ -13,4 +13,5 @@ export const WEBSITE_DEFAULT_LANGUAGE = 'en';
 export const URL_CPUS = `${AUTHOR_GITHUB}/json/${JSON_FOLDER}/players.json`;
 export const EXAMPLE_IMAGES_FOLDER = `https://raw.githubusercontent.com/${AUTHOR_NAME}/${PROJECT_NAME}/main/src/img/examples/`;
 export const EXAMPLE_IMAGES_FOLDER_FULL_EVENT = `${PROJECT_URL}/tree/main/src/img/examples/full-event/`;
-export const CANONICAL_URL = `${AUTHOR_GITHUB}/${PROJECT_NAME}`;
+// TODO: have HTTPS activated
+export const CANONICAL_URL = 'http://crashteamresults.com';
