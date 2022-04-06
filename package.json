@@ -1,5 +1,5 @@
 {
-  "homepage": "https://sebranly.github.io/ctr-ocr",
+  "homepage": ".",
   "name": "ctr-ocr",
   "version": "0.1.0",
   "dependencies": {
@@ -27,7 +27,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -b master -d build",
+    "deploy": "echo 'crashteamresults.com' > ./build/static/CNAME && gh-pages -b master -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
