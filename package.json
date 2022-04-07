@@ -27,7 +27,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "echo 'crashteamresults.com' > ./build/static/CNAME && gh-pages -b master -d build",
+    "deploy": "echo 'www.crashteamresults.com' > ./build/static/CNAME && gh-pages -b master -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

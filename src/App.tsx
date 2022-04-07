@@ -19,6 +19,7 @@ import {
   PROJECT_URL,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
+  WEBSITE_DESCRIPTION,
   WEBSITE_TITLE,
   WEBSITE_VERSION
 } from './constants/general';
@@ -856,6 +857,7 @@ const App = () => {
       <Helmet>
         <title>{WEBSITE_TITLE}</title>
         <link rel="canonical" href={CANONICAL_URL} />
+        <meta name="description" content={WEBSITE_DESCRIPTION} />
       </Helmet>
       <div className="main">
         <h1>{WEBSITE_TITLE}</h1>
