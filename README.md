@@ -1,7 +1,7 @@
 # ctr-ocr
 Optical character recognition performed on the video game Crash Team Racing Nitro-Fueled for game results
 
-Deployed on [GitHub pages](https://sebranly.github.io/ctr-ocr).
+Live on [Crash Team Results](https://www.crashteamresults.com)
 
 ## Development
 
@@ -20,5 +20,5 @@ Deployed on [GitHub pages](https://sebranly.github.io/ctr-ocr).
 ### Deploy
 
 - Commit and push your changes to `main` branch
-- Make sure to increase the `WEBSITE_VERSION` from `src/constants/general.ts` file
+- Make sure to increase the `WEBSITE_VERSION` from `src/constants/general.ts` file, by following semver
 - Then run `npm run deploy`
