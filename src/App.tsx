@@ -1,6 +1,5 @@
 import * as React from 'react';
 import './App.css';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { createWorker, createScheduler } from 'tesseract.js';
 import { Category, Progress, Result } from './types';
 import getColors from 'get-image-colors';
@@ -11,7 +10,6 @@ import { isMobile } from 'react-device-detect';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import {
-  CANONICAL_URL,
   CRASH_TEAM_RANKING_AUTHOR_URL,
   EXAMPLE_IMAGES_FOLDER,
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
@@ -19,7 +17,6 @@ import {
   PROJECT_URL,
   URL_CPUS,
   WEBSITE_DEFAULT_LANGUAGE,
-  WEBSITE_DESCRIPTION,
   WEBSITE_TITLE,
   WEBSITE_VERSION
 } from './constants/general';
@@ -853,56 +850,47 @@ const App = () => {
   const issueOnPointsScheme = !validationPointsScheme.correct;
 
   return (
-    <HelmetProvider>
-      <Helmet>
-        <title>{WEBSITE_TITLE}</title>
-        <link rel="canonical" href={CANONICAL_URL} />
-        <meta name="description" content={WEBSITE_DESCRIPTION} />
-      </Helmet>
-      <div className="main">
-        <h1>{WEBSITE_TITLE}</h1>
-        <div className="w3-light-grey"></div>
-        {ocrProgress === Progress.Done && (
-          <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />
-        )}
-        <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
-          {renderProgressBar()}
-          <h2>Introduction</h2>
-          <div className="text-center mb">Please enter information from top to bottom for a smooth experience</div>
-          <div className="text-center mb">At the end, we'll produce the Lorenzi markdown for you</div>
-          <h2>Players</h2>
-          <h3>Number of players</h3>
-          <div className="text-center mb">This includes CPUs if any</div>
-          <select disabled={selectIsDisabled} onChange={onChangeNbPlayers} value={nbPlayers}>
-            {optionsNbPlayers.map((option: number) => {
-              const label = `${option} players`;
-              return (
-                <option key={option} label={label} value={option}>
-                  {label}
-                </option>
-              );
-            })}
-          </select>
-          <h3>Human Players</h3>
-          <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
-          <textarea
-            className={`textarea-${classPlatform}`}
-            disabled={selectIsDisabled}
-            placeholder={placeholderPlayers}
-            rows={nbPlayers}
-            value={players}
-            onChange={onPlayersChange}
-          />
-          <CopyToClipboard options={{ message: '' }} text={players} onCopy={() => setCopiedPlayers(true)}>
-            <button disabled={nbPlayersTyped === 0 || copiedPlayers} className="mt">
-              {copiedPlayers ? 'Copied' : 'Copy to clipboard'}
-            </button>
-          </CopyToClipboard>
-          {renderMainSection()}
-        </div>
-        {renderFooter()}
+    <div className="main">
+      <h1>{WEBSITE_TITLE}</h1>
+      <div className="w3-light-grey"></div>
+      {ocrProgress === Progress.Done && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
+      <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
+        {renderProgressBar()}
+        <h2>Introduction</h2>
+        <div className="text-center mb">Please enter information from top to bottom for a smooth experience</div>
+        <div className="text-center mb">At the end, we'll produce the Lorenzi markdown for you</div>
+        <h2>Players</h2>
+        <h3>Number of players</h3>
+        <div className="text-center mb">This includes CPUs if any</div>
+        <select disabled={selectIsDisabled} onChange={onChangeNbPlayers} value={nbPlayers}>
+          {optionsNbPlayers.map((option: number) => {
+            const label = `${option} players`;
+            return (
+              <option key={option} label={label} value={option}>
+                {label}
+              </option>
+            );
+          })}
+        </select>
+        <h3>Human Players</h3>
+        <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
+        <textarea
+          className={`textarea-${classPlatform}`}
+          disabled={selectIsDisabled}
+          placeholder={placeholderPlayers}
+          rows={nbPlayers}
+          value={players}
+          onChange={onPlayersChange}
+        />
+        <CopyToClipboard options={{ message: '' }} text={players} onCopy={() => setCopiedPlayers(true)}>
+          <button disabled={nbPlayersTyped === 0 || copiedPlayers} className="mt">
+            {copiedPlayers ? 'Copied' : 'Copy to clipboard'}
+          </button>
+        </CopyToClipboard>
+        {renderMainSection()}
       </div>
-    </HelmetProvider>
+      {renderFooter()}
+    </div>
   );
 };
 
