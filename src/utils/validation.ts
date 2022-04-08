@@ -40,7 +40,7 @@ const validatePoints = (points: number[]) => {
     return validation;
   }
 
-  validation.errMsg = 'From best to worst player, points should be decreasing (equal values are permitted)';
+  validation.errMsg = 'Points should decrease from first to last place (ties are possible)';
 
   return validation;
 };

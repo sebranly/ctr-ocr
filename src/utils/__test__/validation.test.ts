@@ -63,7 +63,7 @@ test('getIncorrectRaces', () => {
 test('validatePoints', () => {
   const incorrectResponse: Validation = {
     correct: false,
-    errMsg: 'From best to worst player, points should be decreasing (equal values are permitted)'
+    errMsg: 'Points should decrease from first to last place (ties are possible)'
   };
 
   expect(validatePoints([42])).toStrictEqual(correctResponse);
