@@ -26,7 +26,7 @@ Un exemple avec 10 courses est disponible dans ce [dossier d'exemple](https://gi
 
 ### PS5
 
-Sur PS5, les captures d'écran peuvent être prises sous deux formats différents : `JPG`/`PNG`. J'ai remarqué que le format `PNG` est bien plus lourd (>10MB) que le format `JPG`/`JPEG` (<1MB) alors que les dimensions sont les mêmes (3840x2160). Comme ils offrent les mêmes résultats, je recommande d'utiliser simplement `JPG`/ `JPEG`.
+Sur PS5, les captures d'écran peuvent être prises sous deux formats différents : `JPG`/`PNG`. J'ai remarqué que le format `PNG` est bien plus lourd (>10MB) que le format `JPG`/`JPEG` (<1MB) alors que les dimensions sont les mêmes (3840x2160). Comme ils offrent les mêmes résultats, **je recommande d'utiliser simplement `JPG`/ `JPEG`.**
 
 |JPG|PNG|
 |-|-|
@@ -38,15 +38,15 @@ En utilisant l'application PS App sur votre téléphone portable, vous pouvez é
 
 ### PS4
 
-Sur PS4, les captures d'écran peuvent être prises sous deux formats différents: `JPG`/`PNG`. Comme indiqué sur l'interface de la PS4, le format `PNG` est plus lourd et pas supporté partout quand il est partagé. J'ai remarqué ceci en partagean via Party (et en récupérant l'image avec PS App) et via Twitter: l'image devient `JPG`.
+Sur PS4, les captures d'écran peuvent être prises sous deux formats différents: `JPG`/`PNG`. Comme indiqué sur l'interface de la PS4, le format `PNG` est plus lourd et pas supporté partout quand il est partagé. J'ai remarqué ceci en partageant via Party (et en récupérant l'image avec PS App) et sur Twitter : l'image devient `JPG`.
 
-Les dimensions peuvent être soit 3840x2160 ou 1920x1080.
+Les dimensions peuvent être soit 3840x2160 soit 1920x1080.
 
-Vous pouvez prendre des captures d'écran en maintenant la touche Share (en mode Standard) sur la moitié gauche de la manette DualShock 4. J'ai remarqué que c'est la meilleure méthode : étant donné les différences d'architecture entre la PS4 et la PS5, l'interface de la PS4 est plus lente pour prendre des captures d'écran sinon.
+Vous pouvez prendre des captures d'écran en maintenant la touche Share (en mode Standard) sur la moitié gauche de la manette DualShock 4. J'ai remarqué que c'est la meilleure méthode : étant données les différences d'architecture entre la PS4 et la PS5, l'interface de la PS4 est plus lente pour prendre des captures d'écran sinon.
 
-Vous pouvez ensuite partager vos captures d'écran via Party ou sur les réseaux sociaux (par exemple Twitter). Lors de mes tests, peu importe les dimensions et le format de la capture d'écran, l'image est convertie en image `JPG` aux dimensions 1920x1080.
+Vous pouvez ensuite partager vos captures d'écran via Party ou sur les réseaux sociaux (par exemple Twitter). Lors de mes tests, peu importe les dimensions et le format de la capture d'écran, l'image était convertie au format `JPG` et aux dimensions 1920x1080.
 
-Pour ces raisons, je recommande de simplement configurer votre PS4 pour prendre des captures d'écran au format `JPG` et aux dimensions 1920x1080.
+**Pour ces raisons, je recommande de simplement configurer votre PS4 pour prendre des captures d'écran au format `JPG` et aux dimensions 1920x1080.**
 
 ![](https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/examples/ps4/IMG_PS4.JPG?raw=true)
 
