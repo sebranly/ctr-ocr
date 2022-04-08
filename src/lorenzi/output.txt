@@ -1,12 +1,13 @@
+#title Title
 #date 2022-04-03 16:00
 
-Blind Team - Poulains War #03 #d68c82
+Team1 #d68c82
 ZouGui28 10|5|10|4|10|8|3|3|10|10
 WadaDim-PatroL 3|4|2|10|8|6|10|10|4|5
 Kyo-Bomba 6|1|6|5|4|5|1|6|8|4
 C4_Shaf 5|3|3|1|2|1|6|1|1|2
 
-Deaf Team - Poulains War #03 #00a0a0
+Team2 #00a0a0
 Shin-kun17 4|10|8|8|3|10|5|8|2|8
 Squall5701 8|8|4|6|5|3|2|5|5|6
 Gozbe_ 2|6|5|2|6|4|8|2|3|1
