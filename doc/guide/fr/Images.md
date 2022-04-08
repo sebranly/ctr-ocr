@@ -46,7 +46,7 @@ Vous pouvez prendre des captures d'écran en maintenant la touche Share (en mode
 
 Vous pouvez ensuite partager vos captures d'écran via Party ou sur les réseaux sociaux (par exemple Twitter). Lors de mes tests, peu importe les dimensions et le format de la capture d'écran, l'image est convertie en image `JPG` aux dimensions 1920x1080.
 
-Pour ces raisons, je recommende de simplement configurer votre PS4 pour prendre des captures d'écran au format `JPG` et aux dimensions 1920x1080.
+Pour ces raisons, je recommande de simplement configurer votre PS4 pour prendre des captures d'écran au format `JPG` et aux dimensions 1920x1080.
 
 ![](https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/examples/ps4/IMG_PS4.JPG?raw=true)
 
