@@ -52,6 +52,7 @@ import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } f
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
 import { isEqual } from './utils/array';
+import { createLorenziFFA } from './utils/lorenzi';
 const language = 'eng';
 
 const App = () => {
@@ -280,30 +281,29 @@ const App = () => {
       ', '
     )}`;
 
+    const rowsLorenzi = (lorenzi.match(/\n/g) || []).length + 1;
+
     return (
       <div className="center">
         <h2>Lorenzi</h2>
         {incorrectRaces.length > 0 && <div className="red">{labelError}</div>}
         {incorrectRaces.length === 0 && (
           <>
-            <CopyToClipboard
-              options={{ message: '' }}
-              text={['One Line', 'Another'].join('\n')}
-              onCopy={() => setCopiedLorenzi(true)}
-            >
-              <button disabled={copiedLorenzi} className="mt">
+            <CopyToClipboard options={{ message: '' }} text={lorenzi} onCopy={() => setCopiedLorenzi(true)}>
+              <button disabled={lorenzi === '' || copiedLorenzi} className="mt">
                 {copiedLorenzi ? 'Copied' : 'Copy to clipboard'}
               </button>
             </CopyToClipboard>
-            <a href={LORENZI_TABLE_URL} rel="noopener noreferrer" title="Guide about Images" target="_blank">
-              Lorenzi Table
+            <a
+              className="block mt mb"
+              href={LORENZI_TABLE_URL}
+              rel="noopener noreferrer"
+              title="Lorenzi Table website"
+              target="_blank"
+            >
+              Go to Lorenzi Table
             </a>
-            <textarea
-              className={`textarea-${classPlatform}`}
-              disabled={true}
-              rows={20}
-              value={['One Line', 'Another'].join('\n')}
-            />
+            <textarea className={`textarea-${classPlatform}`} disabled={true} rows={rowsLorenzi} value={lorenzi} />
           </>
         )}
       </div>
@@ -666,6 +666,7 @@ const App = () => {
     setResultsOcr([]);
     setIndexRace(0);
     setCroppedImages([]);
+    setLorenzi('');
 
     const schedulerUsername = createScheduler();
 
@@ -833,6 +834,7 @@ const App = () => {
   const [nbTeams, setNbTeams] = React.useState(INITIAL_TEAMS_NB);
   const [playerTeams, setPlayerTeams] = React.useState<Record<string, string>>({});
   const [indexRace, setIndexRace] = React.useState(0);
+  const [lorenzi, setLorenzi] = React.useState('');
 
   const nbPlayersTyped = uniq(getPlayers(players)).length;
   const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
@@ -850,6 +852,14 @@ const App = () => {
     });
     setImagesURLs(newImageUrls);
   }, [images]);
+
+  React.useEffect(() => {
+    if (resultsOcr && resultsOcr.length > 0) {
+      const newLorenzi = createLorenziFFA(resultsOcr);
+      setLorenzi(newLorenzi.join('\n'));
+      setCopiedLorenzi(false);
+    }
+  }, [resultsOcr]);
 
   React.useEffect(() => {
     if (shouldIncludeCpuPlayers && !includeCpuPlayers) {
