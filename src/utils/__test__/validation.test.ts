@@ -31,7 +31,7 @@ test('getIncorrectRaces', () => {
     ]
   ];
 
-  expect(getIncorrectRaces(incorrectRacesPoints)).toStrictEqual([0]);
+  expect(getIncorrectRaces(incorrectRacesPoints)).toStrictEqual([1]);
 
   const incorrectRacesUsernames: Result[][] = [
     [
@@ -44,7 +44,7 @@ test('getIncorrectRaces', () => {
     ]
   ];
 
-  expect(getIncorrectRaces(incorrectRacesUsernames)).toStrictEqual([1]);
+  expect(getIncorrectRaces(incorrectRacesUsernames)).toStrictEqual([2]);
 
   const incorrectRacesAll: Result[][] = [
     [
@@ -57,7 +57,7 @@ test('getIncorrectRaces', () => {
     ]
   ];
 
-  expect(getIncorrectRaces(incorrectRacesAll)).toStrictEqual([0, 1]);
+  expect(getIncorrectRaces(incorrectRacesAll)).toStrictEqual([1, 2]);
 });
 
 test('validatePoints', () => {

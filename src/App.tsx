@@ -47,7 +47,7 @@ import {
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logError, logTime } from './utils/log';
-import { validatePoints, validateTeams, validateUsernames } from './utils/validation';
+import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
 import { isEqual } from './utils/array';
@@ -270,6 +270,42 @@ const App = () => {
     );
   };
 
+  const renderLorenzi = () => {
+    if (!resultsOcr || resultsOcr.length <= indexRace) return null;
+
+    const incorrectRaces = getIncorrectRaces(resultsOcr);
+
+    const labelError = `In order to access Lorenzi markdown please fix the errors present in the following race(s): ${incorrectRaces.join(
+      ', '
+    )}`;
+
+    return (
+      <div className="center">
+        <h2>Lorenzi</h2>
+        {incorrectRaces.length > 0 && <div className="red">{labelError}</div>}
+        {incorrectRaces.length === 0 && (
+          <>
+            <CopyToClipboard
+              options={{ message: '' }}
+              text={['One Line', 'Another'].join('\n')}
+              onCopy={() => setCopiedLorenzi(true)}
+            >
+              <button disabled={copiedLorenzi} className="mt">
+                {copiedLorenzi ? 'Copied' : 'Copy to clipboard'}
+              </button>
+            </CopyToClipboard>
+            <textarea
+              className={`textarea-${classPlatform}`}
+              disabled={true}
+              rows={20}
+              value={['One Line', 'Another'].join('\n')}
+            />
+          </>
+        )}
+      </div>
+    );
+  };
+
   const renderFooter = () => {
     return (
       <>
@@ -463,6 +499,7 @@ const App = () => {
         {renderImages()}
         {renderStart()}
         {renderRaces()}
+        {renderLorenzi()}
       </>
     );
   };
@@ -784,6 +821,7 @@ const App = () => {
   const [players, setPlayers] = React.useState('');
   const [pointsScheme, setPointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
   const [copiedPlayers, setCopiedPlayers] = React.useState(false);
+  const [copiedLorenzi, setCopiedLorenzi] = React.useState(false);
   const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);

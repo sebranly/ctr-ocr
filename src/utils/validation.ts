@@ -12,11 +12,11 @@ const getIncorrectRaces = (resultsOcr: Result[][]) => {
   const incorrectRaces: number[] = [];
 
   validationPoints.forEach((validation: Validation, index: number) => {
-    if (!validation.correct) incorrectRaces.push(index);
+    if (!validation.correct) incorrectRaces.push(index + 1);
   });
 
   validationUsernames.forEach((validation: Validation, index: number) => {
-    if (!validation.correct && !incorrectRaces.includes(index)) incorrectRaces.push(index);
+    if (!validation.correct && !incorrectRaces.includes(index + 1)) incorrectRaces.push(index + 1);
   });
 
   return incorrectRaces.sort();
