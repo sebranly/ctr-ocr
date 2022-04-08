@@ -14,7 +14,7 @@ Le site web gère les formats suivants: `JPG`/`JPEG`/`PNG`.
 
 ### Dimensions
 
-Le site web gère n'importe quelles dimensions du moment que le **rapport entre le largeur et la hauteur soit 1.78**. Par exemple les dimensions suivantes sont correctes: 3840x2160 (le maximum autorisé sur PS5), 1280x720 (le maximum autorisé sur Switch), etc.
+Le site web gère n'importe quelles dimensions du moment que le **rapport entre le largeur et la hauteur soit 1.78**. Par exemple les dimensions suivantes sont correctes: 3840x2160 (le maximum autorisé sur PS4 et PS5), 1920x1080 (le minimum autorisé sur PS4), 1280x720 (le maximum autorisé sur Switch), etc.
 
 ### Noms
 

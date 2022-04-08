@@ -14,7 +14,7 @@ The website supports the following formats: `JPG`/`JPEG`/`PNG`.
 
 ### Dimensions
 
-The website supports any dimensions as long as the **ratio of width/height is 1.78**. For example the following dimensions are supported: 3840x2160 (maximum allowed on PS5), 1280x720 (maximum allowed on Switch), etc.
+The website supports any dimensions as long as the **ratio of width/height is 1.78**. For example the following dimensions are supported: 3840x2160 (maximum allowed on both PS4 and PS5), 1920x1080 (minimum allowed on PS4), 1280x720 (maximum allowed on Switch), etc.
 
 ### Names
 
