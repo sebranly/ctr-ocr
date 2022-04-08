@@ -14,6 +14,7 @@ export const PLACEHOLDER_CPUS = 'Loading CPUs...';
 export const INITIAL_TEAMS_NB = 2;
 export const FFA_POINTS_SCHEME = [10, 8, 7, 5, 4, 3, 2, 1];
 export const WAR_POINTS_SCHEME = [10, 8, 6, 5, 4, 3, 2, 1];
+export const LORENZI_TABLE_URL = 'https://gb.hlorenzi.com/table';
 export const PLACEHOLDER_PLAYERS = [
   'ZouGui28',
   'Nefarious_CTR',

@@ -25,6 +25,7 @@ import {
   CTR_MAX_PLAYERS,
   FFA_POINTS_SCHEME,
   INITIAL_TEAMS_NB,
+  LORENZI_TABLE_URL,
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
@@ -294,6 +295,9 @@ const App = () => {
                 {copiedLorenzi ? 'Copied' : 'Copy to clipboard'}
               </button>
             </CopyToClipboard>
+            <a href={LORENZI_TABLE_URL} rel="noopener noreferrer" title="Guide about Images" target="_blank">
+              Lorenzi Table
+            </a>
             <textarea
               className={`textarea-${classPlatform}`}
               disabled={true}
