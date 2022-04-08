@@ -36,6 +36,20 @@ Screenshots can be taken by pressing the Share button on the left part of the Du
 
 By using PS App on your mobile device, you can additionally set up an automatic upload of your screenshots from your PS5 to your PS App to save time. See this [Sony guide](https://www.playstation.com/en-ca/support/games/ps5-game-captures-ps-app/) for more information. Otherwise you can also share your screenshots to a Party or social media first.
 
+### PS4
+
+On PS4, screenshots can be taken in two formats: `JPG`/`PNG`. As explicitly mentioned on the PS4 UI, `PNG` are heavier and not always supported when being shared. I noticed this when sharing both through Party (then retrieving with PS App) and Twitter: the image format always becomes `JPG`.
+
+Dimensions can be either 3840x2160 or 1920x1080.
+
+Screenshots can be taken by holding the Share button (in Standard mode) on the left part of the DualShock 4 controller. I figured out it is the best way: due to differences with HDD (PS4) versus SSD (PS5), the PS4 UI is a bit unresponsive for taking screenshots otherwise.
+
+You can then share your screenshots to a Party or social media (e.g. Twitter). When I tested it, no matter the dimensions and format of the screenshot, it would be converted into a 1920x1080 `JPG` image.
+
+For all these reasons, I would recommend just setting up your PS4 to take 1920x1080 `JPG` screenshots directly.
+
+![](https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/examples/ps4/IMG_PS4.JPG?raw=true)
+
 ### Xbox
 
 Follow this [Xbox guide](https://support.xbox.com/en-US/help/friends-social-activity/share-socialize/capture-game-clips-and-screenshots) in order to take screenshots on Xbox.

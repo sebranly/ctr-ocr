@@ -36,6 +36,20 @@ Vous pouvez prendre des captures d'écran en appuyant sur la touche Share sur la
 
 En utilisant l'application PS App sur votre téléphone portable, vous pouvez également mettre en place un téléchargement en amont automatique de vos captures d'écran de votre PS5 vers l'application PS App afin de gagner du temps. Veuillez consulter le [guide de Sony](https://www.playstation.com/fr-fr/support/games/ps5-game-captures-ps-app/) pour de plus amples informations. Sinon vous pouvez alternativement partager vos captures d'écran via un Chat ou via les réseaux sociaux.
 
+### PS4
+
+Sur PS4, les captures d'écran peuvent être prises sous deux formats différents: `JPG`/`PNG`. Comme indiqué sur l'interface de la PS4, le format `PNG` est plus lourd et pas supporté partout quand il est partagé. J'ai remarqué ceci en partagean via Party (et en récupérant l'image avec PS App) et via Twitter: l'image devient `JPG`.
+
+Les dimensions peuvent être soit 3840x2160 ou 1920x1080.
+
+Vous pouvez prendre des captures d'écran en maintenant la touche Share (en mode Standard) sur la moitié gauche de la manette DualShock 4. J'ai remarqué que c'est la meilleure méthode : étant donné les différences d'architecture entre la PS4 et la PS5, l'interface de la PS4 est plus lente pour prendre des captures d'écran sinon.
+
+Vous pouvez ensuite partager vos captures d'écran via Party ou sur les réseaux sociaux (par exemple Twitter). Lors de mes tests, peu importe les dimensions et le format de la capture d'écran, l'image est convertie en image `JPG` aux dimensions 1920x1080.
+
+Pour ces raisons, je recommende de simplement configurer votre PS4 pour prendre des captures d'écran au format `JPG` et aux dimensions 1920x1080.
+
+![](https://raw.githubusercontent.com/sebranly/ctr-ocr/main/src/img/examples/ps4/IMG_PS4.JPG?raw=true)
+
 ### Xbox
 
 Veuillez suivre ce [guide pour Xbox](https://support.xbox.com/fr-FR/help/friends-social-activity/share-socialize/capture-game-clips-and-screenshots) pour savoir comment prendre des captures d'écran sur Xbox.
