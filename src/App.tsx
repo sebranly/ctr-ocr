@@ -238,14 +238,33 @@ const App = () => {
   };
 
   const renderRaces = () => {
-    if (!resultsOcr || resultsOcr.length === 0) return null;
+    if (!resultsOcr || resultsOcr.length <= indexRace) return null;
 
     return (
       <>
         <hr />
         <div className="center">
           <h2>Results</h2>
-          {resultsOcr.map((_resultOcr: Result[], index: number) => renderRace(index))}
+          {renderRace(indexRace)}
+          {resultsOcr.length !== 1 && (
+            <div className="pagination-races mt2">
+              <button
+                className="pagination-previous-race mr"
+                disabled={indexRace === 0}
+                onClick={onChangeIndexRace(-1)}
+              >
+                Previous Race
+              </button>
+              <div className="inline ml mr">{`Race ${indexRace + 1}/${resultsOcr.length}`}</div>
+              <button
+                className="pagination-next-race ml"
+                disabled={indexRace === resultsOcr.length - 1}
+                onClick={onChangeIndexRace(1)}
+              >
+                Next Race
+              </button>
+            </div>
+          )}
         </div>
       </>
     );
@@ -604,6 +623,7 @@ const App = () => {
     setOcrProgress(Progress.Started);
     setOcrProgressText('Initialization...');
     setResultsOcr([]);
+    setIndexRace(0);
     setCroppedImages([]);
 
     const schedulerUsername = createScheduler();
@@ -750,7 +770,7 @@ const App = () => {
     await schedulerUsername.terminate();
   };
 
-  const { width, height } = useWindowSize();
+  const { width } = useWindowSize();
   const [ocrProgress, setOcrProgress] = React.useState(Progress.NotStarted);
   const [ocrProgressText, setOcrProgressText] = React.useState('');
   const [images, setImages] = React.useState<any[]>([]);
@@ -770,6 +790,7 @@ const App = () => {
   const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAMS_NB));
   const [nbTeams, setNbTeams] = React.useState(INITIAL_TEAMS_NB);
   const [playerTeams, setPlayerTeams] = React.useState<Record<string, string>>({});
+  const [indexRace, setIndexRace] = React.useState(0);
 
   const nbPlayersTyped = uniq(getPlayers(players)).length;
   const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
@@ -801,6 +822,14 @@ const App = () => {
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
     setPlayerTeams({});
+  };
+
+  const onChangeIndexRace = (delta: number) => (_e: any) => {
+    const newIndex = indexRace + delta;
+
+    if (newIndex < 0 || newIndex >= resultsOcr.length) return;
+
+    setIndexRace(newIndex);
   };
 
   const onChangeImage = (e: any) => {
@@ -890,7 +919,14 @@ const App = () => {
     <div className="main">
       <h1>{WEBSITE_TITLE}</h1>
       <div className="w3-light-grey"></div>
-      {ocrProgress === Progress.Done && <Confetti width={width} height={height} numberOfPieces={800} recycle={false} />}
+      {ocrProgress === Progress.Done && (
+        <Confetti
+          width={width}
+          height={document.body.scrollHeight > window.innerHeight ? document.body.scrollHeight : window.innerHeight}
+          numberOfPieces={isMobile ? 800 : 1600}
+          recycle={false}
+        />
+      )}
       <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
         {renderProgressBar()}
         <h2>Introduction</h2>
