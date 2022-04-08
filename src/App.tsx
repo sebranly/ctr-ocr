@@ -811,6 +811,10 @@ const App = () => {
   const onChangeNbPlayers = (value: number) => {
     if (value === nbPlayers) return;
 
+    /*
+      Due to Numeric Stepper not using value prop
+      we should only call this from Numeric Stepper
+    */
     setNbPlayers(value);
 
     setPlayers('');
