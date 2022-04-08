@@ -1,9 +1,26 @@
 import { uniq } from 'lodash';
 import { convertToMs } from './index';
 import { CTR_MAX_TIME_DIFF_SEC, TIME_DNF } from '../constants';
-import { Validation } from '../types';
+import { Result, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { isEqual } from './array';
+
+const getIncorrectRaces = (resultsOcr: Result[][]) => {
+  const validationPoints = resultsOcr.map((race: Result[]) => validatePoints(race.map((race) => race.points)));
+  const validationUsernames = resultsOcr.map((race: Result[]) => validateUsernames(race.map((race) => race.username)));
+
+  const incorrectRaces: number[] = [];
+
+  validationPoints.forEach((validation: Validation, index: number) => {
+    if (!validation.correct) incorrectRaces.push(index);
+  });
+
+  validationUsernames.forEach((validation: Validation, index: number) => {
+    if (!validation.correct && !incorrectRaces.includes(index)) incorrectRaces.push(index);
+  });
+
+  return incorrectRaces.sort();
+};
 
 const validatePoints = (points: number[]) => {
   const validation: Validation = {
@@ -169,4 +186,4 @@ const validateTimes = (times: string[]) => {
   return validation;
 };
 
-export { validatePoints, validateTeams, validateTimes, validateUsernames };
+export { getIncorrectRaces, validatePoints, validateTeams, validateTimes, validateUsernames };
