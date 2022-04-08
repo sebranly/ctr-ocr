@@ -222,6 +222,10 @@ h1 {
   display: block;
 }
 
+.block {
+  display: block;
+}
+
 .black {
   color: black;
 }
