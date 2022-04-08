@@ -8,6 +8,7 @@ import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { isMobile } from 'react-device-detect';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { NumericStepper } from '@anatoliygatt/numeric-stepper';
 
 import {
   CRASH_TEAM_RANKING_AUTHOR_URL,
@@ -23,7 +24,7 @@ import {
 import {
   CTR_MAX_PLAYERS,
   FFA_POINTS_SCHEME,
-  INITIAL_TEAM_NB,
+  INITIAL_TEAMS_NB,
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
@@ -340,6 +341,37 @@ const App = () => {
           value="Get results"
           disabled={selectIsDisabled || !imagesURLs || imagesURLs.length === 0}
           onClick={doOCR}
+        />
+      </div>
+    );
+  };
+
+  const renderNumericStepperPlayers = () => {
+    const minimumValue = selectIsDisabled ? nbPlayers : 2;
+    const maximumValue = selectIsDisabled ? nbPlayers : CTR_MAX_PLAYERS;
+    const initialValue = selectIsDisabled ? nbPlayers : CTR_MAX_PLAYERS;
+    const onChangeNumericStepper = selectIsDisabled ? () => {} : onChangeNbPlayers;
+    const thumbColor = selectIsDisabled ? '#999999' : '#3385FF';
+
+    return (
+      <div className="numeric-stepper-wrapper">
+        <NumericStepper
+          minimumValue={minimumValue}
+          maximumValue={maximumValue}
+          stepValue={1}
+          initialValue={initialValue}
+          size="sm"
+          inactiveTrackColor="#dddddd"
+          activeTrackColor="#ffffff"
+          activeButtonColor="#ffffff"
+          inactiveIconColor="#3385FF"
+          hoverIconColor="#000080"
+          activeIconColor="#000080"
+          disabledIconColor="#dddddd"
+          thumbColor={thumbColor}
+          thumbShadowAnimationOnTrackHoverEnabled={false}
+          focusRingColor="#fff7ed"
+          onChange={onChangeNumericStepper}
         />
       </div>
     );
@@ -735,8 +767,8 @@ const App = () => {
   const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
-  const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAM_NB));
-  const [nbTeams, setNbTeams] = React.useState(INITIAL_TEAM_NB);
+  const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAMS_NB));
+  const [nbTeams, setNbTeams] = React.useState(INITIAL_TEAMS_NB);
   const [playerTeams, setPlayerTeams] = React.useState<Record<string, string>>({});
 
   const nbPlayersTyped = uniq(getPlayers(players)).length;
@@ -766,8 +798,8 @@ const App = () => {
     setPlayers(e.currentTarget.value);
     setCopiedPlayers(false);
 
-    setNbTeams(INITIAL_TEAM_NB);
-    setTeams(getTeamNames(INITIAL_TEAM_NB));
+    setNbTeams(INITIAL_TEAMS_NB);
+    setTeams(getTeamNames(INITIAL_TEAMS_NB));
     setPlayerTeams({});
   };
 
@@ -776,13 +808,15 @@ const App = () => {
     setResultsOcr([]);
   };
 
-  const onChangeNbPlayers = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNbPlayers(Number(e.target.value));
+  const onChangeNbPlayers = (value: number) => {
+    if (value === nbPlayers) return;
+
+    setNbPlayers(value);
 
     setPlayers('');
 
-    setNbTeams(INITIAL_TEAM_NB);
-    setTeams(getTeamNames(INITIAL_TEAM_NB));
+    setNbTeams(INITIAL_TEAMS_NB);
+    setTeams(getTeamNames(INITIAL_TEAMS_NB));
     setPlayerTeams({});
   };
 
@@ -835,7 +869,6 @@ const App = () => {
     else setPointsScheme(WAR_POINTS_SCHEME);
   };
 
-  const optionsNbPlayers = numberRange(2, CTR_MAX_PLAYERS);
   const optionsNbTeams = getOptionsTeams(nbPlayers);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
   const classBgDisabled = selectIsDisabled && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
@@ -862,16 +895,7 @@ const App = () => {
         <h2>Players</h2>
         <h3>Number of players</h3>
         <div className="text-center mb">This includes CPUs if any</div>
-        <select disabled={selectIsDisabled} onChange={onChangeNbPlayers} value={nbPlayers}>
-          {optionsNbPlayers.map((option: number) => {
-            const label = `${option} players`;
-            return (
-              <option key={option} label={label} value={option}>
-                {label}
-              </option>
-            );
-          })}
-        </select>
+        {renderNumericStepperPlayers()}
         <h3>Human Players</h3>
         <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
         <textarea
