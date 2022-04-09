@@ -1,4 +1,5 @@
 import { Result } from '../types';
+import { formatDate } from './date';
 
 const createLorenzi = (
   races: Result[][],
@@ -15,7 +16,7 @@ const createLorenzi = (
   return '';
 };
 
-const createLorenziFFA = (races: Result[][]) => {
+const createLorenziPlayersPoints = (races: Result[][]) => {
   const playersPoints: Record<string, number[]> = {};
 
   races.forEach((race: Result[]) => {
@@ -28,10 +29,8 @@ const createLorenziFFA = (races: Result[][]) => {
     });
   });
 
-  const keyPlayers = Object.keys(playersPoints);
-
   races.forEach((race: Result[]) => {
-    keyPlayers.forEach((username: string) => {
+    Object.keys(playersPoints).forEach((username: string) => {
       const relevantResult = race.find((result: Result) => result.username === username);
 
       const points = relevantResult?.points ?? 0;
@@ -40,9 +39,19 @@ const createLorenziFFA = (races: Result[][]) => {
     });
   });
 
+  return playersPoints;
+};
+
+const createLorenziIntro = () => {
+  return ['#title Title', `#date ${formatDate(Date.now())}`];
+};
+
+const createLorenziFFA = (races: Result[][]) => {
+  const playersPoints = createLorenziPlayersPoints(races);
+
   const playersLines: string[] = [];
 
-  keyPlayers.forEach((username: string) => {
+  Object.keys(playersPoints).forEach((username: string) => {
     const playerPoints = playersPoints[username];
 
     const line = `${username} ${playerPoints.join('|')}`;
@@ -50,7 +59,7 @@ const createLorenziFFA = (races: Result[][]) => {
     playersLines.push(line);
   });
 
-  return ['Title', '', ...playersLines];
+  return [...createLorenziIntro(), '', ...playersLines];
 };
 
-export { createLorenzi, createLorenziFFA };
+export { createLorenzi, createLorenziFFA, createLorenziIntro, createLorenziPlayersPoints };
