@@ -17,6 +17,7 @@ import {
   GUIDE_FOLDER,
   PROJECT_URL,
   URL_CPUS,
+  VIDEO_TUTORIAL,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE,
   WEBSITE_VERSION
@@ -1003,6 +1004,14 @@ const App = () => {
         <h2>Introduction</h2>
         <div className="text-center mb">Please enter information from top to bottom for a smooth experience</div>
         <div className="text-center mb">At the end, we'll produce the Lorenzi markdown for you</div>
+        <a
+          href={VIDEO_TUTORIAL}
+          rel="noopener noreferrer"
+          title="Video Tutorial about how to use Crash Team Results website"
+          target="_blank"
+        >
+          Video Tutorial
+        </a>
         <h2>Players</h2>
         <h3>Number of players</h3>
         <div className="text-center mb">This includes CPUs if any</div>
