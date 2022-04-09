@@ -13,7 +13,14 @@ const createLorenzi = (
 
   if (isFFA) return createLorenziFFA(races);
 
-  return '';
+  return createLorenziTeams(races, playerTeams);
+};
+
+const createLorenziTeams = (_races: Result[][], _playerTeams: Record<string, string>) => {
+  // const playersPoints = createLorenziPlayersPoints(races);
+
+  // TODO: continue
+  return [''];
 };
 
 const createLorenziPlayersPoints = (races: Result[][]) => {

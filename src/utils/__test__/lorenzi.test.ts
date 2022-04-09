@@ -1,5 +1,5 @@
 import { Result } from '../../types';
-import { createLorenziFFA, createLorenziIntro, createLorenziPlayersPoints } from '../lorenzi';
+import { createLorenzi, createLorenziFFA, createLorenziIntro, createLorenziPlayersPoints } from '../lorenzi';
 
 const races: Result[][] = [
   [
@@ -17,6 +17,26 @@ const races: Result[][] = [
     { username: 'b', position: 2, points: 2 }
   ]
 ];
+
+test('createLorenzi', () => {
+  let results: string[];
+
+  results = createLorenzi(races, { a: 'Team 1', b: 'Team 1', c: 'Team 2' }, 2, 3, true);
+  const [title, date, emptyLine, ...rest] = results;
+
+  expect(title).toBe('#title Title');
+  expect(date.startsWith('#date 20')).toBe(true);
+  expect(emptyLine).toBe('');
+  expect(rest).toStrictEqual(['a 10|4|3', 'b 9|5|2', 'c 8|3|0']);
+
+  results = createLorenzi(races, {}, 3, 3, false);
+  const [titleBis, dateBis, emptyLineBis, ...restBis] = results;
+
+  expect(titleBis).toBe('#title Title');
+  expect(dateBis.startsWith('#date 20')).toBe(true);
+  expect(emptyLineBis).toBe('');
+  expect(restBis).toStrictEqual(['a 10|4|3', 'b 9|5|2', 'c 8|3|0']);
+});
 
 test('createLorenziFFA', () => {
   const results = createLorenziFFA(races);
