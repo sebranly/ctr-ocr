@@ -21,7 +21,7 @@ const races: Result[][] = [
 test('createLorenzi', () => {
   let results: string[];
 
-  results = createLorenzi(races, { a: 'Team 1', b: 'Team 1', c: 'Team 2' }, 2, 3, true);
+  results = createLorenzi(races, { a: 'Team 1', b: 'Team 1', c: 'Team 2' }, 2, 3, ['Team 1', 'Team 2'], true);
   const [title, date, emptyLine, ...rest] = results;
 
   expect(title).toBe('#title Title');
@@ -29,7 +29,7 @@ test('createLorenzi', () => {
   expect(emptyLine).toBe('');
   expect(rest).toStrictEqual(['a 10|4|3', 'b 9|5|2', 'c 8|3|0']);
 
-  results = createLorenzi(races, {}, 3, 3, false);
+  results = createLorenzi(races, {}, 3, 3, [], false);
   const [titleBis, dateBis, emptyLineBis, ...restBis] = results;
 
   expect(titleBis).toBe('#title Title');

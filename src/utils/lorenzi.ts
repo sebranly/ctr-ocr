@@ -6,6 +6,7 @@ const createLorenzi = (
   playerTeams: Record<string, string>,
   nbTeams: number,
   nbPlayers: number,
+  teams: string[],
   includeCpuPlayers: boolean
 ) => {
   // Presence of CPUs currently means there is no team
@@ -13,10 +14,10 @@ const createLorenzi = (
 
   if (isFFA) return createLorenziFFA(races);
 
-  return createLorenziTeams(races, playerTeams);
+  return createLorenziTeams(races, playerTeams, teams);
 };
 
-const createLorenziTeams = (_races: Result[][], _playerTeams: Record<string, string>) => {
+const createLorenziTeams = (_races: Result[][], _playerTeams: Record<string, string>, _teams: string[]) => {
   // const playersPoints = createLorenziPlayersPoints(races);
 
   // TODO: continue
