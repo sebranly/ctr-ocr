@@ -13,6 +13,9 @@ Documentation:
 Features:
 - allow `0` points to be selected on a per-race basis, no matter the global points preset
 
+Bug fixes:
+- make it easier to use negative values for points on mobile devices
+
 ### v1.0.14
 
 Public launch and reveal of the website which supports the following:

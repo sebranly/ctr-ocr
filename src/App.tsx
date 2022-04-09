@@ -11,16 +11,13 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { NumericStepper } from '@anatoliygatt/numeric-stepper';
 
 import {
-  CRASH_TEAM_RANKING_AUTHOR_URL,
   EXAMPLE_IMAGES_FOLDER,
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
   GUIDE_FOLDER,
-  PROJECT_URL,
   URL_CPUS,
   VIDEO_TUTORIAL,
   WEBSITE_DEFAULT_LANGUAGE,
-  WEBSITE_TITLE,
-  WEBSITE_VERSION
+  WEBSITE_TITLE
 } from './constants/general';
 import {
   CTR_MAX_PLAYERS,
@@ -54,6 +51,7 @@ import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
 import { createArraySameValue, isEqual } from './utils/array';
 import { createLorenzi } from './utils/lorenzi';
+import { Footer } from './components/Footer';
 const language = 'eng';
 
 const App = () => {
@@ -339,37 +337,6 @@ const App = () => {
           </>
         )}
       </div>
-    );
-  };
-
-  const renderFooter = () => {
-    const guideChangelog = `${GUIDE_FOLDER}Changelog.md`;
-
-    return (
-      <>
-        <div className="mt2 text-center">
-          Developed by{' '}
-          <a href={PROJECT_URL} rel="noopener noreferrer" title="GitHub page for repository" target="_blank">
-            sebranly
-          </a>{' '}
-          (PSN:{' '}
-          <a
-            href={CRASH_TEAM_RANKING_AUTHOR_URL}
-            rel="noopener noreferrer"
-            title="Crash Team Ranking for ZouGui28"
-            target="_blank"
-          >
-            ZouGui28
-          </a>
-          ) with ❤️
-        </div>
-        <div className="mt2 text-center">
-          Website version{' '}
-          <a href={guideChangelog} rel="noopener noreferrer" title="Website changelog" target="_blank">
-            {WEBSITE_VERSION}
-          </a>
-        </div>
-      </>
     );
   };
 
@@ -1105,7 +1072,7 @@ const App = () => {
         </CopyToClipboard>
         {renderMainSection()}
       </div>
-      {renderFooter()}
+      <Footer />
     </div>
   );
 };

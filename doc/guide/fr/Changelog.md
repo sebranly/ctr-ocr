@@ -13,6 +13,9 @@ Documentation :
 Fonctionnalités :
 - permettre de sélectionner `0` points pour les joueurs pour chaque course, peu importe la configuration globale des points
 
+- Corrections de bugs :
+- rendre l'utilisation de valeurs négatives pour les points plus facile
+
 ### v1.0.14
 
 Lancement public du site web qui gère les points suivants :
