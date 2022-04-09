@@ -77,8 +77,8 @@ test('getTeamNames', () => {
 });
 
 test('getColorHexadecimalTeam', () => {
-  expect(getColorHexadecimalTeam(0)).toBe('#0000FF');
-  expect(getColorHexadecimalTeam(1)).toBe('#FF0000');
+  expect(getColorHexadecimalTeam(0)).toBe('#33CCFF');
+  expect(getColorHexadecimalTeam(1)).toBe('#FF4040');
   expect(getColorHexadecimalTeam(2)).toBe('#008000');
   expect(getColorHexadecimalTeam(3)).toBe('#FFA500');
   expect(getColorHexadecimalTeam(4)).toBe('#6A0DAD');

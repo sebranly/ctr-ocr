@@ -52,7 +52,7 @@ import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } f
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
 import { isEqual } from './utils/array';
-import { createLorenziFFA } from './utils/lorenzi';
+import { createLorenzi } from './utils/lorenzi';
 const language = 'eng';
 
 const App = () => {
@@ -855,7 +855,8 @@ const App = () => {
 
   React.useEffect(() => {
     if (resultsOcr && resultsOcr.length > 0) {
-      const newLorenzi = createLorenziFFA(resultsOcr);
+      const newLorenzi = createLorenzi(resultsOcr, playerTeams, nbTeams, nbPlayers, teams, includeCpuPlayers);
+
       setLorenzi(newLorenzi.join('\n'));
       setCopiedLorenzi(false);
     }

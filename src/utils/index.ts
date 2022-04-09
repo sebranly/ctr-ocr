@@ -163,9 +163,9 @@ const getColorPlayer = (player: string, teams: string[], playerTeams: Record<str
 const getColorHexadecimalTeam = (teamIndex: number) => {
   switch (teamIndex) {
     case 0:
-      return '#0000FF';
+      return '#33CCFF';
     case 1:
-      return '#FF0000';
+      return '#FF4040';
     case 2:
       return '#008000';
     case 3:
