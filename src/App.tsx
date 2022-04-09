@@ -246,6 +246,14 @@ const App = () => {
       <>
         <hr />
         <div className="center">
+          <button disabled={startOverConfirm} onClick={onClickStartOver}>
+            Start Over
+          </button>
+          {startOverConfirm && (
+            <button className="block confirm-start-over" onClick={onClickStartOverConfirm}>
+              Confirm and start from scratch
+            </button>
+          )}
           <h2>Results</h2>
           {renderRace(indexRace)}
           {resultsOcr.length !== 1 && (
@@ -667,6 +675,7 @@ const App = () => {
     setIndexRace(0);
     setCroppedImages([]);
     setLorenzi('');
+    setStartOverConfirm(false);
 
     const schedulerUsername = createScheduler();
 
@@ -835,6 +844,7 @@ const App = () => {
   const [playerTeams, setPlayerTeams] = React.useState<Record<string, string>>({});
   const [indexRace, setIndexRace] = React.useState(0);
   const [lorenzi, setLorenzi] = React.useState('');
+  const [startOverConfirm, setStartOverConfirm] = React.useState(false);
 
   const nbPlayersTyped = uniq(getPlayers(players)).length;
   const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
@@ -875,6 +885,14 @@ const App = () => {
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
     setPlayerTeams({});
+  };
+
+  const onClickStartOver = (_e: any) => {
+    setStartOverConfirm(true);
+  };
+
+  const onClickStartOverConfirm = (_e: any) => {
+    window.location.reload();
   };
 
   const onChangeIndexRace = (delta: number) => (_e: any) => {
