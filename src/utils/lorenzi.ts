@@ -1,3 +1,5 @@
+import { getColorHexadecimalTeam } from '.';
+import { SEPARATOR_PLAYERS_LORENZI } from '../constants';
 import { Result } from '../types';
 import { formatDate } from './date';
 
@@ -17,11 +19,29 @@ const createLorenzi = (
   return createLorenziTeams(races, playerTeams, teams);
 };
 
-const createLorenziTeams = (_races: Result[][], _playerTeams: Record<string, string>, _teams: string[]) => {
-  // const playersPoints = createLorenziPlayersPoints(races);
+const createLorenziTeams = (races: Result[][], playerTeams: Record<string, string>, teams: string[]) => {
+  const playersPoints = createLorenziPlayersPoints(races);
 
-  // TODO: continue
-  return [''];
+  const teamPlayersLines: string[] = [];
+
+  teams.forEach((team: string, indexTeam: number) => {
+    const teamLine = `${team} ${getColorHexadecimalTeam(indexTeam)}`;
+    teamPlayersLines.push(teamLine);
+
+    Object.keys(playerTeams).forEach((player: string) => {
+      if (playerTeams[player] === team) {
+        const pointsLine = playersPoints[player];
+
+        const line = `${player} ${pointsLine.join(SEPARATOR_PLAYERS_LORENZI)}`;
+
+        teamPlayersLines.push(line);
+      }
+    });
+
+    teamPlayersLines.push('');
+  });
+
+  return [...createLorenziIntro(), '', ...teamPlayersLines];
 };
 
 const createLorenziPlayersPoints = (races: Result[][]) => {
@@ -62,7 +82,7 @@ const createLorenziFFA = (races: Result[][]) => {
   Object.keys(playersPoints).forEach((username: string) => {
     const playerPoints = playersPoints[username];
 
-    const line = `${username} ${playerPoints.join('|')}`;
+    const line = `${username} ${playerPoints.join(SEPARATOR_PLAYERS_LORENZI)}`;
 
     playersLines.push(line);
   });
@@ -70,4 +90,4 @@ const createLorenziFFA = (races: Result[][]) => {
   return [...createLorenziIntro(), '', ...playersLines];
 };
 
-export { createLorenzi, createLorenziFFA, createLorenziIntro, createLorenziPlayersPoints };
+export { createLorenzi, createLorenziFFA, createLorenziTeams, createLorenziIntro, createLorenziPlayersPoints };

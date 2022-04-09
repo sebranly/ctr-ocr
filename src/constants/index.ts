@@ -8,6 +8,7 @@ export const MIME_PNG = 'image/png';
 export const PSM_SINGLE_CHAR = '10';
 export const PSM_SINGLE_LINE = '7';
 export const SEPARATOR_PLAYERS = '\n';
+export const SEPARATOR_PLAYERS_LORENZI = '|';
 export const TIME_DNF = '--:--:--';
 export const PLACEHOLDER_CPUS = 'Loading CPUs...';
 // There will always be a possibility for 2 teams
