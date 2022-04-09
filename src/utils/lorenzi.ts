@@ -2,6 +2,7 @@ import { getColorHexadecimalTeam } from '.';
 import { SEPARATOR_PLAYERS_LORENZI } from '../constants';
 import { Result } from '../types';
 import { formatDate } from './date';
+import { cleanString } from './string';
 
 const createLorenzi = (
   races: Result[][],
@@ -25,7 +26,7 @@ const createLorenziTeams = (races: Result[][], playerTeams: Record<string, strin
   const teamPlayersLines: string[] = [];
 
   teams.forEach((team: string, indexTeam: number) => {
-    const teamLine = `${team} ${getColorHexadecimalTeam(indexTeam)}`;
+    const teamLine = `${cleanString(team)} ${getColorHexadecimalTeam(indexTeam)}`;
     teamPlayersLines.push(teamLine);
 
     Object.keys(playerTeams).forEach((player: string) => {

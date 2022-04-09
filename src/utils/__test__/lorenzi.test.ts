@@ -95,13 +95,13 @@ test('createLorenzi', () => {
   expect(dateQuatuor.startsWith('#date 20')).toBe(true);
   expect(emptyLineQuatuor).toBe('');
   expect(restQuatuor).toStrictEqual([
-    'Team 1 #33CCFF',
+    'Team1 #33CCFF',
     'a 20|5',
     'b 19|6',
     'g 14|11',
     'h 13|12',
     '',
-    'Team 2 #FF4040',
+    'Team2 #FF4040',
     'c 18|7',
     'd 17|8',
     'e 16|9',
@@ -116,19 +116,19 @@ test('createLorenzi', () => {
   expect(dateDuo.startsWith('#date 20')).toBe(true);
   expect(emptyLineDuo).toBe('');
   expect(restDuo).toStrictEqual([
-    'Team 1 #33CCFF',
+    'Team1 #33CCFF',
     'a 20|5',
     'h 13|12',
     '',
-    'Team 2 #FF4040',
+    'Team2 #FF4040',
     'c 18|7',
     'e 16|9',
     '',
-    'Team 3 #008000',
+    'Team3 #008000',
     'b 19|6',
     'f 15|10',
     '',
-    'Team 4 #FFA500',
+    'Team4 #FFA500',
     'd 17|8',
     'g 14|11',
     ''
@@ -143,13 +143,13 @@ test('createLorenziTeams', () => {
   expect(dateQuatuor.startsWith('#date 20')).toBe(true);
   expect(emptyLineQuatuor).toBe('');
   expect(restQuatuor).toStrictEqual([
-    'Team 1 #33CCFF',
+    'Team1 #33CCFF',
     'a 20|5',
     'b 19|6',
     'g 14|11',
     'h 13|12',
     '',
-    'Team 2 #FF4040',
+    'Team2 #FF4040',
     'c 18|7',
     'd 17|8',
     'e 16|9',
@@ -164,19 +164,19 @@ test('createLorenziTeams', () => {
   expect(dateDuo.startsWith('#date 20')).toBe(true);
   expect(emptyLineDuo).toBe('');
   expect(restDuo).toStrictEqual([
-    'Team 1 #33CCFF',
+    'Team1 #33CCFF',
     'a 20|5',
     'h 13|12',
     '',
-    'Team 2 #FF4040',
+    'Team2 #FF4040',
     'c 18|7',
     'e 16|9',
     '',
-    'Team 3 #008000',
+    'Team3 #008000',
     'b 19|6',
     'f 15|10',
     '',
-    'Team 4 #FFA500',
+    'Team4 #FFA500',
     'd 17|8',
     'g 14|11',
     ''
