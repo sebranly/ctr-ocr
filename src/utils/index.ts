@@ -160,6 +160,28 @@ const getColorPlayer = (player: string, teams: string[], playerTeams: Record<str
   }
 };
 
+const getColorHexadecimalTeam = (teamIndex: number) => {
+  switch (teamIndex) {
+    case 0:
+      return '#33CCFF';
+    case 1:
+      return '#FF4040';
+    case 2:
+      return '#008000';
+    case 3:
+      return '#FFA500';
+    case 4:
+      return '#6A0DAD';
+    case 5:
+      return '#964B00';
+    case 6:
+      return '#808080';
+    default:
+      // As it's used as a background, we use opposite of black here
+      return '#FFFFFF';
+  }
+};
+
 export {
   convertToMs,
   formatCpuPlayers,
@@ -168,6 +190,7 @@ export {
   getPlayersPlaceholder,
   getReferencePlayers,
   getTeamNames,
+  getColorHexadecimalTeam,
   getColorPlayer,
   getPositionString,
   getParams,

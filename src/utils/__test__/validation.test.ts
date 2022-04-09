@@ -1,15 +1,69 @@
-import { Validation } from '../../types';
-import { validatePoints, validateTeams, validateTimes, validateUsernames } from '../validation';
+import { Result, Validation } from '../../types';
+import { getIncorrectRaces, validatePoints, validateTeams, validateTimes, validateUsernames } from '../validation';
 
 const correctResponse: Validation = {
   correct: true,
   errMsg: ''
 };
 
+test('getIncorrectRaces', () => {
+  const correctRaces: Result[][] = [
+    [
+      { username: 'a', position: 1, points: 10 },
+      { username: 'b', position: 2, points: 8 }
+    ],
+    [
+      { username: 'b', position: 1, points: 10 },
+      { username: 'a', position: 2, points: 8 }
+    ]
+  ];
+
+  expect(getIncorrectRaces(correctRaces)).toStrictEqual([]);
+
+  const incorrectRacesPoints: Result[][] = [
+    [
+      { username: 'a', position: 1, points: 7 },
+      { username: 'b', position: 2, points: 8 }
+    ],
+    [
+      { username: 'b', position: 1, points: 10 },
+      { username: 'a', position: 2, points: 8 }
+    ]
+  ];
+
+  expect(getIncorrectRaces(incorrectRacesPoints)).toStrictEqual([1]);
+
+  const incorrectRacesUsernames: Result[][] = [
+    [
+      { username: 'a', position: 1, points: 10 },
+      { username: 'b', position: 2, points: 8 }
+    ],
+    [
+      { username: 'b', position: 1, points: 10 },
+      { username: 'b', position: 2, points: 8 }
+    ]
+  ];
+
+  expect(getIncorrectRaces(incorrectRacesUsernames)).toStrictEqual([2]);
+
+  const incorrectRacesAll: Result[][] = [
+    [
+      { username: 'a', position: 1, points: 10 },
+      { username: 'a', position: 2, points: 11 }
+    ],
+    [
+      { username: 'b', position: 1, points: 10 },
+      { username: 'b', position: 2, points: 11 }
+    ]
+  ];
+
+  expect(getIncorrectRaces(incorrectRacesAll)).toStrictEqual([1, 2]);
+});
+
 test('validatePoints', () => {
   const incorrectResponse: Validation = {
     correct: false,
-    errMsg: 'From best to worst player, points should be decreasing (equal values are permitted)'
+    errMsg: 'Points should decrease from first to last place (ties are possible)'
   };
 
   expect(validatePoints([42])).toStrictEqual(correctResponse);

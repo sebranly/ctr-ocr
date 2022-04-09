@@ -1,9 +1,26 @@
 import { uniq } from 'lodash';
 import { convertToMs } from './index';
 import { CTR_MAX_TIME_DIFF_SEC, TIME_DNF } from '../constants';
-import { Validation } from '../types';
+import { Result, Validation } from '../types';
 import { REGEX_TIME } from './regEx';
 import { isEqual } from './array';
+
+const getIncorrectRaces = (resultsOcr: Result[][]) => {
+  const validationPoints = resultsOcr.map((race: Result[]) => validatePoints(race.map((race) => race.points)));
+  const validationUsernames = resultsOcr.map((race: Result[]) => validateUsernames(race.map((race) => race.username)));
+
+  const incorrectRaces: number[] = [];
+
+  validationPoints.forEach((validation: Validation, index: number) => {
+    if (!validation.correct) incorrectRaces.push(index + 1);
+  });
+
+  validationUsernames.forEach((validation: Validation, index: number) => {
+    if (!validation.correct && !incorrectRaces.includes(index + 1)) incorrectRaces.push(index + 1);
+  });
+
+  return incorrectRaces.sort();
+};
 
 const validatePoints = (points: number[]) => {
   const validation: Validation = {
@@ -23,7 +40,7 @@ const validatePoints = (points: number[]) => {
     return validation;
   }
 
-  validation.errMsg = 'From best to worst player, points should be decreasing (equal values are permitted)';
+  validation.errMsg = 'Points should decrease from first to last place (ties are possible)';
 
   return validation;
 };
@@ -169,4 +186,4 @@ const validateTimes = (times: string[]) => {
   return validation;
 };
 
-export { validatePoints, validateTeams, validateTimes, validateUsernames };
+export { getIncorrectRaces, validatePoints, validateTeams, validateTimes, validateUsernames };

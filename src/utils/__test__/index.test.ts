@@ -6,6 +6,7 @@ import {
   convertToMs,
   formatCpuPlayers,
   getColorPlayer,
+  getColorHexadecimalTeam,
   getPositionString,
   getOptionsTeams,
   getParams,
@@ -73,6 +74,18 @@ test('getTeamNames', () => {
   expect(getTeamNames(0)).toStrictEqual([]);
   expect(getTeamNames(1)).toStrictEqual(['Team 1']);
   expect(getTeamNames(4)).toStrictEqual(['Team 1', 'Team 2', 'Team 3', 'Team 4']);
+});
+
+test('getColorHexadecimalTeam', () => {
+  expect(getColorHexadecimalTeam(0)).toBe('#33CCFF');
+  expect(getColorHexadecimalTeam(1)).toBe('#FF4040');
+  expect(getColorHexadecimalTeam(2)).toBe('#008000');
+  expect(getColorHexadecimalTeam(3)).toBe('#FFA500');
+  expect(getColorHexadecimalTeam(4)).toBe('#6A0DAD');
+  expect(getColorHexadecimalTeam(5)).toBe('#964B00');
+  expect(getColorHexadecimalTeam(6)).toBe('#808080');
+  expect(getColorHexadecimalTeam(7)).toBe('#FFFFFF');
+  expect(getColorHexadecimalTeam(8)).toBe('#FFFFFF');
 });
 
 test('getColorPlayer', () => {
