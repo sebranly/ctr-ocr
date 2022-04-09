@@ -112,14 +112,14 @@ const App = () => {
 
     if (isMobile) {
       return imagesURLs.map((imageSrc: string, index: number) => (
-        <img alt="tbd" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
+        <img alt="TODO:" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
       ));
     }
 
     return (
       <div className="flex-container center">
         {imagesURLs.map((imageSrc: string, index: number) => (
-          <img alt="tbd" className="img-full max-width-45 flex-1" key={`${imageSrc}-${index}`} src={imageSrc} />
+          <img alt="TODO:" className="img-full max-width-45 flex-1" key={`${imageSrc}-${index}`} src={imageSrc} />
         ))}
       </div>
     );
@@ -140,7 +140,7 @@ const App = () => {
               <td className="text-center">{getPositionString(indexPoints + 1)}</td>
               <td className="text-center">
                 <select
-                  disabled={selectIsDisabled}
+                  disabled={disabledUI}
                   onChange={onChangeSignPointsScheme(indexPoints)}
                   className={classesSelect}
                   value={selectedSign}
@@ -152,7 +152,7 @@ const App = () => {
                   type="number"
                   min={0}
                   value={absolutePointsScheme[indexPoints]}
-                  disabled={selectIsDisabled}
+                  disabled={disabledUI}
                   onChange={onChangeAbsolutePointsScheme(indexPoints)}
                 />
               </td>
@@ -365,7 +365,7 @@ const App = () => {
               setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
               setAbsolutePointsScheme(FFA_POINTS_SCHEME);
             }}
-            disabled={selectIsDisabled || isFFASetup}
+            disabled={disabledUI || isFFASetup}
           >
             FFA preset
           </button>
@@ -376,7 +376,7 @@ const App = () => {
               setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
               setAbsolutePointsScheme(WAR_POINTS_SCHEME);
             }}
-            disabled={selectIsDisabled || isWarSetup}
+            disabled={disabledUI || isWarSetup}
           >
             WAR preset
           </button>
@@ -413,7 +413,7 @@ const App = () => {
           className="inline-block ml"
           type="button"
           value="Get results"
-          disabled={selectIsDisabled || !imagesURLs || imagesURLs.length === 0}
+          disabled={disabledUI || !imagesURLs || imagesURLs.length === 0}
           onClick={doOCR}
         />
       </div>
@@ -421,11 +421,11 @@ const App = () => {
   };
 
   const renderNumericStepperPlayers = () => {
-    const minimumValue = selectIsDisabled ? nbPlayers : 2;
-    const maximumValue = selectIsDisabled ? nbPlayers : CTR_MAX_PLAYERS;
-    const initialValue = selectIsDisabled ? nbPlayers : CTR_MAX_PLAYERS;
-    const onChangeNumericStepper = selectIsDisabled ? () => {} : onChangeNbPlayers;
-    const thumbColor = selectIsDisabled ? '#999999' : '#3385FF';
+    const minimumValue = disabledUI ? nbPlayers : 2;
+    const maximumValue = disabledUI ? nbPlayers : CTR_MAX_PLAYERS;
+    const initialValue = disabledUI ? nbPlayers : CTR_MAX_PLAYERS;
+    const onChangeNumericStepper = disabledUI ? () => {} : onChangeNbPlayers;
+    const thumbColor = disabledUI ? '#999999' : '#3385FF';
 
     return (
       <div className="numeric-stepper-wrapper">
@@ -495,7 +495,7 @@ const App = () => {
           </div>
           <input
             className="inline mt"
-            disabled={selectIsDisabled}
+            disabled={disabledUI}
             type="file"
             multiple
             accept={[MIME_JPEG, MIME_PNG].join(', ')}
@@ -532,7 +532,7 @@ const App = () => {
 
     return (
       <>
-        <select disabled={selectIsDisabled} onChange={onChangeNbTeams} value={nbTeams}>
+        <select disabled={disabledUI} onChange={onChangeNbTeams} value={nbTeams}>
           {optionsNbTeams.map((option: number) => {
             const label = option === nbPlayers ? 'FFA' : `${option} teams`;
             return (
@@ -562,7 +562,7 @@ const App = () => {
         <div className="ml inline" key={key}>
           <input
             type="radio"
-            disabled={selectIsDisabled}
+            disabled={disabledUI}
             id={key}
             name={player}
             value={team}
@@ -621,7 +621,7 @@ const App = () => {
             type="checkbox"
             checked={includeCpuPlayers}
             onChange={onCpuCheckboxChange}
-            disabled={shouldIncludeCpuPlayers || selectIsDisabled}
+            disabled={shouldIncludeCpuPlayers || disabledUI}
           />
           <div className="ml inline">{textCheckbox}</div>
         </div>
@@ -637,7 +637,7 @@ const App = () => {
               </a>
             </div>
             <div className="inline mr">Language in images</div>
-            <select disabled={selectIsDisabled} onChange={onChangeCpuLanguage} value={cpuLanguage}>
+            <select disabled={disabledUI} onChange={onChangeCpuLanguage} value={cpuLanguage}>
               {optionsCpuLanguages.map((option: string) => {
                 const label = `${option}`;
                 return (
@@ -663,7 +663,7 @@ const App = () => {
   const onMount = async () => {
     // TODO: initialize?
     setOnMountOver(true);
-    setSelectIsDisabled(false);
+    setDisabledUI(false);
     fetch(URL_CPUS)
       .then((response) => response.json())
       .then((data) => {
@@ -675,7 +675,7 @@ const App = () => {
   const doOCR = async () => {
     if (!onMountOver) return;
 
-    setSelectIsDisabled(true);
+    setDisabledUI(true);
     setOcrProgress(Progress.Started);
     setOcrProgressText('Initialization...');
     setResultsOcr([]);
@@ -815,7 +815,7 @@ const App = () => {
       } catch (err) {
         // TODO: have better error handling
         logError(err);
-        // setSelectIsDisabled(false);
+        // setDisabledUI(false);
       }
     }
 
@@ -823,7 +823,7 @@ const App = () => {
     setCroppedImages(croppedImagesTemp);
     setOcrProgress(Progress.Done);
     setOcrProgressText('');
-    // setSelectIsDisabled(false);
+    // setDisabledUI(false);
 
     await schedulerUsername.terminate();
   };
@@ -836,7 +836,7 @@ const App = () => {
   const [croppedImages, setCroppedImages] = React.useState<any[]>([]);
   const [nbPlayers, setNbPlayers] = React.useState(CTR_MAX_PLAYERS);
   const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
-  const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
+  const [disabledUI, setDisabledUI] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState('');
@@ -872,6 +872,7 @@ const App = () => {
       return multiplier * absolutePointsScheme[index];
     });
     setPointsScheme(newPointsScheme);
+    // TODO: remove before deploying
     console.log('🚀 ~ file: App.tsx ~ line 908 ~ React.useEffect ~ newPointsScheme', newPointsScheme);
   }, [absolutePointsScheme, signPointsScheme]);
 
@@ -1010,7 +1011,7 @@ const App = () => {
 
   const optionsNbTeams = getOptionsTeams(nbPlayers);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
-  const classBgDisabled = selectIsDisabled && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
+  const classBgDisabled = disabledUI && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
   const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
@@ -1059,7 +1060,7 @@ const App = () => {
         <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
         <textarea
           className={`textarea-${classPlatform}`}
-          disabled={selectIsDisabled}
+          disabled={disabledUI}
           placeholder={placeholderPlayers}
           rows={nbPlayers}
           value={players}
