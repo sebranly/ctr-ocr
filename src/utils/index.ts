@@ -83,7 +83,7 @@ const convertToMs = (time: string) => {
 const getOptionsTeams = (nbPlayers: number) => {
   if ([0, 1, 2].includes(nbPlayers)) return [nbPlayers];
 
-  const teams = uniq([nbPlayers, ...numberRange(2, nbPlayers - 1).sort()]);
+  const teams = uniq([nbPlayers, ...numberRange(2, nbPlayers - 1).sort((a, b) => a - b)]);
 
   return teams;
 };

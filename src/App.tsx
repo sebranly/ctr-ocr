@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import { createWorker, createScheduler } from 'tesseract.js';
-import { Category, Progress, Result } from './types';
+import { Category, Progress, Result, Sign } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -52,7 +52,7 @@ import { logError, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
-import { isEqual } from './utils/array';
+import { createArraySameValue, isEqual } from './utils/array';
 import { createLorenzi } from './utils/lorenzi';
 const language = 'eng';
 
@@ -74,8 +74,8 @@ const App = () => {
       <table className={classes}>
         <thead>
           <tr>
-            <th>Position</th>
-            <th>Points</th>
+            <th className="text-center">Position</th>
+            <th className="text-center">Points</th>
           </tr>
         </thead>
         {renderBodyPointsScheme()}
@@ -128,23 +128,34 @@ const App = () => {
   };
 
   const renderBodyPointsScheme = () => {
-    const slicedPointsScheme = pointsScheme.slice(0, nbPlayers);
+    const slicedPointsScheme = absolutePointsScheme.slice(0, nbPlayers);
 
     return (
       <tbody>
         {slicedPointsScheme.map((_points: number, indexPoints: number) => {
           const key = indexPoints;
+          const selectedSign = signPointsScheme[indexPoints];
+          const classesSelect = selectedSign === Sign.Positive ? 'green' : 'red';
 
           return (
             <tr key={key}>
-              <td>{getPositionString(indexPoints + 1)}</td>
-              <td>
-                <input
-                  className="text-center"
-                  type="number"
-                  value={pointsScheme[indexPoints]}
+              <td className="text-center">{getPositionString(indexPoints + 1)}</td>
+              <td className="text-center">
+                <select
                   disabled={selectIsDisabled}
-                  onChange={onChangePointsScheme(indexPoints)}
+                  onChange={onChangeSignPointsScheme(indexPoints)}
+                  className={classesSelect}
+                  value={selectedSign}
+                >
+                  {renderOptionsSign()}
+                </select>
+                <input
+                  className="ml text-center"
+                  type="number"
+                  min={0}
+                  value={absolutePointsScheme[indexPoints]}
+                  disabled={selectIsDisabled}
+                  onChange={onChangeAbsolutePointsScheme(indexPoints)}
                 />
               </td>
             </tr>
@@ -152,6 +163,18 @@ const App = () => {
         })}
       </tbody>
     );
+  };
+
+  const renderOptionsSign = () => {
+    const signs = ['+', '-'];
+
+    return signs.map((sign: string) => {
+      return (
+        <option key={sign} label={sign} value={sign}>
+          {sign}
+        </option>
+      );
+    });
   };
 
   const renderBody = (index: number) => {
@@ -186,7 +209,7 @@ const App = () => {
     };
 
     const renderOptionsPoints = () => {
-      const optionsResultsPoints = pointsScheme.slice(0, nbPlayers);
+      const optionsResultsPoints = uniq([...pointsScheme.slice(0, nbPlayers), 0]).sort((a, b) => b - a);
 
       return optionsResultsPoints.map(renderOption);
     };
@@ -320,6 +343,8 @@ const App = () => {
   };
 
   const renderFooter = () => {
+    const guideChangelog = `${GUIDE_FOLDER}Changelog.md`;
+
     return (
       <>
         <div className="mt2 text-center">
@@ -338,7 +363,12 @@ const App = () => {
           </a>
           ) with ❤️
         </div>
-        <div className="mt2 text-center">{`Website version ${WEBSITE_VERSION}`}</div>
+        <div className="mt2 text-center">
+          Website version{' '}
+          <a href={guideChangelog} rel="noopener noreferrer" title="Website changelog" target="_blank">
+            {WEBSITE_VERSION}
+          </a>
+        </div>
       </>
     );
   };
@@ -363,13 +393,22 @@ const App = () => {
         <h3>Points</h3>
         <div className="text-center mb">Choose a preset or edit each value individually for something more custom</div>
         <div className="mb">
-          <button onClick={() => setPointsScheme(FFA_POINTS_SCHEME)} disabled={selectIsDisabled || isFFASetup}>
+          <button
+            onClick={() => {
+              setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+              setAbsolutePointsScheme(FFA_POINTS_SCHEME);
+            }}
+            disabled={selectIsDisabled || isFFASetup}
+          >
             FFA preset
           </button>
 
           <button
             className="ml"
-            onClick={() => setPointsScheme(WAR_POINTS_SCHEME)}
+            onClick={() => {
+              setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+              setAbsolutePointsScheme(WAR_POINTS_SCHEME);
+            }}
             disabled={selectIsDisabled || isWarSetup}
           >
             WAR preset
@@ -835,6 +874,11 @@ const App = () => {
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState('');
   const [pointsScheme, setPointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
+  const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
+  const [signPointsScheme, setSignPointsScheme] = React.useState<Sign[]>(
+    createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive)
+  );
+
   const [copiedPlayers, setCopiedPlayers] = React.useState(false);
   const [copiedLorenzi, setCopiedLorenzi] = React.useState(false);
   const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
@@ -853,6 +897,16 @@ const App = () => {
   React.useEffect(() => {
     onMount();
   }, []);
+
+  React.useEffect(() => {
+    const copy = [...pointsScheme];
+    const newPointsScheme = copy.map((_p: number, index: number) => {
+      const multiplier = signPointsScheme[index] === Sign.Negative ? -1 : 1;
+      return multiplier * absolutePointsScheme[index];
+    });
+    setPointsScheme(newPointsScheme);
+    console.log('🚀 ~ file: App.tsx ~ line 908 ~ React.useEffect ~ newPointsScheme', newPointsScheme);
+  }, [absolutePointsScheme, signPointsScheme]);
 
   React.useEffect(() => {
     if (images.length < 1) return;
@@ -934,8 +988,9 @@ const App = () => {
     setTeams(teamNames);
     setPlayerTeams({});
 
-    if (isFFA) setPointsScheme(FFA_POINTS_SCHEME);
-    else setPointsScheme(WAR_POINTS_SCHEME);
+    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+    if (isFFA) setAbsolutePointsScheme(FFA_POINTS_SCHEME);
+    else setAbsolutePointsScheme(WAR_POINTS_SCHEME);
   };
 
   const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -943,13 +998,24 @@ const App = () => {
     setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
 
-  const onChangePointsScheme = (indexPointsScheme: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!pointsScheme || pointsScheme.length < indexPointsScheme) return;
-    const { value } = e.currentTarget;
-    const copy = [...pointsScheme];
-    copy[indexPointsScheme] = Number(value);
-    setPointsScheme(copy);
+  const onChangeSignPointsScheme = (indexPointsScheme: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!signPointsScheme || signPointsScheme.length < indexPointsScheme) return;
+    const { value } = e.target;
+    const newValue = value === Sign.Positive ? Sign.Positive : Sign.Negative;
+    const copy = [...signPointsScheme];
+    copy[indexPointsScheme] = newValue;
+    setSignPointsScheme(copy);
+    console.log('🚀 ~ file: App.tsx ~ line 990 ~ onChangeSignPointsScheme ~ copy', copy);
   };
+
+  const onChangeAbsolutePointsScheme =
+    (indexAbsolutePointsScheme: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!absolutePointsScheme || absolutePointsScheme.length < indexAbsolutePointsScheme) return;
+      const { value } = e.currentTarget;
+      const copy = [...absolutePointsScheme];
+      copy[indexAbsolutePointsScheme] = Math.abs(Number(value));
+      setAbsolutePointsScheme(copy);
+    };
 
   const onChangeResultsPoints =
     (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -970,8 +1036,9 @@ const App = () => {
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.checked;
     setIncludeCpuPlayers(newVal);
-    if (newVal === true) setPointsScheme(FFA_POINTS_SCHEME);
-    else setPointsScheme(WAR_POINTS_SCHEME);
+    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+    if (newVal === true) setAbsolutePointsScheme(FFA_POINTS_SCHEME);
+    else setAbsolutePointsScheme(WAR_POINTS_SCHEME);
   };
 
   const optionsNbTeams = getOptionsTeams(nbPlayers);
@@ -986,6 +1053,7 @@ const App = () => {
   const isFFA = nbTeams === nbPlayers;
   const issueOnTeams = !includeCpuPlayers && !isFFA && !validationTeams.correct;
   const issueOnPointsScheme = !validationPointsScheme.correct;
+  const guideFAQ = `${GUIDE_FOLDER}FAQ.md`;
 
   return (
     <div className="main">
@@ -1011,6 +1079,10 @@ const App = () => {
           target="_blank"
         >
           Video Tutorial
+        </a>
+        {' - '}
+        <a href={guideFAQ} rel="noopener noreferrer" title="Frequently Asked Questions" target="_blank">
+          FAQ
         </a>
         <h2>Players</h2>
         <h3>Number of players</h3>

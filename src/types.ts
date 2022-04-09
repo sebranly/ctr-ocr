@@ -29,3 +29,8 @@ export type Result = {
   position: number;
   points: number;
 };
+
+export enum Sign {
+  Positive = '+',
+  Negative = '-'
+}
