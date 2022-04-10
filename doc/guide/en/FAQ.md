@@ -6,6 +6,10 @@ Also available in: [French](../fr/FAQ.md)
 
 Crash Team Results is available at https://www.crashteamresults.com
 
+## Why this name?
+
+Crash Team Results is based on Crash Team Racing: Nitro-Fueled video game. I wanted to have the same words/sounds as much as possible, as Crash Team Ranking website did.
+
 ## What is this website?
 
 This website allows you to upload several screenshots from an event of several online races for the video game called Crash Team Racing: Nitro-Fueled. With some configuration done beforehand, the website will then analyze your screenshots and automatically create the Lorenzi markdown for the event.
@@ -29,6 +33,10 @@ It's mainly based on OCR which means Optical character recognition. It's based o
 ## Why are there limitations on the number of players?
 
 As the tool is about online races, there has to be at least 2 players competing each other. The video game CTR:NF only supports a maximum of 8 players.
+
+## Are times supported?
+
+No. Currently there is no support for time recognition although it appears in screenshots. It might be supported in a future update of the website.
 
 ## What should I do if a user got disconnected in-game?
 
