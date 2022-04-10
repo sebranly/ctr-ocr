@@ -6,17 +6,17 @@ Also available in: [French](../fr/Changelog.md)
 
 ### v1.0.15
 
-Documentation:
+**Documentation:**
 - Changelog is now available on the website
 - FAQ is now available on the website
 
-Features:
+**Features:**
 - `0` points can now be selected on a per-race basis, no matter the global points preset
 
-Bug fixes:
+**Bug fixes:**
 - the use of negative values for points on mobile devices is made easier
 
-Codebase:
+**Codebase:**
 - technical debt is reduced
 
 ### v1.0.14

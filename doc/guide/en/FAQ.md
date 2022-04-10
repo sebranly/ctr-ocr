@@ -1,4 +1,4 @@
-# Changelog
+# FAQ
 
 Also available in: [French](../fr/FAQ.md)
 
