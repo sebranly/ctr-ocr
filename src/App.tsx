@@ -27,6 +27,7 @@ import {
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
+  OCR_LANGUAGE,
   PLACEHOLDER_CPUS,
   WAR_POINTS_SCHEME
 } from './constants';
@@ -52,7 +53,7 @@ import UAParser from 'ua-parser-js';
 import { createArraySameValue, isEqual } from './utils/array';
 import { createLorenzi } from './utils/lorenzi';
 import { Footer } from './components/Footer';
-const language = 'eng';
+import { BasicMsg } from './components/BasicMsg';
 
 const App = () => {
   const renderProgressBar = () => {
@@ -358,7 +359,7 @@ const App = () => {
     return (
       <>
         <h3>Points</h3>
-        <div className="text-center mb">Choose a preset or edit each value individually for something more custom</div>
+        <BasicMsg msg="Choose a preset or edit each value individually for something more custom" />
         <div className="mb">
           <button
             onClick={() => {
@@ -528,7 +529,7 @@ const App = () => {
   };
 
   const renderTeamSection = () => {
-    if (includeCpuPlayers) return <div className="text-center mb">Teams are not available when CPUs are activated</div>;
+    if (includeCpuPlayers) return <BasicMsg msg="Teams are not available when CPUs are activated" />;
 
     return (
       <>
@@ -604,7 +605,7 @@ const App = () => {
   };
 
   const renderCpuSection = () => {
-    if (!cpuData || Object.keys(cpuData).length === 0) return <div className="text-center mb">{PLACEHOLDER_CPUS}</div>;
+    if (!cpuData || Object.keys(cpuData).length === 0) return <BasicMsg msg={PLACEHOLDER_CPUS} />;
 
     const guideCpu = `${GUIDE_FOLDER}CPUs.md`;
 
@@ -627,9 +628,7 @@ const App = () => {
         </div>
         {includeCpuPlayers && (
           <>
-            <div className="text-center mb">
-              Bots are automatically determined based on the language and cannot be edited
-            </div>
+            <BasicMsg msg="Bots are automatically determined based on the language and cannot be edited" />
             <div className="ml block mb">
               For more information, please refer to the{' '}
               <a href={guideCpu} rel="noopener noreferrer" title="Guide about CPUs" target="_blank">
@@ -693,8 +692,8 @@ const App = () => {
     schedulerUsername.addWorker(workerUsername);
 
     await workerUsername.load();
-    await workerUsername.loadLanguage(language);
-    await workerUsername.initialize(language);
+    await workerUsername.loadLanguage(OCR_LANGUAGE);
+    await workerUsername.initialize(OCR_LANGUAGE);
     const usernameParams = getParams(Category.Username);
     await workerUsername.setParameters(usernameParams);
 
@@ -1038,8 +1037,8 @@ const App = () => {
       <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
         {renderProgressBar()}
         <h2>Introduction</h2>
-        <div className="text-center mb">Please enter information from top to bottom for a smooth experience</div>
-        <div className="text-center mb">At the end, we'll produce the Lorenzi markdown for you</div>
+        <BasicMsg msg="Please enter information from top to bottom for a smooth experience" />
+        <BasicMsg msg="At the end, we'll produce the Lorenzi markdown for you" />
         <a
           href={VIDEO_TUTORIAL}
           rel="noopener noreferrer"
@@ -1054,10 +1053,10 @@ const App = () => {
         </a>
         <h2>Players</h2>
         <h3>Number of players</h3>
-        <div className="text-center mb">This includes CPUs if any</div>
+        <BasicMsg msg="This includes CPUs if any" />
         {renderNumericStepperPlayers()}
         <h3>Human Players</h3>
-        <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
+        <BasicMsg msg="Type all human players present in the races. Type one username per line." />
         <textarea
           className={`textarea-${classPlatform}`}
           disabled={disabledUI}

@@ -11,6 +11,7 @@ export const SEPARATOR_PLAYERS = '\n';
 export const SEPARATOR_PLAYERS_LORENZI = '|';
 export const TIME_DNF = '--:--:--';
 export const PLACEHOLDER_CPUS = 'Loading CPUs...';
+export const OCR_LANGUAGE = 'eng';
 // There will always be a possibility for 2 teams
 export const INITIAL_TEAMS_NB = 2;
 // Note: if any of those two contain at least one negative value then

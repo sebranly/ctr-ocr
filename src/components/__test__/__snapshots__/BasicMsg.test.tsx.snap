@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BasicMsg 1`] = `
+NodeList [
+  <div
+    class="text-center mb"
+  >
+    bonjour
+  </div>,
+]
+`;
