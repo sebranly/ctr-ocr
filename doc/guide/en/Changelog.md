@@ -11,10 +11,13 @@ Documentation:
 - FAQ is now available on the website
 
 Features:
-- allow `0` points to be selected on a per-race basis, no matter the global points preset
+- `0` points can now be selected on a per-race basis, no matter the global points preset
 
 Bug fixes:
-- make it easier to use negative values for points on mobile devices
+- the use of negative values for points on mobile devices is made easier
+
+Codebase:
+- technical debt is reduced
 
 ### v1.0.14
 

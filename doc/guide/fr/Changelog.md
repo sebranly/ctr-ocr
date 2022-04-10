@@ -7,14 +7,17 @@ Also available in: [English](../en/Changelog.md)
 ### v1.0.15
 
 Documentation :
-- Le changelog est disponible sur le site web
-- Une FAQ est disponible sur le site web
+- le changelog est disponible sur le site web
+- une FAQ est disponible sur le site web
 
 Fonctionnalités :
-- permettre de sélectionner `0` points pour les joueurs pour chaque course, peu importe la configuration globale des points
+- il est possible de sélectionner `0` points pour les joueurs pour chaque course, peu importe la configuration globale des points
 
-- Corrections de bugs :
-- rendre l'utilisation de valeurs négatives pour les points plus facile
+Corrections de bugs :
+- l'utilisation de valeurs négatives pour les points est plus facile
+
+Code source :
+- réduction de la dette technique
 
 ### v1.0.14
 
