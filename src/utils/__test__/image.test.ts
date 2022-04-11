@@ -57,6 +57,16 @@ test('sortImagesByFilename', () => {
   expect(sortImagesByFilename([])).toStrictEqual([]);
   expect(sortImagesByFilename([{ name: 'any.JPG' }])).toStrictEqual([{ name: 'any.JPG' }]);
   expect(sortImagesByFilename(notSortedImages)).toStrictEqual(sortedImages);
+  expect(sortImagesByFilename(sortedImages)).toStrictEqual(sortedImages);
+
+  const image1Bis = { name: 'C-Horloge.JPG' };
+  const image2Bis = { name: 'D-Canyon.JPEG' };
+  const image3Bis = { name: 'Z-Crash Cove.PNG' };
+
+  const notSortedImagesBis = [image3Bis, image1Bis, image2Bis];
+  const sortedImagesBis = [image1Bis, image2Bis, image3Bis];
+
+  expect(sortImagesByFilename(notSortedImagesBis)).toStrictEqual(sortedImagesBis);
 });
 
 test('getMimeType', () => {
