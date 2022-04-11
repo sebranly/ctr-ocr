@@ -3,6 +3,10 @@ Optical character recognition performed on the video game Crash Team Racing Nitr
 
 Live on [Crash Team Results](https://www.crashteamresults.com)
 
+## Roadmap
+
+Current tasks are available on this [GitHub list of projects](https://github.com/sebranly/ctr-ocr/projects)
+
 ## Development
 
 ### Setup
