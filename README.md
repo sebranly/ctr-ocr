@@ -20,5 +20,8 @@ Live on [Crash Team Results](https://www.crashteamresults.com)
 ### Deploy
 
 - Commit and push your changes to `main` branch
-- Make sure to increase the `WEBSITE_VERSION` from `src/constants/general.ts` file, by following semver
+- Make sure to have followed the following. If not, create a new PR.
+  - increase the `WEBSITE_VERSION` from `src/constants/general.ts` file, by following semver
+  - make sure `DEBUG_MODE` from `src/constants/general.ts` file is `false`
+  - make sure that `doc/guide/en/FAQ.md` and `doc/guide/fr/FAQ.md` are updated with a section describing the new version
 - Then run `npm run deploy`

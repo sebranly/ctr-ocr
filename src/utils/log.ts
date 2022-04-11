@@ -1,7 +1,7 @@
-import { LOG_CONSOLE } from '../constants/general';
+import { DEBUG_MODE } from '../constants/general';
 
 const logTime = (label: string, end = false) => {
-  if (!LOG_CONSOLE) return;
+  if (!DEBUG_MODE) return;
 
   if (end) {
     console.timeEnd(label);
@@ -11,7 +11,7 @@ const logTime = (label: string, end = false) => {
 };
 
 const logMsg = (msg: any) => {
-  if (!LOG_CONSOLE) return;
+  if (!DEBUG_MODE) return;
 
   console.log(msg);
 };
