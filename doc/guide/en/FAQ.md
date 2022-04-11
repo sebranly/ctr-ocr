@@ -28,7 +28,7 @@ Yes. You should still use Lorenzi website. Crash Team Results website only compl
 
 ## Which technology does this website use?
 
-It's mainly based on OCR which means Optical character recognition. It's based on the JavaScript port of the tesseract OCR engine. The rest of the website is a front-end React/Typescript application.
+It's mainly based on OCR which means Optical character recognition. It's based on the JavaScript port of the `tesseract` OCR engine. The rest of the website is a front-end React/TypeScript application.
 
 ## Why are there limitations on the number of players?
 

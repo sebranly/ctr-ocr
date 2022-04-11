@@ -16,19 +16,19 @@ Ce site web vous permet de télécharger en amont plusieurs captures d'écran d'
 
 ## Pourquoi devrais-je utiliser ce site web ?
 
-La création des données textuelles de Lorenzi à la main est source d'erreur. L'utilisation de ce site web (Crash Team Results) pour générer le Lorenzi est plus fiable parce que l'interface vous guide et vous informe lorsqu'il y a des modifications à apporter en cas d'erreur, avant de passer à l'étape d'après. Aussi, vous y gagnerez du temps.
+La création des données textuelles de Lorenzi à la main est source d'erreur. L'utilisation de ce site web (Crash Team Results) pour générer le Lorenzi est plus fiable parce que l'interface vous guide et vous informe lorsqu'il y a des modifications à apporter en cas d'erreur, avant de passer à l'étape suivante. Aussi, vous y gagnerez du temps.
 
 ## Puis-je utiliser le site web Lorenzi pour la reconnaissance d'images de CTR:NF ?
 
-Non. Sauf mention contraire, le site web Lorenzi vous permet de ne faire de la reconnaissance d'image uniquement pour le jeu vidéo Mario Kart 8 Deluxe.
+Non. Sauf erreur de ma part, le site web Lorenzi ne vous permet de faire de la reconnaissance d'image que pour le jeu vidéo Mario Kart 8 Deluxe.
 
 ## Devrais-je continuer d'utiliser le site web Lorenzi ?
 
-Oui. Vous devriez continuer d'utiliser le site web Lorenzi. Le site web Crash Team Results n'est utile que pour les étapes allant jusqu'à la génération des données textuelles de Lorenzi. Une fois ces données acquises, vous devriez vous rendre sur le site web de Lorenzi afin de copier/coller ces données. Autrement dit, Crash Team Results est complémentaire au site web Lorenzi.
+Oui. Vous devriez continuer d'utiliser le site web Lorenzi. Le site web Crash Team Results n'est utile que pour les étapes allant jusqu'à la génération des données textuelles de Lorenzi. Une fois ces données acquises, vous devez vous rendre sur le site web de Lorenzi afin de copier/coller ces données. Autrement dit, Crash Team Results est complémentaire au site web Lorenzi.
 
 ## Quelle technologie est utilisée ?
 
-C'est principalement basé sur l'OCR qui signifie Reconnaissance Optique de Caractères. C'est basé sur un port JavaScript de tesseract qui est un moteur OCR. Le reste du site web est une application front-end faite de React/TypeScript.
+C'est principalement basé sur l'OCR qui signifie Reconnaissance Optique de Caractères. C'est basé sur un port JavaScript de `tesseract` qui est un moteur OCR. Le reste du site web est une application front-end faite de React/TypeScript.
 
 ## Pourquoi y-a-t'il des limitations sur le nombre de joueurs ?
 

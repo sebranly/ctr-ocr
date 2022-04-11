@@ -8,13 +8,13 @@ Also available in: [English](../en/Changelog.md)
 
 **Documentation :**
 - le changelog est disponible sur le site web
-- une FAQ est disponible sur le site web
+- la FAQ est disponible sur le site web
 
 **Fonctionnalités :**
 - il est possible de sélectionner `0` points pour les joueurs pour chaque course, peu importe la configuration globale des points
 
 **Corrections de bugs :**
-- l'utilisation de valeurs négatives pour les points est plus facile
+- l'utilisation de valeurs négatives pour les points est plus facile, en particulier sur les téléphones
 
 **Code source :**
 - réduction de la dette technique
@@ -26,6 +26,6 @@ Lancement public du site web qui gère les points suivants :
 - un nombre de joueurs entre 2 et 8
 - présence de CPUs (langues supportées : anglais, français, espagnol)
 - équipes seulement si les CPUs sont désactivés. Le nombre d'équipes est un nombre entre 2 et le nombre de joueurs (ce qui signifie Chacun pour soi). Si les CPUs sont activés, Chacun pour soi est imposé.
-- téléchargement en amont de plusieurs images au format `JPEG`/`JPG`/`PNG` et à n'importe quelles dimensions
+- téléchargement en amont de plusieurs images au format `JPEG`/`JPG`/`PNG` et aux dimensions quelconques
 - ajustement des résultats de l'analyse (pseudonymes et points) pour chaque course
 - Génération des données textuelles au format Lorenzi, en prenant en considération les configurations d'équipes
