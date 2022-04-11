@@ -3,4 +3,11 @@ const isEqual = (a1: (number | string)[], a2: (number | string)[]) => {
   return a1.every((v, i) => v === a2[i]);
 };
 
-export { isEqual };
+const createArraySameValue = (length: number, value: any) => {
+  if (length === 0) return [];
+  if (length === 1) return [value];
+
+  return Array.from(Array(length).keys()).map((_v: number) => value);
+};
+
+export { createArraySameValue, isEqual };

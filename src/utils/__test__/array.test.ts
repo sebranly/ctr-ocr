@@ -1,4 +1,4 @@
-import { isEqual } from '../array';
+import { createArraySameValue, isEqual } from '../array';
 
 test('isEqual', () => {
   expect(isEqual([], [])).toBe(true);
@@ -8,4 +8,11 @@ test('isEqual', () => {
   expect(isEqual(['bonjour'], [1])).toBe(false);
   expect(isEqual([1, 2], [2, 1])).toBe(false);
   expect(isEqual(['bonjour'], ['bonjour', 'bonsoir'])).toBe(false);
+});
+
+test('createArraySameValue', () => {
+  expect(createArraySameValue(0, 'bonjour')).toStrictEqual([]);
+  expect(createArraySameValue(1, 'bonjour')).toStrictEqual(['bonjour']);
+  expect(createArraySameValue(3, 'bonjour')).toStrictEqual(['bonjour', 'bonjour', 'bonjour']);
+  expect(createArraySameValue(3, 12)).toStrictEqual([12, 12, 12]);
 });

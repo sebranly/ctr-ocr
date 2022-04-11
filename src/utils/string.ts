@@ -2,7 +2,7 @@ import levenshtein from 'fast-levenshtein';
 
 const cleanString = (str: string) => str.replaceAll('\n', '').replaceAll(' ', '');
 
-const getCloserString = (str: string, list: string[]) => {
+const getClosestString = (str: string, list: string[]) => {
   const listSafe = list.filter((s: string) => !!s);
   let min = Infinity;
   let name = str;
@@ -57,4 +57,4 @@ const sortCaseInsensitive = (a: string, b: string) => {
   return lowerA > lowerB ? 1 : -1;
 };
 
-export { charRange, cleanString, getCloserString, sortAlphanumeric, sortCaseInsensitive };
+export { charRange, cleanString, getClosestString, sortAlphanumeric, sortCaseInsensitive };

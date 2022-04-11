@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Footer 1`] = `
+NodeList [
+  <div
+    class="mt2 text-center"
+  >
+    Developed by
+     
+    <a
+      href="https://github.com/sebranly/ctr-ocr"
+      rel="noopener noreferrer"
+      target="_blank"
+      title="GitHub page for repository"
+    >
+      sebranly
+    </a>
+     
+    (PSN:
+     
+    <a
+      href="https://crashteamranking.com/members/siblingbling/tt/"
+      rel="noopener noreferrer"
+      target="_blank"
+      title="Crash Team Ranking for ZouGui28"
+    >
+      ZouGui28
+    </a>
+    ) with ❤️
+  </div>,
+  <div
+    class="mt2 text-center"
+  >
+    Website version
+     
+    <a
+      href="https://github.com/sebranly/ctr-ocr/blob/main/doc/guide/en/Changelog.md"
+      rel="noopener noreferrer"
+      target="_blank"
+      title="Website changelog"
+    >
+      1.0.15
+    </a>
+  </div>,
+]
+`;

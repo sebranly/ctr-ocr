@@ -3,6 +3,10 @@ Optical character recognition performed on the video game Crash Team Racing Nitr
 
 Live on [Crash Team Results](https://www.crashteamresults.com)
 
+## Roadmap
+
+Current tasks are available on this [GitHub list of projects](https://github.com/sebranly/ctr-ocr/projects)
+
 ## Development
 
 ### Setup
@@ -19,6 +23,12 @@ Live on [Crash Team Results](https://www.crashteamresults.com)
 
 ### Deploy
 
-- Commit and push your changes to `main` branch
-- Make sure to increase the `WEBSITE_VERSION` from `src/constants/general.ts` file, by following semver
+- Commit and push your changes to `main` branch, or create a merge request as a PR from your clone to this project's `main` branch
+- Make sure to have followed the following. If not, create a new PR.
+  - increase the `WEBSITE_VERSION` from `src/constants/general.ts` file, by following semver
+    - MAJOR version when you make incompatible API changes,
+    - MINOR version when you add functionality in a backwards compatible manner, and
+    - PATCH version when you make backwards compatible bug fixes.
+  - make sure `DEBUG_MODE` from `src/constants/general.ts` file is `false`
+  - make sure that `doc/guide/en/Changelog.md` and `doc/guide/fr/Changelog.md` are updated with a section describing the new version
 - Then run `npm run deploy`

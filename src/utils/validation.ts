@@ -19,7 +19,7 @@ const getIncorrectRaces = (resultsOcr: Result[][]) => {
     if (!validation.correct && !incorrectRaces.includes(index + 1)) incorrectRaces.push(index + 1);
   });
 
-  return incorrectRaces.sort();
+  return incorrectRaces.sort((a, b) => a - b);
 };
 
 const validatePoints = (points: number[]) => {

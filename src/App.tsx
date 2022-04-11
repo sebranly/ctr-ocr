@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import { createWorker, createScheduler } from 'tesseract.js';
-import { Category, Progress, Result } from './types';
+import { Category, Progress, Result, Sign } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -11,16 +11,13 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { NumericStepper } from '@anatoliygatt/numeric-stepper';
 
 import {
-  CRASH_TEAM_RANKING_AUTHOR_URL,
   EXAMPLE_IMAGES_FOLDER,
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
   GUIDE_FOLDER,
-  PROJECT_URL,
   URL_CPUS,
   VIDEO_TUTORIAL,
   WEBSITE_DEFAULT_LANGUAGE,
-  WEBSITE_TITLE,
-  WEBSITE_VERSION
+  WEBSITE_TITLE
 } from './constants/general';
 import {
   CTR_MAX_PLAYERS,
@@ -30,10 +27,11 @@ import {
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
+  OCR_LANGUAGE,
   PLACEHOLDER_CPUS,
   WAR_POINTS_SCHEME
 } from './constants';
-import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
+import { cleanString, getClosestString, sortCaseInsensitive } from './utils/string';
 import {
   formatCpuPlayers,
   getColorPlayer,
@@ -48,13 +46,14 @@ import {
 } from './utils';
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
-import { logError, logTime } from './utils/log';
+import { logMsg, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
-import { isEqual } from './utils/array';
+import { createArraySameValue, isEqual } from './utils/array';
 import { createLorenzi } from './utils/lorenzi';
-const language = 'eng';
+import { Footer } from './components/Footer';
+import { BasicMsg } from './components/BasicMsg';
 
 const App = () => {
   const renderProgressBar = () => {
@@ -74,8 +73,8 @@ const App = () => {
       <table className={classes}>
         <thead>
           <tr>
-            <th>Position</th>
-            <th>Points</th>
+            <th className="text-center">Position</th>
+            <th className="text-center">Points</th>
           </tr>
         </thead>
         {renderBodyPointsScheme()}
@@ -114,37 +113,48 @@ const App = () => {
 
     if (isMobile) {
       return imagesURLs.map((imageSrc: string, index: number) => (
-        <img alt="tbd" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
+        <img alt="TODO:" className="img-full max-width-100 block" key={`${imageSrc}-${index}`} src={imageSrc} />
       ));
     }
 
     return (
       <div className="flex-container center">
         {imagesURLs.map((imageSrc: string, index: number) => (
-          <img alt="tbd" className="img-full max-width-45 flex-1" key={`${imageSrc}-${index}`} src={imageSrc} />
+          <img alt="TODO:" className="img-full max-width-45 flex-1" key={`${imageSrc}-${index}`} src={imageSrc} />
         ))}
       </div>
     );
   };
 
   const renderBodyPointsScheme = () => {
-    const slicedPointsScheme = pointsScheme.slice(0, nbPlayers);
+    const slicedPointsScheme = absolutePointsScheme.slice(0, nbPlayers);
 
     return (
       <tbody>
         {slicedPointsScheme.map((_points: number, indexPoints: number) => {
           const key = indexPoints;
+          const selectedSign = signPointsScheme[indexPoints];
+          const classesSelect = selectedSign === Sign.Positive ? 'green' : 'red';
 
           return (
             <tr key={key}>
-              <td>{getPositionString(indexPoints + 1)}</td>
-              <td>
+              <td className="text-center">{getPositionString(indexPoints + 1)}</td>
+              <td className="text-center">
+                <select
+                  disabled={disabledUI}
+                  onChange={onChangeSignPointsScheme(indexPoints)}
+                  className={classesSelect}
+                  value={selectedSign}
+                >
+                  {renderOptionsSign()}
+                </select>
                 <input
-                  className="text-center"
+                  className="ml text-center"
                   type="number"
-                  value={pointsScheme[indexPoints]}
-                  disabled={selectIsDisabled}
-                  onChange={onChangePointsScheme(indexPoints)}
+                  min={0}
+                  value={absolutePointsScheme[indexPoints]}
+                  disabled={disabledUI}
+                  onChange={onChangeAbsolutePointsScheme(indexPoints)}
                 />
               </td>
             </tr>
@@ -152,6 +162,18 @@ const App = () => {
         })}
       </tbody>
     );
+  };
+
+  const renderOptionsSign = () => {
+    const signs = [Sign.Positive, Sign.Negative];
+
+    return signs.map((sign: string) => {
+      return (
+        <option key={sign} label={sign} value={sign}>
+          {sign}
+        </option>
+      );
+    });
   };
 
   const renderBody = (index: number) => {
@@ -186,7 +208,7 @@ const App = () => {
     };
 
     const renderOptionsPoints = () => {
-      const optionsResultsPoints = pointsScheme.slice(0, nbPlayers);
+      const optionsResultsPoints = uniq([...pointsScheme.slice(0, nbPlayers), 0]).sort((a, b) => b - a);
 
       return optionsResultsPoints.map(renderOption);
     };
@@ -319,30 +341,6 @@ const App = () => {
     );
   };
 
-  const renderFooter = () => {
-    return (
-      <>
-        <div className="mt2 text-center">
-          Developed by{' '}
-          <a href={PROJECT_URL} rel="noopener noreferrer" title="GitHub page for repository" target="_blank">
-            sebranly
-          </a>{' '}
-          (PSN:{' '}
-          <a
-            href={CRASH_TEAM_RANKING_AUTHOR_URL}
-            rel="noopener noreferrer"
-            title="Crash Team Ranking for ZouGui28"
-            target="_blank"
-          >
-            ZouGui28
-          </a>
-          ) with ❤️
-        </div>
-        <div className="mt2 text-center">{`Website version ${WEBSITE_VERSION}`}</div>
-      </>
-    );
-  };
-
   const renderCpuMainSection = () => {
     return (
       <>
@@ -361,16 +359,25 @@ const App = () => {
     return (
       <>
         <h3>Points</h3>
-        <div className="text-center mb">Choose a preset or edit each value individually for something more custom</div>
+        <BasicMsg msg="Choose a preset or edit each value individually for something more custom" />
         <div className="mb">
-          <button onClick={() => setPointsScheme(FFA_POINTS_SCHEME)} disabled={selectIsDisabled || isFFASetup}>
+          <button
+            onClick={() => {
+              setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+              setAbsolutePointsScheme(FFA_POINTS_SCHEME);
+            }}
+            disabled={disabledUI || isFFASetup}
+          >
             FFA preset
           </button>
 
           <button
             className="ml"
-            onClick={() => setPointsScheme(WAR_POINTS_SCHEME)}
-            disabled={selectIsDisabled || isWarSetup}
+            onClick={() => {
+              setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+              setAbsolutePointsScheme(WAR_POINTS_SCHEME);
+            }}
+            disabled={disabledUI || isWarSetup}
           >
             WAR preset
           </button>
@@ -407,7 +414,7 @@ const App = () => {
           className="inline-block ml"
           type="button"
           value="Get results"
-          disabled={selectIsDisabled || !imagesURLs || imagesURLs.length === 0}
+          disabled={disabledUI || !imagesURLs || imagesURLs.length === 0}
           onClick={doOCR}
         />
       </div>
@@ -415,11 +422,11 @@ const App = () => {
   };
 
   const renderNumericStepperPlayers = () => {
-    const minimumValue = selectIsDisabled ? nbPlayers : 2;
-    const maximumValue = selectIsDisabled ? nbPlayers : CTR_MAX_PLAYERS;
-    const initialValue = selectIsDisabled ? nbPlayers : CTR_MAX_PLAYERS;
-    const onChangeNumericStepper = selectIsDisabled ? () => {} : onChangeNbPlayers;
-    const thumbColor = selectIsDisabled ? '#999999' : '#3385FF';
+    const minimumValue = disabledUI ? nbPlayers : 2;
+    const maximumValue = disabledUI ? nbPlayers : CTR_MAX_PLAYERS;
+    const initialValue = disabledUI ? nbPlayers : CTR_MAX_PLAYERS;
+    const onChangeNumericStepper = disabledUI ? () => {} : onChangeNbPlayers;
+    const thumbColor = disabledUI ? '#999999' : '#3385FF';
 
     return (
       <div className="numeric-stepper-wrapper">
@@ -489,7 +496,7 @@ const App = () => {
           </div>
           <input
             className="inline mt"
-            disabled={selectIsDisabled}
+            disabled={disabledUI}
             type="file"
             multiple
             accept={[MIME_JPEG, MIME_PNG].join(', ')}
@@ -522,11 +529,11 @@ const App = () => {
   };
 
   const renderTeamSection = () => {
-    if (includeCpuPlayers) return <div className="text-center mb">Teams are not available when CPUs are activated</div>;
+    if (includeCpuPlayers) return <BasicMsg msg="Teams are not available when CPUs are activated" />;
 
     return (
       <>
-        <select disabled={selectIsDisabled} onChange={onChangeNbTeams} value={nbTeams}>
+        <select disabled={disabledUI} onChange={onChangeNbTeams} value={nbTeams}>
           {optionsNbTeams.map((option: number) => {
             const label = option === nbPlayers ? 'FFA' : `${option} teams`;
             return (
@@ -556,7 +563,7 @@ const App = () => {
         <div className="ml inline" key={key}>
           <input
             type="radio"
-            disabled={selectIsDisabled}
+            disabled={disabledUI}
             id={key}
             name={player}
             value={team}
@@ -598,7 +605,7 @@ const App = () => {
   };
 
   const renderCpuSection = () => {
-    if (!cpuData || Object.keys(cpuData).length === 0) return <div className="text-center mb">{PLACEHOLDER_CPUS}</div>;
+    if (!cpuData || Object.keys(cpuData).length === 0) return <BasicMsg msg={PLACEHOLDER_CPUS} />;
 
     const guideCpu = `${GUIDE_FOLDER}CPUs.md`;
 
@@ -615,15 +622,13 @@ const App = () => {
             type="checkbox"
             checked={includeCpuPlayers}
             onChange={onCpuCheckboxChange}
-            disabled={shouldIncludeCpuPlayers || selectIsDisabled}
+            disabled={shouldIncludeCpuPlayers || disabledUI}
           />
           <div className="ml inline">{textCheckbox}</div>
         </div>
         {includeCpuPlayers && (
           <>
-            <div className="text-center mb">
-              Bots are automatically determined based on the language and cannot be edited
-            </div>
+            <BasicMsg msg="Bots are automatically determined based on the language and cannot be edited" />
             <div className="ml block mb">
               For more information, please refer to the{' '}
               <a href={guideCpu} rel="noopener noreferrer" title="Guide about CPUs" target="_blank">
@@ -631,7 +636,7 @@ const App = () => {
               </a>
             </div>
             <div className="inline mr">Language in images</div>
-            <select disabled={selectIsDisabled} onChange={onChangeCpuLanguage} value={cpuLanguage}>
+            <select disabled={disabledUI} onChange={onChangeCpuLanguage} value={cpuLanguage}>
               {optionsCpuLanguages.map((option: string) => {
                 const label = `${option}`;
                 return (
@@ -657,7 +662,7 @@ const App = () => {
   const onMount = async () => {
     // TODO: initialize?
     setOnMountOver(true);
-    setSelectIsDisabled(false);
+    setDisabledUI(false);
     fetch(URL_CPUS)
       .then((response) => response.json())
       .then((data) => {
@@ -669,7 +674,7 @@ const App = () => {
   const doOCR = async () => {
     if (!onMountOver) return;
 
-    setSelectIsDisabled(true);
+    setDisabledUI(true);
     setOcrProgress(Progress.Started);
     setOcrProgressText('Initialization...');
     setResultsOcr([]);
@@ -687,8 +692,8 @@ const App = () => {
     schedulerUsername.addWorker(workerUsername);
 
     await workerUsername.load();
-    await workerUsername.loadLanguage(language);
-    await workerUsername.initialize(language);
+    await workerUsername.loadLanguage(OCR_LANGUAGE);
+    await workerUsername.initialize(OCR_LANGUAGE);
     const usernameParams = getParams(Category.Username);
     await workerUsername.setParameters(usernameParams);
 
@@ -792,12 +797,15 @@ const App = () => {
 
         const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
+        logMsg('resultsNames');
+        logMsg(resultsNames);
+
         const dataResults: Result[] = [];
         const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
         playerIndexes.forEach((playerIndex) => {
           const playerGuess = resultsNames[playerIndex];
           const result: Result = {
-            username: getCloserString(playerGuess, referencePlayers),
+            username: getClosestString(playerGuess, referencePlayers),
             position: playerIndex + 1,
             points: pointsScheme[playerIndex]
           };
@@ -808,8 +816,8 @@ const App = () => {
         resultsOcrTemp.push(dataResults);
       } catch (err) {
         // TODO: have better error handling
-        logError(err);
-        // setSelectIsDisabled(false);
+        logMsg(err);
+        // setDisabledUI(false);
       }
     }
 
@@ -817,7 +825,7 @@ const App = () => {
     setCroppedImages(croppedImagesTemp);
     setOcrProgress(Progress.Done);
     setOcrProgressText('');
-    // setSelectIsDisabled(false);
+    // setDisabledUI(false);
 
     await schedulerUsername.terminate();
   };
@@ -830,11 +838,16 @@ const App = () => {
   const [croppedImages, setCroppedImages] = React.useState<any[]>([]);
   const [nbPlayers, setNbPlayers] = React.useState(CTR_MAX_PLAYERS);
   const [cpuLanguage, setCpuLanguage] = React.useState(WEBSITE_DEFAULT_LANGUAGE);
-  const [selectIsDisabled, setSelectIsDisabled] = React.useState(true);
+  const [disabledUI, setDisabledUI] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState('');
   const [pointsScheme, setPointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
+  const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
+  const [signPointsScheme, setSignPointsScheme] = React.useState<Sign[]>(
+    createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive)
+  );
+
   const [copiedPlayers, setCopiedPlayers] = React.useState(false);
   const [copiedLorenzi, setCopiedLorenzi] = React.useState(false);
   const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
@@ -853,6 +866,18 @@ const App = () => {
   React.useEffect(() => {
     onMount();
   }, []);
+
+  React.useEffect(() => {
+    const copy = [...absolutePointsScheme];
+    const newPointsScheme = copy.map((absolutePoints: number, index: number) => {
+      const multiplier = signPointsScheme[index] === Sign.Negative ? -1 : 1;
+      return multiplier * absolutePoints;
+    });
+
+    setPointsScheme(newPointsScheme);
+    logMsg('newPointsScheme');
+    logMsg(newPointsScheme);
+  }, [absolutePointsScheme, signPointsScheme]);
 
   React.useEffect(() => {
     if (images.length < 1) return;
@@ -934,8 +959,9 @@ const App = () => {
     setTeams(teamNames);
     setPlayerTeams({});
 
-    if (isFFA) setPointsScheme(FFA_POINTS_SCHEME);
-    else setPointsScheme(WAR_POINTS_SCHEME);
+    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+    if (isFFA) setAbsolutePointsScheme(FFA_POINTS_SCHEME);
+    else setAbsolutePointsScheme(WAR_POINTS_SCHEME);
   };
 
   const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -943,13 +969,27 @@ const App = () => {
     setCpuPlayers(formatCpuPlayers(cpuData[e.target.value]));
   };
 
-  const onChangePointsScheme = (indexPointsScheme: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!pointsScheme || pointsScheme.length < indexPointsScheme) return;
-    const { value } = e.currentTarget;
-    const copy = [...pointsScheme];
-    copy[indexPointsScheme] = Number(value);
-    setPointsScheme(copy);
+  const onChangeSignPointsScheme = (indexPointsScheme: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!signPointsScheme || signPointsScheme.length < indexPointsScheme) return;
+    const { value } = e.target;
+    const newValue = value === Sign.Positive ? Sign.Positive : Sign.Negative;
+    const copy = [...signPointsScheme];
+    copy[indexPointsScheme] = newValue;
+    setSignPointsScheme(copy);
+    logMsg('new signPointsScheme');
+    logMsg(copy);
   };
+
+  const onChangeAbsolutePointsScheme =
+    (indexAbsolutePointsScheme: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!absolutePointsScheme || absolutePointsScheme.length < indexAbsolutePointsScheme) return;
+      const { value } = e.currentTarget;
+      const copy = [...absolutePointsScheme];
+      const valueNumber = Number(value);
+      const valueSafe = isNaN(valueNumber) ? 0 : valueNumber;
+      copy[indexAbsolutePointsScheme] = Math.abs(valueSafe);
+      setAbsolutePointsScheme(copy);
+    };
 
   const onChangeResultsPoints =
     (indexResultOcr: number, indexPlayer: number) => (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -970,13 +1010,14 @@ const App = () => {
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.checked;
     setIncludeCpuPlayers(newVal);
-    if (newVal === true) setPointsScheme(FFA_POINTS_SCHEME);
-    else setPointsScheme(WAR_POINTS_SCHEME);
+    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
+    if (newVal === true) setAbsolutePointsScheme(FFA_POINTS_SCHEME);
+    else setAbsolutePointsScheme(WAR_POINTS_SCHEME);
   };
 
   const optionsNbTeams = getOptionsTeams(nbPlayers);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
-  const classBgDisabled = selectIsDisabled && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
+  const classBgDisabled = disabledUI && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
   const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
@@ -986,6 +1027,7 @@ const App = () => {
   const isFFA = nbTeams === nbPlayers;
   const issueOnTeams = !includeCpuPlayers && !isFFA && !validationTeams.correct;
   const issueOnPointsScheme = !validationPointsScheme.correct;
+  const guideFAQ = `${GUIDE_FOLDER}FAQ.md`;
 
   return (
     <div className="main">
@@ -1002,8 +1044,8 @@ const App = () => {
       <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
         {renderProgressBar()}
         <h2>Introduction</h2>
-        <div className="text-center mb">Please enter information from top to bottom for a smooth experience</div>
-        <div className="text-center mb">At the end, we'll produce the Lorenzi markdown for you</div>
+        <BasicMsg msg="Please enter information from top to bottom for a smooth experience" />
+        <BasicMsg msg="At the end, we'll produce the Lorenzi markdown for you" />
         <a
           href={VIDEO_TUTORIAL}
           rel="noopener noreferrer"
@@ -1012,15 +1054,19 @@ const App = () => {
         >
           Video Tutorial
         </a>
+        {' - '}
+        <a href={guideFAQ} rel="noopener noreferrer" title="Frequently Asked Questions" target="_blank">
+          FAQ
+        </a>
         <h2>Players</h2>
         <h3>Number of players</h3>
-        <div className="text-center mb">This includes CPUs if any</div>
+        <BasicMsg msg="This includes CPUs if any" />
         {renderNumericStepperPlayers()}
         <h3>Human Players</h3>
-        <div className="text-center mb">Type all human players present in the races. Type one username per line.</div>
+        <BasicMsg msg="Type all human players present in the races. Type one username per line." />
         <textarea
           className={`textarea-${classPlatform}`}
-          disabled={selectIsDisabled}
+          disabled={disabledUI}
           placeholder={placeholderPlayers}
           rows={nbPlayers}
           value={players}
@@ -1033,7 +1079,7 @@ const App = () => {
         </CopyToClipboard>
         {renderMainSection()}
       </div>
-      {renderFooter()}
+      <Footer />
     </div>
   );
 };
