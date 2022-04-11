@@ -165,7 +165,7 @@ const App = () => {
   };
 
   const renderOptionsSign = () => {
-    const signs = ['+', '-'];
+    const signs = [Sign.Positive, Sign.Negative];
 
     return signs.map((sign: string) => {
       return (
@@ -868,11 +868,12 @@ const App = () => {
   }, []);
 
   React.useEffect(() => {
-    const copy = [...pointsScheme];
-    const newPointsScheme = copy.map((_p: number, index: number) => {
+    const copy = [...absolutePointsScheme];
+    const newPointsScheme = copy.map((absolutePoints: number, index: number) => {
       const multiplier = signPointsScheme[index] === Sign.Negative ? -1 : 1;
-      return multiplier * absolutePointsScheme[index];
+      return multiplier * absolutePoints;
     });
+
     setPointsScheme(newPointsScheme);
     logMsg('newPointsScheme');
     logMsg(newPointsScheme);
@@ -984,7 +985,9 @@ const App = () => {
       if (!absolutePointsScheme || absolutePointsScheme.length < indexAbsolutePointsScheme) return;
       const { value } = e.currentTarget;
       const copy = [...absolutePointsScheme];
-      copy[indexAbsolutePointsScheme] = Math.abs(Number(value));
+      const valueNumber = Number(value);
+      const valueSafe = isNaN(valueNumber) ? 0 : valueNumber;
+      copy[indexAbsolutePointsScheme] = Math.abs(valueSafe);
       setAbsolutePointsScheme(copy);
     };
 
