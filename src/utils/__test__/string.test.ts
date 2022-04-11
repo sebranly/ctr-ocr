@@ -13,6 +13,8 @@ test('sortAlphanumeric', () => {
   expect(sortAlphanumeric('IMG01', 'IMG10')).toBe(-1);
   expect(sortAlphanumeric('IMG10', 'IMG1')).toBe(1);
   expect(sortAlphanumeric('IMG10', 'IMG01')).toBe(1);
+  expect(sortAlphanumeric('C-Horloge', 'D-Canyon')).toBe(-1);
+  expect(sortAlphanumeric('D-Canyon', 'C-Horloge')).toBe(1);
 });
 
 test('sortCaseInsensitive', () => {
