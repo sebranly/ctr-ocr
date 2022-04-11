@@ -1,4 +1,4 @@
-import { charRange, cleanString, getCloserString, sortAlphanumeric, sortCaseInsensitive } from '../string';
+import { charRange, cleanString, getClosestString, sortAlphanumeric, sortCaseInsensitive } from '../string';
 
 test('sortAlphanumeric', () => {
   expect(sortAlphanumeric('a', 'a')).toBe(-1);
@@ -50,14 +50,14 @@ test('cleanString', () => {
   ).toBe('ZouGui28');
 });
 
-test('getCloserString', () => {
+test('getClosestString', () => {
   const list = ['bonjour', 'bonsoir', 'bon jour'];
-  expect(getCloserString('Bonjour', [])).toBe('Bonjour');
-  expect(getCloserString('Bonjour', list)).toBe('bonjour');
-  expect(getCloserString('B0njouR', list)).toBe('bonjour');
-  expect(getCloserString('Bojour', list)).toBe('bonjour');
-  expect(getCloserString('Bon jour', list)).toBe('bon jour');
-  expect(getCloserString('           Bon jou         r', list)).toBe('bon jour');
+  expect(getClosestString('Bonjour', [])).toBe('Bonjour');
+  expect(getClosestString('Bonjour', list)).toBe('bonjour');
+  expect(getClosestString('B0njouR', list)).toBe('bonjour');
+  expect(getClosestString('Bojour', list)).toBe('bonjour');
+  expect(getClosestString('Bon jour', list)).toBe('bon jour');
+  expect(getClosestString('           Bon jou         r', list)).toBe('bon jour');
 });
 
 test('charRange', () => {

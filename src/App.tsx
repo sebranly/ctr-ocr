@@ -31,7 +31,7 @@ import {
   PLACEHOLDER_CPUS,
   WAR_POINTS_SCHEME
 } from './constants';
-import { cleanString, getCloserString, sortCaseInsensitive } from './utils/string';
+import { cleanString, getClosestString, sortCaseInsensitive } from './utils/string';
 import {
   formatCpuPlayers,
   getColorPlayer,
@@ -805,7 +805,7 @@ const App = () => {
         playerIndexes.forEach((playerIndex) => {
           const playerGuess = resultsNames[playerIndex];
           const result: Result = {
-            username: getCloserString(playerGuess, referencePlayers),
+            username: getClosestString(playerGuess, referencePlayers),
             position: playerIndex + 1,
             points: pointsScheme[playerIndex]
           };
