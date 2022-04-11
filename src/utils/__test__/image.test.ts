@@ -67,6 +67,7 @@ test('sortImagesByFilename', () => {
   const sortedImagesBis = [image1Bis, image2Bis, image3Bis];
 
   expect(sortImagesByFilename(notSortedImagesBis)).toStrictEqual(sortedImagesBis);
+  expect(sortImagesByFilename(sortedImagesBis)).toStrictEqual(sortedImagesBis);
 });
 
 test('getMimeType', () => {
