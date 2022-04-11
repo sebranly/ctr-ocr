@@ -10,10 +10,10 @@ const logTime = (label: string, end = false) => {
   }
 };
 
-const logError = (err: any) => {
+const logMsg = (msg: any) => {
   if (!LOG_CONSOLE) return;
 
-  console.log(err);
+  console.log(msg);
 };
 
-export { logError, logTime };
+export { logMsg, logTime };

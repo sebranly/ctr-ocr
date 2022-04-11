@@ -46,7 +46,7 @@ import {
 } from './utils';
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
-import { logError, logTime } from './utils/log';
+import { logMsg, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
@@ -797,6 +797,9 @@ const App = () => {
 
         const resultsNames = results.map((r) => cleanString((r as any).data.text));
 
+        logMsg('resultsNames');
+        logMsg(resultsNames);
+
         const dataResults: Result[] = [];
         const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
         playerIndexes.forEach((playerIndex) => {
@@ -813,7 +816,7 @@ const App = () => {
         resultsOcrTemp.push(dataResults);
       } catch (err) {
         // TODO: have better error handling
-        logError(err);
+        logMsg(err);
         // setDisabledUI(false);
       }
     }
@@ -871,8 +874,8 @@ const App = () => {
       return multiplier * absolutePointsScheme[index];
     });
     setPointsScheme(newPointsScheme);
-    // TODO: remove before deploying
-    console.log('🚀 ~ file: App.tsx ~ line 908 ~ React.useEffect ~ newPointsScheme', newPointsScheme);
+    logMsg('newPointsScheme');
+    logMsg(newPointsScheme);
   }, [absolutePointsScheme, signPointsScheme]);
 
   React.useEffect(() => {
@@ -972,7 +975,8 @@ const App = () => {
     const copy = [...signPointsScheme];
     copy[indexPointsScheme] = newValue;
     setSignPointsScheme(copy);
-    console.log('🚀 ~ file: App.tsx ~ line 990 ~ onChangeSignPointsScheme ~ copy', copy);
+    logMsg('new signPointsScheme');
+    logMsg(copy);
   };
 
   const onChangeAbsolutePointsScheme =
