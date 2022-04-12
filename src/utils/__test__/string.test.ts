@@ -1,4 +1,11 @@
-import { charRange, cleanString, getClosestString, sortAlphanumeric, sortCaseInsensitive } from '../string';
+import {
+  charRange,
+  cleanString,
+  getClosestString,
+  getLevenshteinDistance,
+  sortAlphanumeric,
+  sortCaseInsensitive
+} from '../string';
 
 test('sortAlphanumeric', () => {
   expect(sortAlphanumeric('a', 'a')).toBe(-1);
@@ -60,6 +67,17 @@ test('getClosestString', () => {
   expect(getClosestString('Bojour', list)).toBe('bonjour');
   expect(getClosestString('Bon jour', list)).toBe('bon jour');
   expect(getClosestString('           Bon jou         r', list)).toBe('bon jour');
+});
+
+test('getLevenshteinDistance', () => {
+  expect(getLevenshteinDistance('', '')).toBe(0);
+  expect(getLevenshteinDistance('', 'bonjour')).toBe(7);
+  expect(getLevenshteinDistance('bonjour', '')).toBe(7);
+  expect(getLevenshteinDistance('bonjour', 'bonjour')).toBe(0);
+  expect(getLevenshteinDistance('bOnjour', 'bonjour')).toBe(1);
+  expect(getLevenshteinDistance('bonjour', 'BONJOUR')).toBe(7);
+  expect(getLevenshteinDistance('bonjour', 'bonsoir')).toBe(2);
+  expect(getLevenshteinDistance('bonjour', 'ruojnob')).toBe(6);
 });
 
 test('charRange', () => {

@@ -31,7 +31,7 @@ import {
   PLACEHOLDER_CPUS,
   WAR_POINTS_SCHEME
 } from './constants';
-import { cleanString, getClosestString, sortCaseInsensitive } from './utils/string';
+import { cleanString, getClosestString, getLevenshteinDistance, sortCaseInsensitive } from './utils/string';
 import {
   formatCpuPlayers,
   getColorPlayer,
@@ -46,7 +46,7 @@ import {
 } from './utils';
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
-import { logMsg, logTime } from './utils/log';
+import { logMsg, logTable, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
@@ -802,16 +802,24 @@ const App = () => {
 
         const dataResults: Result[] = [];
         const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
+        const csv: (string | number)[][] = [];
         playerIndexes.forEach((playerIndex) => {
           const playerGuess = resultsNames[playerIndex];
+          const playerMatch = getClosestString(playerGuess, referencePlayers);
           const result: Result = {
-            username: getClosestString(playerGuess, referencePlayers),
+            username: playerMatch,
+            rawUsername: playerGuess,
+            distanceUsername: getLevenshteinDistance(playerMatch, playerGuess),
             position: playerIndex + 1,
             points: pointsScheme[playerIndex]
           };
 
+          csv.push([result.username, result.rawUsername, result.distanceUsername]);
+
           dataResults.push(result);
         });
+
+        logTable(csv);
 
         resultsOcrTemp.push(dataResults);
       } catch (err) {

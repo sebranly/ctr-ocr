@@ -16,4 +16,10 @@ const logMsg = (msg: any) => {
   console.log(msg);
 };
 
-export { logMsg, logTime };
+const logTable = (table: any[]) => {
+  if (!DEBUG_MODE) return;
+
+  console.table(table);
+};
+
+export { logMsg, logTable, logTime };

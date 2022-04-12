@@ -27,7 +27,9 @@ export type Coord = {
 export type Result = {
   username: string;
   position: number;
+  distanceUsername: number;
   points: number;
+  rawUsername: string;
 };
 
 export enum Sign {

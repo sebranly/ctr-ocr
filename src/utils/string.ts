@@ -8,7 +8,7 @@ const getClosestString = (str: string, list: string[]) => {
   let name = str;
 
   listSafe.forEach((s: string) => {
-    const lev = levenshtein.get(str, s);
+    const lev = getLevenshteinDistance(str, s);
 
     if (lev < min) {
       min = lev;
@@ -17,6 +17,13 @@ const getClosestString = (str: string, list: string[]) => {
   });
 
   return name;
+};
+
+const getLevenshteinDistance = (str1: string, str2: string) => {
+  const newStr1 = str1 || '';
+  const newStr2 = str2 || '';
+
+  return levenshtein.get(newStr1, newStr2);
 };
 
 const charRange = (startChar: string, stopChar: string) => {
@@ -57,4 +64,4 @@ const sortCaseInsensitive = (a: string, b: string) => {
   return lowerA > lowerB ? 1 : -1;
 };
 
-export { charRange, cleanString, getClosestString, sortAlphanumeric, sortCaseInsensitive };
+export { charRange, cleanString, getClosestString, getLevenshteinDistance, sortAlphanumeric, sortCaseInsensitive };
