@@ -71,13 +71,23 @@ test('getClosestString', () => {
 
 test('getEditDistance', () => {
   expect(getEditDistance('', '')).toBe(0);
+
   expect(getEditDistance('', 'bonjour')).toBe(7);
   expect(getEditDistance('bonjour', '')).toBe(7);
+
   expect(getEditDistance('bonjour', 'bonjour')).toBe(0);
+
   expect(getEditDistance('bOnjour', 'bonjour')).toBe(1);
+  expect(getEditDistance('bonjour', 'bOnjour')).toBe(1);
+
   expect(getEditDistance('bonjour', 'BONJOUR')).toBe(7);
+  expect(getEditDistance('BONJOUR', 'bonjour')).toBe(7);
+
   expect(getEditDistance('bonjour', 'bonsoir')).toBe(2);
+  expect(getEditDistance('bonsoir', 'bonjour')).toBe(2);
+
   expect(getEditDistance('bonjour', 'ruojnob')).toBe(6);
+  expect(getEditDistance('ruojnob', 'bonjour')).toBe(6);
 });
 
 test('charRange', () => {
