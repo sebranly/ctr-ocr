@@ -60,7 +60,7 @@ test('cleanString', () => {
 });
 
 test('getClosestString', () => {
-  const list = ['bonjour', 'bonsoir', 'bon jour'];
+  const list = ['bonjour', 'bonsoir', 'bon jour', 'bon joueur'];
   expect(getClosestString('Bonjour', [])).toBe('Bonjour');
   expect(getClosestString('Bonjour', list)).toBe('bonjour');
   expect(getClosestString('B0njouR', list)).toBe('bonjour');
