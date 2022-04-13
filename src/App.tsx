@@ -31,7 +31,7 @@ import {
   PLACEHOLDER_CPUS,
   WAR_POINTS_SCHEME
 } from './constants';
-import { cleanString, getClosestString, getLevenshteinDistance, sortCaseInsensitive } from './utils/string';
+import { cleanString, getClosestString, getEditDistance, sortCaseInsensitive } from './utils/string';
 import {
   formatCpuPlayers,
   getColorPlayer,
@@ -810,7 +810,7 @@ const App = () => {
           const result: Result = {
             username: playerMatch,
             rawUsername: playerGuess,
-            distanceUsername: getLevenshteinDistance(playerMatch, playerGuess),
+            distanceUsername: getEditDistance(playerMatch, playerGuess),
             position: playerIndex + 1,
             points: pointsScheme[playerIndex]
           };

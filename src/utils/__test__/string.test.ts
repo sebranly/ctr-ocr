@@ -2,7 +2,7 @@ import {
   charRange,
   cleanString,
   getClosestString,
-  getLevenshteinDistance,
+  getEditDistance,
   sortAlphanumeric,
   sortCaseInsensitive
 } from '../string';
@@ -69,15 +69,15 @@ test('getClosestString', () => {
   expect(getClosestString('           Bon jou         r', list)).toBe('bon jour');
 });
 
-test('getLevenshteinDistance', () => {
-  expect(getLevenshteinDistance('', '')).toBe(0);
-  expect(getLevenshteinDistance('', 'bonjour')).toBe(7);
-  expect(getLevenshteinDistance('bonjour', '')).toBe(7);
-  expect(getLevenshteinDistance('bonjour', 'bonjour')).toBe(0);
-  expect(getLevenshteinDistance('bOnjour', 'bonjour')).toBe(1);
-  expect(getLevenshteinDistance('bonjour', 'BONJOUR')).toBe(7);
-  expect(getLevenshteinDistance('bonjour', 'bonsoir')).toBe(2);
-  expect(getLevenshteinDistance('bonjour', 'ruojnob')).toBe(6);
+test('getEditDistance', () => {
+  expect(getEditDistance('', '')).toBe(0);
+  expect(getEditDistance('', 'bonjour')).toBe(7);
+  expect(getEditDistance('bonjour', '')).toBe(7);
+  expect(getEditDistance('bonjour', 'bonjour')).toBe(0);
+  expect(getEditDistance('bOnjour', 'bonjour')).toBe(1);
+  expect(getEditDistance('bonjour', 'BONJOUR')).toBe(7);
+  expect(getEditDistance('bonjour', 'bonsoir')).toBe(2);
+  expect(getEditDistance('bonjour', 'ruojnob')).toBe(6);
 });
 
 test('charRange', () => {
