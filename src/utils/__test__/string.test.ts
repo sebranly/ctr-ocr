@@ -88,6 +88,12 @@ test('getEditDistance', () => {
 
   expect(getEditDistance('bonjour', 'ruojnob')).toBe(6);
   expect(getEditDistance('ruojnob', 'bonjour')).toBe(6);
+
+  expect(getEditDistance('abc', 'abcdef')).toBe(3);
+  expect(getEditDistance('abcdef', 'abc')).toBe(3);
+
+  expect(getEditDistance('A sentence with several words', 'a sentENCE with one word')).toBe(12);
+  expect(getEditDistance('a sentENCE with one word', 'A sentence with several words')).toBe(12);
 });
 
 test('charRange', () => {
