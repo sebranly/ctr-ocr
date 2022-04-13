@@ -136,6 +136,7 @@ const sortCaseInsensitive = (a: string, b: string) => {
 
 export {
   charRange,
+  charactersMatch,
   cleanString,
   getClosestString,
   getEditDistance,

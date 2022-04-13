@@ -1,11 +1,55 @@
 import {
   charRange,
+  charactersMatch,
   cleanString,
   getClosestString,
   getEditDistance,
+  getSubstitutionCost,
   sortAlphanumeric,
   sortCaseInsensitive
 } from '../string';
+
+test('getSubstitutionCost', () => {
+  expect(getSubstitutionCost('', '')).toBe(1);
+  expect(getSubstitutionCost('', 'a')).toBe(1);
+  expect(getSubstitutionCost('a', '')).toBe(1);
+  expect(getSubstitutionCost('ab', 'ab')).toBe(1);
+  expect(getSubstitutionCost('', 'ab')).toBe(1);
+  expect(getSubstitutionCost('ab', '')).toBe(1);
+  expect(getSubstitutionCost('a', 'A')).toBe(1);
+  expect(getSubstitutionCost('A', 'a')).toBe(1);
+  expect(getSubstitutionCost('B', 'a')).toBe(1);
+
+  expect(getSubstitutionCost('a', 'a')).toBe(0);
+
+  expect(getSubstitutionCost('B', '8')).toBe(0.5);
+  expect(getSubstitutionCost('-', '_')).toBe(0.5);
+  expect(getSubstitutionCost('Z', '2')).toBe(0.5);
+  expect(getSubstitutionCost('O', '0')).toBe(0.5);
+  expect(getSubstitutionCost('l', '1')).toBe(0.5);
+  expect(getSubstitutionCost('S', '5')).toBe(0.5);
+
+  expect(getSubstitutionCost('Z', '7')).toBe(0.75);
+  expect(getSubstitutionCost('o', '0')).toBe(0.75);
+  expect(getSubstitutionCost('o', 'O')).toBe(0.75);
+  expect(getSubstitutionCost('D', 'P')).toBe(0.75);
+  expect(getSubstitutionCost('B', 'R')).toBe(0.75);
+  expect(getSubstitutionCost('e', 'c')).toBe(0.75);
+  expect(getSubstitutionCost('c', 'o')).toBe(0.75);
+});
+
+test('charactersMatch', () => {
+  expect(charactersMatch('a', 'a', ['a', 'a'])).toBe(true);
+  expect(charactersMatch('A', 'a', ['A', 'a'])).toBe(true);
+  expect(charactersMatch('A', 'a', ['a', 'A'])).toBe(true);
+  expect(charactersMatch('A', 'A', ['A', 'a'])).toBe(true);
+  expect(charactersMatch('A', 'A', ['a', 'A'])).toBe(true);
+
+  expect(charactersMatch('A', 'A', ['a', 'a'])).toBe(false);
+  expect(charactersMatch('b', 'B', ['a', 'A'])).toBe(false);
+  expect(charactersMatch('a', 'B', ['a', 'A'])).toBe(false);
+  expect(charactersMatch('A', 'B', ['a', 'A'])).toBe(false);
+});
 
 test('sortAlphanumeric', () => {
   expect(sortAlphanumeric('a', 'a')).toBe(-1);
