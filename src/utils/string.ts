@@ -19,9 +19,18 @@ const getClosestString = (str: string, list: string[]) => {
   return name;
 };
 
+/**
+ * Simply called edit distance as it's a custom version of Levenshtein distance
+ * We keep the score of 1 for addition and deletion
+ * But we attribute a score between 0 and 1 (e.g. 0.5) for substitution,
+ * based on the similarity of pattern of the two characters
+ */
 const getEditDistance = (str1: string, str2: string) => {
   const newStr1 = str1 || '';
   const newStr2 = str2 || '';
+
+  if (newStr1 === '') return newStr2.length;
+  if (newStr2 === '') return newStr1.length;
 
   return levenshtein.get(newStr1, newStr2);
 };
