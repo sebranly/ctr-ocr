@@ -1,5 +1,3 @@
-import levenshtein from 'fast-levenshtein';
-
 const cleanString = (str: string) => str.replaceAll('\n', '').replaceAll(' ', '');
 
 const getClosestString = (str: string, list: string[]) => {
@@ -32,7 +30,41 @@ const getEditDistance = (str1: string, str2: string) => {
   if (newStr1 === '') return newStr2.length;
   if (newStr2 === '') return newStr1.length;
 
-  return levenshtein.get(newStr1, newStr2);
+  const distance: number[][] = [];
+
+  for (let i = 0; i <= newStr1.length; i++) {
+    const distanceLine: number[] = [];
+
+    for (let j = 0; j <= newStr2.length; j++) {
+      distanceLine.push(0);
+    }
+
+    distance.push(distanceLine);
+  }
+
+  for (let i = 1; i <= newStr1.length; i++) {
+    distance[i][0] = i;
+  }
+
+  for (let j = 1; j <= newStr2.length; j++) {
+    distance[0][j] = j;
+  }
+
+  for (let j = 1; j <= newStr2.length; j++) {
+    for (let i = 1; i <= newStr1.length; i++) {
+      const isSameCharacter = newStr1[i - 1] === newStr2[j - 1];
+
+      const substitutionCost = isSameCharacter ? 0 : 1;
+
+      distance[i][j] = Math.min(
+        distance[i - 1][j] + 1,
+        distance[i][j - 1] + 1,
+        distance[i - 1][j - 1] + substitutionCost
+      );
+    }
+  }
+
+  return distance[newStr1.length][newStr2.length];
 };
 
 const charRange = (startChar: string, stopChar: string) => {
