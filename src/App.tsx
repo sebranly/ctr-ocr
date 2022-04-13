@@ -46,7 +46,7 @@ import {
 } from './utils';
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
-import { logMsg, logTable, logTime } from './utils/log';
+import { logMsg, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
@@ -694,7 +694,8 @@ const App = () => {
     await workerUsername.load();
     await workerUsername.loadLanguage(OCR_LANGUAGE);
     await workerUsername.initialize(OCR_LANGUAGE);
-    const usernameParams = getParams(Category.Username);
+    const usernameParams = getParams(Category.Username, getPlayers(players), getPlayers(cpuPlayers), includeCpuPlayers);
+
     await workerUsername.setParameters(usernameParams);
 
     const playerIndexes = numberRange(0, nbPlayers - 1);
@@ -819,7 +820,7 @@ const App = () => {
           dataResults.push(result);
         });
 
-        logTable(csv);
+        console.table(csv);
 
         resultsOcrTemp.push(dataResults);
       } catch (err) {
