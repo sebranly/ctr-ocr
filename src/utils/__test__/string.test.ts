@@ -136,6 +136,9 @@ test('getEditDistance', () => {
   expect(getEditDistance('abc', 'abcdef')).toBe(3);
   expect(getEditDistance('abcdef', 'abc')).toBe(3);
 
+  expect(getEditDistance('aazKy0_80mbsa', 'Kyo-Bomba')).toBe(6.5);
+  expect(getEditDistance('Kyo-Bomba', 'aazKy0_80mbsa')).toBe(6.5);
+
   expect(getEditDistance('A sentence with several words', 'a sentENCE with one word')).toBe(12);
   expect(getEditDistance('a sentENCE with one word', 'A sentence with several words')).toBe(12);
 });
