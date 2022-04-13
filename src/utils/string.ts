@@ -52,9 +52,7 @@ const getEditDistance = (str1: string, str2: string) => {
 
   for (let j = 1; j <= newStr2.length; j++) {
     for (let i = 1; i <= newStr1.length; i++) {
-      const isSameCharacter = newStr1[i - 1] === newStr2[j - 1];
-
-      const substitutionCost = isSameCharacter ? 0 : 1;
+      const substitutionCost = getSubstitutionCost(newStr1[i - 1], newStr2[j - 1]);
 
       distance[i][j] = Math.min(
         distance[i - 1][j] + 1,
@@ -65,6 +63,37 @@ const getEditDistance = (str1: string, str2: string) => {
   }
 
   return distance[newStr1.length][newStr2.length];
+};
+
+const getSubstitutionCost = (character1: string, character2: string) => {
+  if (character1.length !== 1 || character2.length !== 1) return 1;
+
+  const char1 = character1.charAt(0);
+  const char2 = character2.charAt(0);
+
+  if (char1 === char2) return 0;
+
+  // This is based on a manual feeling on the font from CTR:NF screenshots
+  if (charactersMatch(char1, char2, ['B', '8'])) return 0.5;
+  if (charactersMatch(char1, char2, ['-', '_'])) return 0.5;
+  if (charactersMatch(char1, char2, ['Z', '2'])) return 0.5;
+  if (charactersMatch(char1, char2, ['O', '0'])) return 0.5;
+  if (charactersMatch(char1, char2, ['l', '1'])) return 0.5;
+  if (charactersMatch(char1, char2, ['S', '5'])) return 0.5;
+
+  if (charactersMatch(char1, char2, ['Z', '7'])) return 0.75;
+  if (charactersMatch(char1, char2, ['o', '0'])) return 0.75;
+  if (charactersMatch(char1, char2, ['o', 'O'])) return 0.75;
+  if (charactersMatch(char1, char2, ['D', 'P'])) return 0.75;
+  if (charactersMatch(char1, char2, ['B', 'R'])) return 0.75;
+  if (charactersMatch(char1, char2, ['e', 'c'])) return 0.75;
+  if (charactersMatch(char1, char2, ['c', 'o'])) return 0.75;
+
+  return 1;
+};
+
+const charactersMatch = (character1: string, character2: string, characters: [string, string]) => {
+  return characters.includes(character1) && characters.includes(character2);
 };
 
 const charRange = (startChar: string, stopChar: string) => {
@@ -105,4 +134,12 @@ const sortCaseInsensitive = (a: string, b: string) => {
   return lowerA > lowerB ? 1 : -1;
 };
 
-export { charRange, cleanString, getClosestString, getEditDistance, sortAlphanumeric, sortCaseInsensitive };
+export {
+  charRange,
+  cleanString,
+  getClosestString,
+  getEditDistance,
+  getSubstitutionCost,
+  sortAlphanumeric,
+  sortCaseInsensitive
+};

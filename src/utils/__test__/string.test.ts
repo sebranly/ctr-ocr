@@ -77,11 +77,11 @@ test('getEditDistance', () => {
 
   expect(getEditDistance('bonjour', 'bonjour')).toBe(0);
 
-  expect(getEditDistance('bOnjour', 'bonjour')).toBe(1);
-  expect(getEditDistance('bonjour', 'bOnjour')).toBe(1);
+  expect(getEditDistance('bOnjour', 'bonjour')).toBe(0.75);
+  expect(getEditDistance('bonjour', 'bOnjour')).toBe(0.75);
 
-  expect(getEditDistance('bonjour', 'BONJOUR')).toBe(7);
-  expect(getEditDistance('BONJOUR', 'bonjour')).toBe(7);
+  expect(getEditDistance('bonjour', 'BONJOUR')).toBe(6.5);
+  expect(getEditDistance('BONJOUR', 'bonjour')).toBe(6.5);
 
   expect(getEditDistance('bonjour', 'bonsoir')).toBe(2);
   expect(getEditDistance('bonsoir', 'bonjour')).toBe(2);
