@@ -56,4 +56,4 @@ Veuillez consulter [CPUs](./CPUs.md)
 
 ## Dites-moi en plus à propos du changelog de ce site web
 
-Veuillez consulter [Changelog](./Changelog.md)
+Veuillez consulter [Changelog](https://github.com/sebranly/ctr-ocr/releases)

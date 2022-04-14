@@ -34,12 +34,12 @@ NodeList [
     Website version
      
     <a
-      href="https://github.com/sebranly/ctr-ocr/blob/main/doc/guide/en/Changelog.md"
+      href="https://github.com/sebranly/ctr-ocr/releases"
       rel="noopener noreferrer"
       target="_blank"
       title="Website changelog"
     >
-      1.0.16
+      1.0.17
     </a>
   </div>,
 ]
