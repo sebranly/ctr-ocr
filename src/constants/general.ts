@@ -13,4 +13,5 @@ export const WEBSITE_DEFAULT_LANGUAGE = 'en';
 export const URL_CPUS = `${AUTHOR_GITHUB}/json/${JSON_FOLDER}/players.json`;
 export const EXAMPLE_IMAGES_FOLDER = `https://raw.githubusercontent.com/${AUTHOR_NAME}/${PROJECT_NAME}/main/src/img/examples/`;
 export const EXAMPLE_IMAGES_FOLDER_FULL_EVENT = `${PROJECT_URL}/tree/main/src/img/examples/full-event/`;
+export const CHANGELOG_URL = `${PROJECT_URL}/releases`;
 export const VIDEO_TUTORIAL = 'https://youtu.be/XjwoKGtEQag';
