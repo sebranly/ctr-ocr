@@ -6,10 +6,10 @@ const getClosestString = (str: string, list: string[]) => {
   let name = str;
 
   listSafe.forEach((s: string) => {
-    const lev = getEditDistance(str, s);
+    const distance = getEditDistance(str, s);
 
-    if (lev < min) {
-      min = lev;
+    if (distance < min) {
+      min = distance;
       name = s;
     }
   });
