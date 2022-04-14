@@ -105,7 +105,6 @@ const getPositionString = (position: number) => {
 const getParams = (category: Category, players: string[], cpuPlayers: string[], includeCpuPlayers: boolean) => {
   const { Position, Time, Username } = Category;
   const charList = getCharListFromUsernames(players, cpuPlayers, includeCpuPlayers);
-  console.log('🚀 ~ file: index.ts ~ line 108 ~ getParams ~ charList', charList);
 
   switch (category) {
     case Position:

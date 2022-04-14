@@ -4,6 +4,13 @@ Also available in: [English](../en/Changelog.md)
 
 ## v1
 
+### v1.0.16
+
+**Corrections de bugs :**
+- la reconnaissance de pseudos a été améliorée grâce à deux changements :
+  - la liste des symboles autorisés a été mise à jour pour n'inclure que les caractères alphanumériques contenus dans la liste des joueurs humains/CPUs
+  - l'algorithme de distance d'édition a été mis à jour. C'était une simple distance de Levenshtein. C'est maintenant plus poussé car les caractères alphanumériques proches (par exemple `B` et `8`) ont désormais un score de substitution strictement inférieur à 1
+
 ### v1.0.15
 
 **Documentation :**

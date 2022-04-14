@@ -820,7 +820,7 @@ const App = () => {
           dataResults.push(result);
         });
 
-        console.table(csv);
+        logTable(csv);
 
         resultsOcrTemp.push(dataResults);
       } catch (err) {

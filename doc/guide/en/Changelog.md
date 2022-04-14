@@ -4,6 +4,13 @@ Also available in: [French](../fr/Changelog.md)
 
 ## v1
 
+### v1.0.16
+
+**Bug fixes:**
+- the username recognition is more reliable thanks to two fixes:
+  - the list of allowed symbols has been updated from all alphanumeric characters to those included in the known list of human players/CPUs
+  - the edit distance algorithm has been updated from a basic Levenshtein distance to a custom one in which close alphanumeric characters (e.g. `B` and `8`) have a score strictly lower than 1 for substitution
+
 ### v1.0.15
 
 **Documentation:**
