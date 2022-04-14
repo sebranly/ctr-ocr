@@ -4,7 +4,8 @@ import {
   createLorenziFFA,
   createLorenziIntro,
   createLorenziPlayersPoints,
-  createLorenziTeams
+  createLorenziTeams,
+  getInitialLorenziTeams
 } from '../lorenzi';
 
 const races: Result[][] = [
@@ -68,6 +69,21 @@ const playerTeamsDuo = {
   g: 'Team 4',
   h: 'Team 1'
 };
+
+test('getInitialLorenziTeams', () => {
+  expect(getInitialLorenziTeams(0)).toStrictEqual([]);
+  expect(getInitialLorenziTeams(1)).toStrictEqual([{ name: 'Team 1', color: '#33CCFF' }]);
+  expect(getInitialLorenziTeams(8)).toStrictEqual([
+    { name: 'Team 1', color: '#33CCFF' },
+    { name: 'Team 2', color: '#FF4040' },
+    { name: 'Team 3', color: '#008000' },
+    { name: 'Team 4', color: '#FFA500' },
+    { name: 'Team 5', color: '#6A0DAD' },
+    { name: 'Team 6', color: '#964B00' },
+    { name: 'Team 7', color: '#808080' },
+    { name: 'Team 8', color: '#FFFFFF' }
+  ]);
+});
 
 test('createLorenzi', () => {
   let results: string[];

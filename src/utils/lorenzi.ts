@@ -1,7 +1,8 @@
 import { getColorHexadecimalTeam } from '.';
 import { SEPARATOR_PLAYERS_LORENZI } from '../constants';
-import { Result } from '../types';
+import { LorenziTeam, Result } from '../types';
 import { formatDate } from './date';
+import { numberRange } from './number';
 import { cleanString } from './string';
 
 const createLorenzi = (
@@ -18,6 +19,16 @@ const createLorenzi = (
   if (isFFA) return createLorenziFFA(races);
 
   return createLorenziTeams(races, playerTeams, teams);
+};
+
+const getInitialLorenziTeams = (nbTeams: number) => {
+  if (nbTeams === 0) return [];
+
+  const initialLorenziTeams: LorenziTeam[] = numberRange(0, nbTeams - 1).map((n: number) => {
+    return { name: `Team ${n + 1}`, color: getColorHexadecimalTeam(n) };
+  });
+
+  return initialLorenziTeams;
 };
 
 const createLorenziTeams = (races: Result[][], playerTeams: Record<string, string>, teams: string[]) => {
@@ -91,4 +102,11 @@ const createLorenziFFA = (races: Result[][]) => {
   return [...createLorenziIntro(), '', ...playersLines];
 };
 
-export { createLorenzi, createLorenziFFA, createLorenziTeams, createLorenziIntro, createLorenziPlayersPoints };
+export {
+  createLorenzi,
+  createLorenziFFA,
+  createLorenziTeams,
+  createLorenziIntro,
+  createLorenziPlayersPoints,
+  getInitialLorenziTeams
+};

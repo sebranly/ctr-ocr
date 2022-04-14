@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import { createWorker, createScheduler } from 'tesseract.js';
-import { Category, Progress, Result, Sign } from './types';
+import { Category, LorenziTeam, Progress, Result, Sign } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -815,7 +815,7 @@ const App = () => {
             points: pointsScheme[playerIndex]
           };
 
-          csv.push([result.username, result.rawUsername, result.distanceUsername]);
+          csv.push([result.username, result.rawUsername ?? '', result.distanceUsername ?? result.username.length]);
 
           dataResults.push(result);
         });
@@ -863,6 +863,7 @@ const App = () => {
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
   const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAMS_NB));
+  const [lorenziTeams, setLorenziTeams] = React.useState<LorenziTeam[]>(getInitialLorenziTeams(INITIAL_TEAMS_NB));
   const [nbTeams, setNbTeams] = React.useState(INITIAL_TEAMS_NB);
   const [playerTeams, setPlayerTeams] = React.useState<Record<string, string>>({});
   const [indexRace, setIndexRace] = React.useState(0);
