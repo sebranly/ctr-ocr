@@ -46,7 +46,7 @@ import {
 } from './utils';
 import { numberRange } from './utils/number';
 import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
-import { logMsg, logTime } from './utils/log';
+import { logMsg, logTable, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
