@@ -171,17 +171,17 @@ test('convertToMs', () => {
 test('getParams', () => {
   const { Position, Time, Username } = Category;
 
-  expect(getParams(Position)).toStrictEqual({
+  expect(getParams(Position, [], [], false)).toStrictEqual({
     tessedit_char_whitelist: getCharListPosition(),
     tessedit_pageseg_mode: PSM_SINGLE_CHAR
   });
 
-  expect(getParams(Username)).toStrictEqual({
-    tessedit_char_whitelist: getCharListUsername(),
+  expect(getParams(Username, ['bonjour'], ['bonsoir'], true)).toStrictEqual({
+    tessedit_char_whitelist: 'bijnorsu',
     tessedit_pageseg_mode: PSM_SINGLE_LINE
   });
 
-  expect(getParams(Time)).toStrictEqual({
+  expect(getParams(Time, [], [], false)).toStrictEqual({
     tessedit_char_whitelist: getCharListTime(),
     tessedit_pageseg_mode: PSM_SINGLE_LINE
   });

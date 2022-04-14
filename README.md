@@ -31,4 +31,5 @@ Current tasks are available on this [GitHub list of projects](https://github.com
     - PATCH version when you make backwards compatible bug fixes.
   - make sure `DEBUG_MODE` from `src/constants/general.ts` file is `false`
   - make sure that `doc/guide/en/Changelog.md` and `doc/guide/fr/Changelog.md` are updated with a section describing the new version
+- Confirm that test suite passes with `npm run test`
 - Then run `npm run deploy`

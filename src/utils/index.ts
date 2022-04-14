@@ -2,7 +2,7 @@ import { PLACEHOLDER_PLAYERS, PSM_SINGLE_CHAR, PSM_SINGLE_LINE, SEPARATOR_PLAYER
 import { Category } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
-import { getCharListPosition, getCharListTime, getCharListUsername } from './charList';
+import { getCharListFromUsernames, getCharListPosition, getCharListTime } from './charList';
 import { numberRange } from './number';
 import { isChromeUA, isFirefoxUA, isMobileUA } from './userAgent';
 
@@ -102,8 +102,9 @@ const getPositionString = (position: number) => {
   return `${position}th`;
 };
 
-const getParams = (category: Category) => {
+const getParams = (category: Category, players: string[], cpuPlayers: string[], includeCpuPlayers: boolean) => {
   const { Position, Time, Username } = Category;
+  const charList = getCharListFromUsernames(players, cpuPlayers, includeCpuPlayers);
 
   switch (category) {
     case Position:
@@ -114,7 +115,7 @@ const getParams = (category: Category) => {
 
     case Username:
       return {
-        tessedit_char_whitelist: getCharListUsername(),
+        tessedit_char_whitelist: charList,
         tessedit_pageseg_mode: PSM_SINGLE_LINE as any
       };
 
