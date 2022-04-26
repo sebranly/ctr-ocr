@@ -42,8 +42,7 @@ const createLorenziTeams = (races: Result[][], playerTeams: Record<string, strin
 
     Object.keys(playerTeams).forEach((player: string) => {
       if (playerTeams[player] === team) {
-        const pointsLine = playersPoints[player];
-
+        const pointsLine = playersPoints[player] || [];
         const line = `${player} ${pointsLine.join(SEPARATOR_PLAYERS_LORENZI)}`;
 
         teamPlayersLines.push(line);

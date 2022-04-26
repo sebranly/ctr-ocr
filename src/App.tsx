@@ -51,9 +51,10 @@ import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } f
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
 import { createArraySameValue, isEqual } from './utils/array';
-import { createLorenzi } from './utils/lorenzi';
+import { createLorenzi, getInitialLorenziTeams } from './utils/lorenzi';
 import { Footer } from './components/Footer';
 import { BasicMsg } from './components/BasicMsg';
+import { LorenziVisual } from './components/LorenziVisual';
 
 const App = () => {
   const renderProgressBar = () => {
@@ -322,7 +323,7 @@ const App = () => {
           <>
             <CopyToClipboard options={{ message: '' }} text={lorenzi} onCopy={() => setCopiedLorenzi(true)}>
               <button disabled={lorenzi === '' || copiedLorenzi} className="mt">
-                {copiedLorenzi ? 'Copied' : 'Copy to clipboard'}
+                {copiedLorenzi ? 'Copied' : 'Copy Lorenzi to clipboard'}
               </button>
             </CopyToClipboard>
             <a
@@ -334,6 +335,7 @@ const App = () => {
             >
               Go to Lorenzi Table
             </a>
+            <LorenziVisual lorenziTeams={lorenziTeams} />
             <textarea className={`textarea-${classPlatform}`} disabled={true} rows={rowsLorenzi} value={lorenzi} />
           </>
         )}
@@ -920,6 +922,7 @@ const App = () => {
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
+    setLorenziTeams(getInitialLorenziTeams(INITIAL_TEAMS_NB));
     setPlayerTeams({});
   };
 
@@ -957,6 +960,7 @@ const App = () => {
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
+    setLorenziTeams(getInitialLorenziTeams(INITIAL_TEAMS_NB));
     setPlayerTeams({});
   };
 
@@ -967,6 +971,7 @@ const App = () => {
 
     setNbTeams(newNbTeams);
     setTeams(teamNames);
+    setLorenziTeams(getInitialLorenziTeams(newNbTeams));
     setPlayerTeams({});
 
     setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
