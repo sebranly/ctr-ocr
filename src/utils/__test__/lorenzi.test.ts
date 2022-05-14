@@ -12,6 +12,7 @@ const lorenziTeams2: LorenziTeam[] = [
   { name: 'First team', color: '#aaaaaa' },
   { name: 'Second team', color: '#bbbbbb' }
 ];
+
 const lorenziTeams4: LorenziTeam[] = [
   ...lorenziTeams2,
   { name: 'Third team', color: '#cccccc' },
@@ -120,6 +121,7 @@ test('createLorenzi', () => {
     true,
     lorenziTeams2
   );
+
   const [title, date, emptyLine, ...rest] = results;
 
   expect(title).toBe('#title Title');
