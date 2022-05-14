@@ -1,8 +1,8 @@
 import { getColorHexadecimalTeam } from '.';
 import { SEPARATOR_PLAYERS_LORENZI } from '../constants';
-import { Result } from '../types';
+import { LorenziTeam, Result } from '../types';
 import { formatDate } from './date';
-import { cleanString } from './string';
+import { numberRange } from './number';
 
 const createLorenzi = (
   races: Result[][],
@@ -10,29 +10,46 @@ const createLorenzi = (
   nbTeams: number,
   nbPlayers: number,
   teams: string[],
-  includeCpuPlayers: boolean
+  includeCpuPlayers: boolean,
+  lorenziTeams: LorenziTeam[]
 ) => {
   // Presence of CPUs currently means there is no team
   const isFFA = includeCpuPlayers || nbTeams === nbPlayers;
 
   if (isFFA) return createLorenziFFA(races);
 
-  return createLorenziTeams(races, playerTeams, teams);
+  return createLorenziTeams(races, playerTeams, teams, lorenziTeams);
 };
 
-const createLorenziTeams = (races: Result[][], playerTeams: Record<string, string>, teams: string[]) => {
+const getInitialLorenziTeams = (nbTeams: number) => {
+  if (nbTeams === 0) return [];
+
+  const initialLorenziTeams: LorenziTeam[] = numberRange(0, nbTeams - 1).map((n: number) => {
+    return { name: `Team ${n + 1}`, color: getColorHexadecimalTeam(n) };
+  });
+
+  return initialLorenziTeams;
+};
+
+const createLorenziTeams = (
+  races: Result[][],
+  playerTeams: Record<string, string>,
+  teams: string[],
+  lorenziTeams: LorenziTeam[]
+) => {
   const playersPoints = createLorenziPlayersPoints(races);
 
   const teamPlayersLines: string[] = [];
 
   teams.forEach((team: string, indexTeam: number) => {
-    const teamLine = `${cleanString(team)} ${getColorHexadecimalTeam(indexTeam)}`;
+    const lorenziTeam = lorenziTeams[indexTeam];
+    const { color, name } = lorenziTeam;
+    const teamLine = `${name} ${color}`;
     teamPlayersLines.push(teamLine);
 
     Object.keys(playerTeams).forEach((player: string) => {
       if (playerTeams[player] === team) {
-        const pointsLine = playersPoints[player];
-
+        const pointsLine = playersPoints[player] || [];
         const line = `${player} ${pointsLine.join(SEPARATOR_PLAYERS_LORENZI)}`;
 
         teamPlayersLines.push(line);
@@ -91,4 +108,11 @@ const createLorenziFFA = (races: Result[][]) => {
   return [...createLorenziIntro(), '', ...playersLines];
 };
 
-export { createLorenzi, createLorenziFFA, createLorenziTeams, createLorenziIntro, createLorenziPlayersPoints };
+export {
+  createLorenzi,
+  createLorenziFFA,
+  createLorenziTeams,
+  createLorenziIntro,
+  createLorenziPlayersPoints,
+  getInitialLorenziTeams
+};

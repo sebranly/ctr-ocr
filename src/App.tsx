@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import { createWorker, createScheduler } from 'tesseract.js';
-import { Category, Progress, Result, Sign } from './types';
+import { Category, LorenziTeam, Progress, Result, Sign } from './types';
 import getColors from 'get-image-colors';
 import Jimp from 'jimp';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -51,9 +51,10 @@ import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } f
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
 import { createArraySameValue, isEqual } from './utils/array';
-import { createLorenzi } from './utils/lorenzi';
+import { createLorenzi, getInitialLorenziTeams } from './utils/lorenzi';
 import { Footer } from './components/Footer';
 import { BasicMsg } from './components/BasicMsg';
+import { LorenziVisual } from './components/LorenziVisual';
 
 const App = () => {
   const renderProgressBar = () => {
@@ -322,7 +323,7 @@ const App = () => {
           <>
             <CopyToClipboard options={{ message: '' }} text={lorenzi} onCopy={() => setCopiedLorenzi(true)}>
               <button disabled={lorenzi === '' || copiedLorenzi} className="mt">
-                {copiedLorenzi ? 'Copied' : 'Copy to clipboard'}
+                {copiedLorenzi ? 'Copied' : 'Copy Lorenzi to clipboard'}
               </button>
             </CopyToClipboard>
             <a
@@ -334,6 +335,9 @@ const App = () => {
             >
               Go to Lorenzi Table
             </a>
+            {!includeCpuPlayers && !isFFA && (
+              <LorenziVisual lorenziTeams={lorenziTeams} setLorenziTeams={setLorenziTeams} />
+            )}
             <textarea className={`textarea-${classPlatform}`} disabled={true} rows={rowsLorenzi} value={lorenzi} />
           </>
         )}
@@ -815,7 +819,7 @@ const App = () => {
             points: pointsScheme[playerIndex]
           };
 
-          csv.push([result.username, result.rawUsername, result.distanceUsername]);
+          csv.push([result.username, result.rawUsername ?? '', result.distanceUsername ?? result.username.length]);
 
           dataResults.push(result);
         });
@@ -863,6 +867,7 @@ const App = () => {
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
   const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAMS_NB));
+  const [lorenziTeams, setLorenziTeams] = React.useState<LorenziTeam[]>(getInitialLorenziTeams(INITIAL_TEAMS_NB));
   const [nbTeams, setNbTeams] = React.useState(INITIAL_TEAMS_NB);
   const [playerTeams, setPlayerTeams] = React.useState<Record<string, string>>({});
   const [indexRace, setIndexRace] = React.useState(0);
@@ -900,12 +905,20 @@ const App = () => {
 
   React.useEffect(() => {
     if (resultsOcr && resultsOcr.length > 0) {
-      const newLorenzi = createLorenzi(resultsOcr, playerTeams, nbTeams, nbPlayers, teams, includeCpuPlayers);
+      const newLorenzi = createLorenzi(
+        resultsOcr,
+        playerTeams,
+        nbTeams,
+        nbPlayers,
+        teams,
+        includeCpuPlayers,
+        lorenziTeams
+      );
 
       setLorenzi(newLorenzi.join('\n'));
       setCopiedLorenzi(false);
     }
-  }, [resultsOcr]);
+  }, [resultsOcr, lorenziTeams]);
 
   React.useEffect(() => {
     if (shouldIncludeCpuPlayers && !includeCpuPlayers) {
@@ -919,6 +932,7 @@ const App = () => {
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
+    setLorenziTeams(getInitialLorenziTeams(INITIAL_TEAMS_NB));
     setPlayerTeams({});
   };
 
@@ -956,6 +970,7 @@ const App = () => {
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
+    setLorenziTeams(getInitialLorenziTeams(INITIAL_TEAMS_NB));
     setPlayerTeams({});
   };
 
@@ -966,6 +981,7 @@ const App = () => {
 
     setNbTeams(newNbTeams);
     setTeams(teamNames);
+    setLorenziTeams(getInitialLorenziTeams(newNbTeams));
     setPlayerTeams({});
 
     setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));

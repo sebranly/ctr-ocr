@@ -17,6 +17,11 @@ export type Validation = {
   isWarning?: boolean;
 };
 
+export type LorenziTeam = {
+  name: string;
+  color: string;
+};
+
 export type Coord = {
   height: number;
   left: number;
@@ -27,9 +32,9 @@ export type Coord = {
 export type Result = {
   username: string;
   position: number;
-  distanceUsername: number;
+  distanceUsername?: number;
   points: number;
-  rawUsername: string;
+  rawUsername?: string;
 };
 
 export enum Sign {
