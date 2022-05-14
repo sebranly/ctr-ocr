@@ -48,6 +48,19 @@ const race8P: Result[][] = [
   ]
 ];
 
+const wrongRace8P: Result[][] = [
+  [
+    { username: 'a', position: 1, points: 20 },
+    { username: 'a', position: 2, points: 19 },
+    { username: 'a', position: 3, points: 18 },
+    { username: 'a', position: 4, points: 17 },
+    { username: 'a', position: 5, points: 16 },
+    { username: 'a', position: 6, points: 15 },
+    { username: 'a', position: 7, points: 14 },
+    { username: 'a', position: 8, points: 13 }
+  ]
+];
+
 const playerTeams4v4 = {
   a: 'Team 1',
   b: 'Team 1',
@@ -197,6 +210,10 @@ test('createLorenziTeams', () => {
     'g 14|11',
     ''
   ]);
+
+  // Unit test against join error due to any typing
+  results = createLorenziTeams(wrongRace8P, playerTeamsDuo, ['Team 1', 'Team 2', 'Team 3', 'Team 4']);
+  expect(results).toHaveLength(19);
 });
 
 test('createLorenziFFA', () => {
