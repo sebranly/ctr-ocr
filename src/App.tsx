@@ -335,7 +335,9 @@ const App = () => {
             >
               Go to Lorenzi Table
             </a>
-            <LorenziVisual lorenziTeams={lorenziTeams} />
+            {!includeCpuPlayers && !isFFA && (
+              <LorenziVisual lorenziTeams={lorenziTeams} setLorenziTeams={setLorenziTeams} />
+            )}
             <textarea className={`textarea-${classPlatform}`} disabled={true} rows={rowsLorenzi} value={lorenzi} />
           </>
         )}
@@ -903,12 +905,20 @@ const App = () => {
 
   React.useEffect(() => {
     if (resultsOcr && resultsOcr.length > 0) {
-      const newLorenzi = createLorenzi(resultsOcr, playerTeams, nbTeams, nbPlayers, teams, includeCpuPlayers);
+      const newLorenzi = createLorenzi(
+        resultsOcr,
+        playerTeams,
+        nbTeams,
+        nbPlayers,
+        teams,
+        includeCpuPlayers,
+        lorenziTeams
+      );
 
       setLorenzi(newLorenzi.join('\n'));
       setCopiedLorenzi(false);
     }
-  }, [resultsOcr]);
+  }, [resultsOcr, lorenziTeams]);
 
   React.useEffect(() => {
     if (shouldIncludeCpuPlayers && !includeCpuPlayers) {

@@ -1,4 +1,4 @@
-import { Result } from '../../types';
+import { LorenziTeam, Result } from '../../types';
 import {
   createLorenzi,
   createLorenziFFA,
@@ -7,6 +7,16 @@ import {
   createLorenziTeams,
   getInitialLorenziTeams
 } from '../lorenzi';
+
+const lorenziTeams2: LorenziTeam[] = [
+  { name: 'First team', color: '#aaaaaa' },
+  { name: 'Second team', color: '#bbbbbb' }
+];
+const lorenziTeams4: LorenziTeam[] = [
+  ...lorenziTeams2,
+  { name: 'Third team', color: '#cccccc' },
+  { name: 'Fourth team', color: '#dddddd' }
+];
 
 const races: Result[][] = [
   [
@@ -101,7 +111,15 @@ test('getInitialLorenziTeams', () => {
 test('createLorenzi', () => {
   let results: string[];
 
-  results = createLorenzi(races, { a: 'Team 1', b: 'Team 1', c: 'Team 2' }, 2, 3, ['Team 1', 'Team 2'], true);
+  results = createLorenzi(
+    races,
+    { a: 'Team 1', b: 'Team 1', c: 'Team 2' },
+    2,
+    3,
+    ['Team 1', 'Team 2'],
+    true,
+    lorenziTeams2
+  );
   const [title, date, emptyLine, ...rest] = results;
 
   expect(title).toBe('#title Title');
@@ -109,7 +127,7 @@ test('createLorenzi', () => {
   expect(emptyLine).toBe('');
   expect(rest).toStrictEqual(['a 10|4|3', 'b 9|5|2', 'c 8|3|0']);
 
-  results = createLorenzi(races, {}, 3, 3, [], false);
+  results = createLorenzi(races, {}, 3, 3, [], false, []);
   const [titleBis, dateBis, emptyLineBis, ...restBis] = results;
 
   expect(titleBis).toBe('#title Title');
@@ -117,20 +135,20 @@ test('createLorenzi', () => {
   expect(emptyLineBis).toBe('');
   expect(restBis).toStrictEqual(['a 10|4|3', 'b 9|5|2', 'c 8|3|0']);
 
-  results = createLorenzi(race8P, playerTeams4v4, 2, 8, ['Team 1', 'Team 2'], false);
+  results = createLorenzi(race8P, playerTeams4v4, 2, 8, ['Team 1', 'Team 2'], false, lorenziTeams2);
   const [titleQuatuor, dateQuatuor, emptyLineQuatuor, ...restQuatuor] = results;
 
   expect(titleQuatuor).toBe('#title Title');
   expect(dateQuatuor.startsWith('#date 20')).toBe(true);
   expect(emptyLineQuatuor).toBe('');
   expect(restQuatuor).toStrictEqual([
-    'Team1 #33CCFF',
+    'First team #aaaaaa',
     'a 20|5',
     'b 19|6',
     'g 14|11',
     'h 13|12',
     '',
-    'Team2 #FF4040',
+    'Second team #bbbbbb',
     'c 18|7',
     'd 17|8',
     'e 16|9',
@@ -138,26 +156,26 @@ test('createLorenzi', () => {
     ''
   ]);
 
-  results = createLorenzi(race8P, playerTeamsDuo, 4, 8, ['Team 1', 'Team 2', 'Team 3', 'Team 4'], false);
+  results = createLorenzi(race8P, playerTeamsDuo, 4, 8, ['Team 1', 'Team 2', 'Team 3', 'Team 4'], false, lorenziTeams4);
   const [titleDuo, dateDuo, emptyLineDuo, ...restDuo] = results;
 
   expect(titleDuo).toBe('#title Title');
   expect(dateDuo.startsWith('#date 20')).toBe(true);
   expect(emptyLineDuo).toBe('');
   expect(restDuo).toStrictEqual([
-    'Team1 #33CCFF',
+    'First team #aaaaaa',
     'a 20|5',
     'h 13|12',
     '',
-    'Team2 #FF4040',
+    'Second team #bbbbbb',
     'c 18|7',
     'e 16|9',
     '',
-    'Team3 #008000',
+    'Third team #cccccc',
     'b 19|6',
     'f 15|10',
     '',
-    'Team4 #FFA500',
+    'Fourth team #dddddd',
     'd 17|8',
     'g 14|11',
     ''
@@ -165,20 +183,20 @@ test('createLorenzi', () => {
 });
 
 test('createLorenziTeams', () => {
-  let results = createLorenziTeams(race8P, playerTeams4v4, ['Team 1', 'Team 2']);
+  let results = createLorenziTeams(race8P, playerTeams4v4, ['Team 1', 'Team 2'], lorenziTeams2);
   const [titleQuatuor, dateQuatuor, emptyLineQuatuor, ...restQuatuor] = results;
 
   expect(titleQuatuor).toBe('#title Title');
   expect(dateQuatuor.startsWith('#date 20')).toBe(true);
   expect(emptyLineQuatuor).toBe('');
   expect(restQuatuor).toStrictEqual([
-    'Team1 #33CCFF',
+    'First team #aaaaaa',
     'a 20|5',
     'b 19|6',
     'g 14|11',
     'h 13|12',
     '',
-    'Team2 #FF4040',
+    'Second team #bbbbbb',
     'c 18|7',
     'd 17|8',
     'e 16|9',
@@ -186,33 +204,33 @@ test('createLorenziTeams', () => {
     ''
   ]);
 
-  results = createLorenziTeams(race8P, playerTeamsDuo, ['Team 1', 'Team 2', 'Team 3', 'Team 4']);
+  results = createLorenziTeams(race8P, playerTeamsDuo, ['Team 1', 'Team 2', 'Team 3', 'Team 4'], lorenziTeams4);
   const [titleDuo, dateDuo, emptyLineDuo, ...restDuo] = results;
 
   expect(titleDuo).toBe('#title Title');
   expect(dateDuo.startsWith('#date 20')).toBe(true);
   expect(emptyLineDuo).toBe('');
   expect(restDuo).toStrictEqual([
-    'Team1 #33CCFF',
+    'First team #aaaaaa',
     'a 20|5',
     'h 13|12',
     '',
-    'Team2 #FF4040',
+    'Second team #bbbbbb',
     'c 18|7',
     'e 16|9',
     '',
-    'Team3 #008000',
+    'Third team #cccccc',
     'b 19|6',
     'f 15|10',
     '',
-    'Team4 #FFA500',
+    'Fourth team #dddddd',
     'd 17|8',
     'g 14|11',
     ''
   ]);
 
   // Unit test against join error due to any typing
-  results = createLorenziTeams(wrongRace8P, playerTeamsDuo, ['Team 1', 'Team 2', 'Team 3', 'Team 4']);
+  results = createLorenziTeams(wrongRace8P, playerTeamsDuo, ['Team 1', 'Team 2', 'Team 3', 'Team 4'], lorenziTeams4);
   expect(results).toHaveLength(19);
 });
 
