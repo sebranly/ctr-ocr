@@ -1,6 +1,9 @@
 import { CTR_MAX_PLAYERS } from '../constants';
 import { createArraySameValue } from './array';
 
+/**
+ * Points generated here should be absolute values
+ */
 const getPointsScheme = (nbPlayers: number, nbTeams: number, isRanked: boolean, isDoubleRush: boolean) => {
   const pointsScheme: number[] = [];
   const isFFA = nbTeams === nbPlayers;
