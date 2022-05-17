@@ -5,6 +5,7 @@ import { createArraySameValue, isEqual } from '../utils/array';
 import { getAbsolutePointsScheme } from '../utils/points';
 
 export interface PresetButtonProps {
+  className?: string;
   name: string;
   isDisabledUI: boolean;
   pointsScheme: number[];
@@ -18,6 +19,7 @@ export interface PresetButtonProps {
 
 const PresetButton: React.FC<PresetButtonProps> = (props) => {
   const {
+    className,
     isDisabledUI,
     isDoubleRush,
     isRanked,
@@ -27,10 +29,13 @@ const PresetButton: React.FC<PresetButtonProps> = (props) => {
     setAbsolutePointsScheme,
     setSignPointsScheme
   } = props;
+
   const newAbsolutePointsScheme = getAbsolutePointsScheme(nbPlayers, nbTeams, isRanked, isDoubleRush);
   const isSamePreset = isEqual(pointsScheme.slice(0, nbPlayers), newAbsolutePointsScheme.slice(0, nbPlayers));
+
   return (
     <button
+      className={className}
       onClick={() => {
         setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
         setAbsolutePointsScheme(newAbsolutePointsScheme);
