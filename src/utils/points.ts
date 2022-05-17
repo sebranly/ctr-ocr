@@ -20,12 +20,6 @@ const getAbsolutePointsScheme = (nbPlayers: number, nbTeams: number, isRanked: b
   else if (isRanked) {
     if (isFFA) {
       switch (nbPlayers) {
-        case 0:
-          pointsScheme.push(...([] as number[]));
-          break;
-        case 1:
-          pointsScheme.push(...[0]);
-          break;
         case 2:
           pointsScheme.push(...[3, 1]);
           break;
@@ -46,6 +40,8 @@ const getAbsolutePointsScheme = (nbPlayers: number, nbTeams: number, isRanked: b
           break;
         case 8:
           pointsScheme.push(...[9, 8, 7, 5, 4, 3, 2, 1]);
+          break;
+        default:
           break;
       }
     } else if (isDuo) {
@@ -68,8 +64,7 @@ const getAbsolutePointsScheme = (nbPlayers: number, nbTeams: number, isRanked: b
 
   const slicedPointsScheme = pointsScheme.slice(0, nbPlayers);
   const lengthDiff = CTR_MAX_PLAYERS - slicedPointsScheme.length;
-  if (lengthDiff < 0) return slicedPointsScheme;
-  else if (lengthDiff === 0) return slicedPointsScheme;
+  if (lengthDiff <= 0) return slicedPointsScheme;
   else {
     const remaining = createArraySameValue(lengthDiff, 0) as number[];
     return [...slicedPointsScheme, ...remaining];
