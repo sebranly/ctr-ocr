@@ -4,7 +4,7 @@ import { createArraySameValue } from './array';
 /**
  * Points generated here should be absolute values
  */
-const getPointsScheme = (nbPlayers: number, nbTeams: number, isRanked: boolean, isDoubleRush: boolean) => {
+const getAbsolutePointsScheme = (nbPlayers: number, nbTeams: number, isRanked: boolean, isDoubleRush: boolean) => {
   const pointsScheme: number[] = [];
   const isFFA = nbTeams === nbPlayers;
 
@@ -76,4 +76,4 @@ const getPointsScheme = (nbPlayers: number, nbTeams: number, isRanked: boolean, 
   }
 };
 
-export { getPointsScheme };
+export { getAbsolutePointsScheme };
