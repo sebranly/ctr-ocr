@@ -48,12 +48,12 @@ import { logMsg, logTable, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
-import { createArraySameValue, isEqual } from './utils/array';
+import { createArraySameValue } from './utils/array';
 import { createLorenzi, getInitialLorenziTeams } from './utils/lorenzi';
 import { Footer } from './components/Footer';
 import { BasicMsg } from './components/BasicMsg';
 import { LorenziVisual } from './components/LorenziVisual';
-import { PresetButton, PresetButtonProps } from './components/PresetButton';
+import { PresetButton } from './components/PresetButton';
 import { getAbsolutePointsScheme } from './utils/points';
 
 const App = () => {
@@ -1003,14 +1003,11 @@ const App = () => {
   const onChangeNbTeams = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newNbTeams = Number(e.target.value);
     const teamNames = getTeamNames(newNbTeams);
-    const isFFA = newNbTeams === nbPlayers;
 
     setNbTeams(newNbTeams);
     setTeams(teamNames);
     setLorenziTeams(getInitialLorenziTeams(newNbTeams));
     setPlayerTeams({});
-
-    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
   };
 
   const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -1059,7 +1056,6 @@ const App = () => {
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.checked;
     setIncludeCpuPlayers(newVal);
-    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
   };
 
   const optionsNbTeams = getOptionsTeams(nbPlayers);

@@ -5,7 +5,7 @@ NodeList [
   <button
     class="ml"
   >
-    FFA preset
+    Some preset
   </button>,
 ]
 `;

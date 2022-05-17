@@ -23,6 +23,7 @@ const PresetButton: React.FC<PresetButtonProps> = (props) => {
     isDisabledUI,
     isDoubleRush,
     isRanked,
+    name,
     nbPlayers,
     nbTeams,
     pointsScheme,
@@ -42,7 +43,7 @@ const PresetButton: React.FC<PresetButtonProps> = (props) => {
       }}
       disabled={isDisabledUI || isSamePreset}
     >
-      FFA preset
+      {name}
     </button>
   );
 };
