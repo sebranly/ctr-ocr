@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PresetButton 1`] = `
+NodeList [
+  <button
+    class="ml"
+  >
+    Some preset
+  </button>,
+]
+`;

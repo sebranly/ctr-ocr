@@ -21,15 +21,13 @@ import {
 } from './constants/general';
 import {
   CTR_MAX_PLAYERS,
-  FFA_POINTS_SCHEME,
   INITIAL_TEAMS_NB,
   LORENZI_TABLE_URL,
   MAX_HEIGHT_IMG,
   MIME_JPEG,
   MIME_PNG,
   OCR_LANGUAGE,
-  PLACEHOLDER_CPUS,
-  WAR_POINTS_SCHEME
+  PLACEHOLDER_CPUS
 } from './constants';
 import { cleanString, getClosestString, getEditDistance, sortCaseInsensitive } from './utils/string';
 import {
@@ -50,11 +48,13 @@ import { logMsg, logTable, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
 import UAParser from 'ua-parser-js';
-import { createArraySameValue, isEqual } from './utils/array';
+import { createArraySameValue } from './utils/array';
 import { createLorenzi, getInitialLorenziTeams } from './utils/lorenzi';
 import { Footer } from './components/Footer';
 import { BasicMsg } from './components/BasicMsg';
 import { LorenziVisual } from './components/LorenziVisual';
+import { PresetButton } from './components/PresetButton';
+import { getAbsolutePointsScheme } from './utils/points';
 
 const App = () => {
   const renderProgressBar = () => {
@@ -357,38 +357,62 @@ const App = () => {
   const renderPointsSchemeMainSection = () => {
     if (issueOnTeams) return null;
 
-    const isFFASetup = isEqual(pointsScheme.slice(0, nbPlayers), FFA_POINTS_SCHEME.slice(0, nbPlayers));
-    const isWarSetup = isEqual(pointsScheme.slice(0, nbPlayers), WAR_POINTS_SCHEME.slice(0, nbPlayers));
-
     return (
       <>
         <h3>Points</h3>
         <BasicMsg msg="Choose a preset or edit each value individually for something more custom" />
-        <div className="mb">
-          <button
-            onClick={() => {
-              setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
-              setAbsolutePointsScheme(FFA_POINTS_SCHEME);
-            }}
-            disabled={disabledUI || isFFASetup}
-          >
-            FFA preset
-          </button>
-
-          <button
-            className="ml"
-            onClick={() => {
-              setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
-              setAbsolutePointsScheme(WAR_POINTS_SCHEME);
-            }}
-            disabled={disabledUI || isWarSetup}
-          >
-            WAR preset
-          </button>
-        </div>
+        {renderPresets()}
         {renderPointsSchemeSection()}
         {!validationPointsScheme.correct && <div className="red">{validationPointsScheme.errMsg}</div>}
       </>
+    );
+  };
+
+  const renderPresets = () => {
+    const commonProps = {
+      isDisabledUI: disabledUI,
+      nbPlayers,
+      pointsScheme,
+      setAbsolutePointsScheme,
+      setSignPointsScheme
+    };
+
+    return (
+      <div className="mb">
+        <PresetButton name="Ranked FFA" isRanked={true} isDoubleRush={false} nbTeams={nbPlayers} {...commonProps} />
+        <PresetButton
+          name="Ranked WAR"
+          className="ml"
+          isRanked={true}
+          isDoubleRush={false}
+          nbTeams={nbTeams}
+          {...commonProps}
+        />
+        <PresetButton
+          name="Casual FFA"
+          className="ml"
+          isRanked={false}
+          isDoubleRush={false}
+          nbTeams={nbPlayers}
+          {...commonProps}
+        />
+        <PresetButton
+          name="Casual WAR"
+          className="ml"
+          isRanked={false}
+          isDoubleRush={false}
+          nbTeams={nbTeams}
+          {...commonProps}
+        />
+        <PresetButton
+          name="Double Rush"
+          className="ml"
+          isRanked={false}
+          isDoubleRush={true}
+          nbTeams={nbTeams}
+          {...commonProps}
+        />
+      </div>
     );
   };
 
@@ -843,6 +867,8 @@ const App = () => {
     await schedulerUsername.terminate();
   };
 
+  const initialAbsolutePointsScheme = getAbsolutePointsScheme(CTR_MAX_PLAYERS, CTR_MAX_PLAYERS, false, false);
+
   const { width } = useWindowSize();
   const [ocrProgress, setOcrProgress] = React.useState(Progress.NotStarted);
   const [ocrProgressText, setOcrProgressText] = React.useState('');
@@ -855,8 +881,8 @@ const App = () => {
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState('');
-  const [pointsScheme, setPointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
-  const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(FFA_POINTS_SCHEME);
+  const [pointsScheme, setPointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
+  const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
   const [signPointsScheme, setSignPointsScheme] = React.useState<Sign[]>(
     createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive)
   );
@@ -977,16 +1003,11 @@ const App = () => {
   const onChangeNbTeams = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newNbTeams = Number(e.target.value);
     const teamNames = getTeamNames(newNbTeams);
-    const isFFA = newNbTeams === nbPlayers;
 
     setNbTeams(newNbTeams);
     setTeams(teamNames);
     setLorenziTeams(getInitialLorenziTeams(newNbTeams));
     setPlayerTeams({});
-
-    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
-    if (isFFA) setAbsolutePointsScheme(FFA_POINTS_SCHEME);
-    else setAbsolutePointsScheme(WAR_POINTS_SCHEME);
   };
 
   const onChangeCpuLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -1035,9 +1056,6 @@ const App = () => {
   const onCpuCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.checked;
     setIncludeCpuPlayers(newVal);
-    setSignPointsScheme(createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive));
-    if (newVal === true) setAbsolutePointsScheme(FFA_POINTS_SCHEME);
-    else setAbsolutePointsScheme(WAR_POINTS_SCHEME);
   };
 
   const optionsNbTeams = getOptionsTeams(nbPlayers);

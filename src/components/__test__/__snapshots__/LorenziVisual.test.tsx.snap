@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LorenziVisual 1`] = `
+NodeList [
+  <div
+    class="text-center mb2"
+  >
+    <div
+      class="mb"
+    >
+      <input
+        class="mr"
+        value="Team 1"
+      />
+      <input
+        class="ml"
+        type="color"
+        value="#aaaaaa"
+      />
+    </div>
+    <div
+      class="mb"
+    >
+      <input
+        class="mr"
+        value="Team 2"
+      />
+      <input
+        class="ml"
+        type="color"
+        value="#bbbbbb"
+      />
+    </div>
+  </div>,
+]
+`;
