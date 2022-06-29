@@ -37,7 +37,6 @@ import {
   getOptionsTeams,
   getParams,
   getPlayers,
-  getPlayersPlaceholder,
   getPositionString,
   getReferencePlayers,
   getTeamNames,
@@ -48,7 +47,6 @@ import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logMsg, logTable, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
-import UAParser from 'ua-parser-js';
 import { createArraySameValue } from './utils/array';
 import { createLorenzi, getInitialLorenziTeams } from './utils/lorenzi';
 import { Footer } from './components/Footer';
@@ -1077,9 +1075,6 @@ const App = () => {
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
   const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
-  const userAgent = navigator?.userAgent ?? '';
-  const userAgentResult = new UAParser(userAgent).getResult();
-  const placeholderPlayers = getPlayersPlaceholder(nbPlayers, userAgentResult);
   const isFFA = nbTeams === nbPlayers;
   const issueOnTeams = !includeCpuPlayers && !isFFA && !validationTeams.correct;
   const issueOnPointsScheme = !validationPointsScheme.correct;
@@ -1123,7 +1118,6 @@ const App = () => {
         <textarea
           className={`textarea-${classPlatform}`}
           disabled={disabledUI}
-          placeholder={placeholderPlayers}
           rows={nbPlayers}
           value={players}
           onChange={onPlayersChange}

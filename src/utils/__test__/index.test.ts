@@ -1,7 +1,6 @@
-import UAParser from 'ua-parser-js';
 import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE, TIME_DNF } from '../../constants';
 import { Category } from '../../types';
-import { getCharListPosition, getCharListTime, getCharListUsername } from '../charList';
+import { getCharListPosition, getCharListTime } from '../charList';
 import {
   convertToMs,
   formatCpuPlayers,
@@ -14,32 +13,8 @@ import {
   getReferencePlayers,
   getTeamNames,
   isHumanPlayer,
-  positionIsValid,
-  getPlayersPlaceholder
+  positionIsValid
 } from '../index';
-import { DESKTOP_CHROME, DESKTOP_FIREFOX, DESKTOP_SAFARI, IPHONE_SAFARI } from '../__mocks__/userAgent';
-
-test('getPlayersPlaceholder', () => {
-  const fullPlaceholder =
-    'ZouGui28\nNefarious_CTR\nKyo-Bomba\nWadaDim-PatroL\nHyène_JurassX\nAlexiz\nColonel_Hay\nTATANE';
-
-  expect(getPlayersPlaceholder(0, new UAParser(DESKTOP_CHROME).getResult())).toBe('');
-  expect(getPlayersPlaceholder(1, new UAParser(DESKTOP_CHROME).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(DESKTOP_CHROME).getResult())).toBe('ZouGui28\nNefarious_CTR');
-  expect(getPlayersPlaceholder(8, new UAParser(DESKTOP_CHROME).getResult())).toBe(fullPlaceholder);
-
-  expect(getPlayersPlaceholder(1, new UAParser(DESKTOP_FIREFOX).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(DESKTOP_FIREFOX).getResult())).toBe('ZouGui28\nNefarious_CTR');
-  expect(getPlayersPlaceholder(8, new UAParser(DESKTOP_FIREFOX).getResult())).toBe(fullPlaceholder);
-
-  expect(getPlayersPlaceholder(1, new UAParser(DESKTOP_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(DESKTOP_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(8, new UAParser(DESKTOP_SAFARI).getResult())).toBe('ZouGui28');
-
-  expect(getPlayersPlaceholder(1, new UAParser(IPHONE_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(IPHONE_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(8, new UAParser(IPHONE_SAFARI).getResult())).toBe('ZouGui28');
-});
 
 test('getPositionString', () => {
   expect(getPositionString(-1)).toBe('-1');
