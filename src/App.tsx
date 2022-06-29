@@ -15,6 +15,7 @@ import {
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
   GUIDE_FOLDER,
   URL_CPUS,
+  URL_HUMAN_PLAYERS,
   VIDEO_TUTORIAL,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE
@@ -697,6 +698,19 @@ const App = () => {
         setCpuData(data);
         setCpuPlayers(formatCpuPlayers((data as any)[WEBSITE_DEFAULT_LANGUAGE]));
       });
+
+    fetch(URL_HUMAN_PLAYERS)
+      .then((response) => response.json())
+      .then((data) => {
+        const { playstation, switch: nintendo, xbox } = data;
+        const newSuggestionPlayers: string[] = [];
+
+        if (playstation) newSuggestionPlayers.push(...playstation);
+        if (nintendo) newSuggestionPlayers.push(...nintendo);
+        if (xbox) newSuggestionPlayers.push(...xbox);
+
+        setSuggestionPlayers(newSuggestionPlayers);
+      });
   };
 
   const doOCR = async () => {
@@ -887,9 +901,9 @@ const App = () => {
     createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive)
   );
 
-  const [copiedPlayers, setCopiedPlayers] = React.useState(false);
   const [copiedLorenzi, setCopiedLorenzi] = React.useState(false);
   const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
+  const [suggestionPlayers, setSuggestionPlayers] = React.useState<string[]>([]);
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
   const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAMS_NB));
@@ -954,7 +968,6 @@ const App = () => {
 
   const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPlayers(e.currentTarget.value);
-    setCopiedPlayers(false);
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
@@ -1115,11 +1128,6 @@ const App = () => {
           value={players}
           onChange={onPlayersChange}
         />
-        <CopyToClipboard options={{ message: '' }} text={players} onCopy={() => setCopiedPlayers(true)}>
-          <button disabled={nbPlayersTyped === 0 || copiedPlayers} className="mt">
-            {copiedPlayers ? 'Copied' : 'Copy to clipboard'}
-          </button>
-        </CopyToClipboard>
         {renderMainSection()}
       </div>
       <Footer />
