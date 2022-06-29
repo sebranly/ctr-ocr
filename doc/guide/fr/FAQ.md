@@ -50,6 +50,10 @@ Si un joueur est déconnecté en plein jeu et remplacé par un CPU pendant une c
 
 Veuillez consulter [Images](./Images.md)
 
+## Dites-moi en plus à propos des joueurs humains
+
+Veuillez consulter [Users](./Users.md)
+
 ## Dites-moi en plus à propos des CPUs
 
 Veuillez consulter [CPUs](./CPUs.md)

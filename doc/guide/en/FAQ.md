@@ -50,6 +50,10 @@ If a user got disconnected and replaced with a bot during a race that was suppos
 
 Please see [Images](./Images.md)
 
+## Tell me more about human players
+
+Please see [Users](./Users.md)
+
 ## Tell me more about CPUs
 
 Please see [CPUs](./CPUs.md)
