@@ -190,7 +190,7 @@ const App = () => {
     };
 
     const renderOptions = () => {
-      const optionsResultsPlayerHuman = getPlayers(playersBis).sort(sortCaseInsensitive);
+      const optionsResultsPlayerHuman = getPlayers(players).sort(sortCaseInsensitive);
       if (!includeCpuPlayers) {
         return optionsResultsPlayerHuman.map(renderOption);
       }
@@ -226,7 +226,7 @@ const App = () => {
           return (
             <tr key={key}>
               <td>{getPositionString(position)}</td>
-              {includeCpuPlayers && <td>{isHumanPlayer(username, playersBis) ? '👤' : '🤖'}</td>}
+              {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
               <td>
                 <select
                   className={classesSelectPlayer}
@@ -736,12 +736,7 @@ const App = () => {
     await workerUsername.load();
     await workerUsername.loadLanguage(OCR_LANGUAGE);
     await workerUsername.initialize(OCR_LANGUAGE);
-    const usernameParams = getParams(
-      Category.Username,
-      getPlayers(playersBis),
-      getPlayers(cpuPlayers),
-      includeCpuPlayers
-    );
+    const usernameParams = getParams(Category.Username, getPlayers(players), getPlayers(cpuPlayers), includeCpuPlayers);
 
     await workerUsername.setParameters(usernameParams);
 
@@ -849,7 +844,7 @@ const App = () => {
         logMsg(resultsNames);
 
         const dataResults: Result[] = [];
-        const referencePlayers = getReferencePlayers(playersBis, cpuPlayers, includeCpuPlayers);
+        const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
         const csv: (string | number)[][] = [];
         playerIndexes.forEach((playerIndex) => {
           const playerGuess = resultsNames[playerIndex];
@@ -899,7 +894,7 @@ const App = () => {
   const [disabledUI, setDisabledUI] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
-  const [playersBis, setPlayersBis] = React.useState<string[]>(createArraySameValue(CTR_MAX_PLAYERS, ''));
+  const [players, setPlayers] = React.useState<string[]>(createArraySameValue(CTR_MAX_PLAYERS, ''));
 
   const [pointsScheme, setPointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
   const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
@@ -920,7 +915,7 @@ const App = () => {
   const [lorenzi, setLorenzi] = React.useState('');
   const [startOverConfirm, setStartOverConfirm] = React.useState(false);
 
-  const nbPlayersTyped = uniq(getPlayers(playersBis)).length;
+  const nbPlayersTyped = uniq(getPlayers(players)).length;
   const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
 
   React.useEffect(() => {
@@ -972,13 +967,12 @@ const App = () => {
     }
   }, [shouldIncludeCpuPlayers, includeCpuPlayers]);
 
-  // TODO: test this behavior
   React.useEffect(() => {
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
     setLorenziTeams(getInitialLorenziTeams(INITIAL_TEAMS_NB));
     setPlayerTeams({});
-  }, [playersBis]);
+  }, [players]);
 
   const onClickStartOver = (_e: any) => {
     setStartOverConfirm(true);
@@ -1011,12 +1005,12 @@ const App = () => {
     setNbPlayers(value);
 
     const differencePlayerCount = value - nbPlayers;
-    const newPlayersBis =
+    const newPlayers =
       differencePlayerCount > 0
-        ? [...playersBis, ...createArraySameValue(differencePlayerCount, '')]
-        : playersBis.slice(0, value);
+        ? [...players, ...createArraySameValue(differencePlayerCount, '')]
+        : players.slice(0, value);
 
-    setPlayersBis(newPlayersBis);
+    setPlayers(newPlayers);
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
@@ -1085,7 +1079,7 @@ const App = () => {
   const optionsNbTeams = getOptionsTeams(nbPlayers);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
   const classBgDisabled = disabledUI && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
-  const playersNames = uniq(getPlayers(playersBis)).sort(sortCaseInsensitive);
+  const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
   const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
   const isFFA = nbTeams === nbPlayers;
@@ -1132,8 +1126,8 @@ const App = () => {
         <UsersInputs
           isDisabledUI={disabledUI}
           suggestions={suggestionPlayers}
-          playersBis={playersBis}
-          setPlayersBis={setPlayersBis}
+          players={players}
+          setPlayers={setPlayers}
         />
         {renderMainSection()}
       </div>

@@ -1,4 +1,4 @@
-import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE, SEPARATOR_PLAYERS } from '../constants';
+import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE } from '../constants';
 import { Category } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';

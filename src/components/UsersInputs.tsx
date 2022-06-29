@@ -3,22 +3,22 @@ import * as React from 'react';
 export interface UsersInputsProps {
   isDisabledUI: boolean;
   suggestions: string[];
-  playersBis: string[];
-  setPlayersBis: React.Dispatch<React.SetStateAction<string[]>>;
+  players: string[];
+  setPlayers: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const UsersInputs: React.FC<UsersInputsProps> = (props) => {
-  const { isDisabledUI, playersBis, setPlayersBis, suggestions } = props;
+  const { isDisabledUI, players, setPlayers, suggestions } = props;
 
   const onChangeInput = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (playersBis.length <= index) return;
+    if (players.length <= index) return;
 
     const { value } = e.currentTarget;
-    const newPlayersBis = [...playersBis];
+    const newPlayers = [...players];
 
-    newPlayersBis[index] = value;
+    newPlayers[index] = value;
 
-    setPlayersBis(newPlayersBis);
+    setPlayers(newPlayers);
   };
 
   const renderUserInput = (index: number) => {
@@ -30,7 +30,7 @@ const UsersInputs: React.FC<UsersInputsProps> = (props) => {
           disabled={isDisabledUI}
           list={datalistIdString}
           onChange={onChangeInput(index)}
-          value={playersBis[index] || ''}
+          value={players[index] || ''}
         />
         {renderDatalist(index)}
       </div>
@@ -48,7 +48,7 @@ const UsersInputs: React.FC<UsersInputsProps> = (props) => {
     );
   };
 
-  return <div>{playersBis.map((_playerBis, index) => renderUserInput(index))}</div>;
+  return <div>{players.map((_players, index) => renderUserInput(index))}</div>;
 };
 
 export { UsersInputs };

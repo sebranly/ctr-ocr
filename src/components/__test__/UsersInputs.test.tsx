@@ -7,8 +7,8 @@ test('UsersInputs', () => {
   const createComponent = () => (
     <UsersInputs
       isDisabledUI={false}
-      playersBis={['player1', 'player2', 'player3']}
-      setPlayersBis={() => {}}
+      players={['player1', 'player2', 'player3']}
+      setPlayers={() => {}}
       suggestions={['someone', 'else']}
     />
   );
