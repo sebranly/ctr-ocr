@@ -1,7 +1,6 @@
-import UAParser from 'ua-parser-js';
 import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE, TIME_DNF } from '../../constants';
 import { Category } from '../../types';
-import { getCharListPosition, getCharListTime, getCharListUsername } from '../charList';
+import { getCharListPosition, getCharListTime } from '../charList';
 import {
   convertToMs,
   formatCpuPlayers,
@@ -14,32 +13,8 @@ import {
   getReferencePlayers,
   getTeamNames,
   isHumanPlayer,
-  positionIsValid,
-  getPlayersPlaceholder
+  positionIsValid
 } from '../index';
-import { DESKTOP_CHROME, DESKTOP_FIREFOX, DESKTOP_SAFARI, IPHONE_SAFARI } from '../__mocks__/userAgent';
-
-test('getPlayersPlaceholder', () => {
-  const fullPlaceholder =
-    'ZouGui28\nNefarious_CTR\nKyo-Bomba\nWadaDim-PatroL\nHyène_JurassX\nAlexiz\nColonel_Hay\nTATANE';
-
-  expect(getPlayersPlaceholder(0, new UAParser(DESKTOP_CHROME).getResult())).toBe('');
-  expect(getPlayersPlaceholder(1, new UAParser(DESKTOP_CHROME).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(DESKTOP_CHROME).getResult())).toBe('ZouGui28\nNefarious_CTR');
-  expect(getPlayersPlaceholder(8, new UAParser(DESKTOP_CHROME).getResult())).toBe(fullPlaceholder);
-
-  expect(getPlayersPlaceholder(1, new UAParser(DESKTOP_FIREFOX).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(DESKTOP_FIREFOX).getResult())).toBe('ZouGui28\nNefarious_CTR');
-  expect(getPlayersPlaceholder(8, new UAParser(DESKTOP_FIREFOX).getResult())).toBe(fullPlaceholder);
-
-  expect(getPlayersPlaceholder(1, new UAParser(DESKTOP_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(DESKTOP_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(8, new UAParser(DESKTOP_SAFARI).getResult())).toBe('ZouGui28');
-
-  expect(getPlayersPlaceholder(1, new UAParser(IPHONE_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(2, new UAParser(IPHONE_SAFARI).getResult())).toBe('ZouGui28');
-  expect(getPlayersPlaceholder(8, new UAParser(IPHONE_SAFARI).getResult())).toBe('ZouGui28');
-});
 
 test('getPositionString', () => {
   expect(getPositionString(-1)).toBe('-1');
@@ -117,37 +92,37 @@ test('getOptionsTeams', () => {
 });
 
 test('isHumanPlayer', () => {
-  expect(isHumanPlayer('bonjour', '')).toBe(false);
-  expect(isHumanPlayer('bonjour', 'bonjour')).toBe(true);
-  expect(isHumanPlayer('bonjour', 'bonsoir')).toBe(false);
-  expect(isHumanPlayer('bonjour', 'bonsoir\nbonjour')).toBe(true);
+  expect(isHumanPlayer('bonjour', [''])).toBe(false);
+  expect(isHumanPlayer('bonjour', ['bonjour'])).toBe(true);
+  expect(isHumanPlayer('bonjour', ['bonsoir'])).toBe(false);
+  expect(isHumanPlayer('bonjour', ['bonsoir', 'bonjour'])).toBe(true);
 });
 
 test('formatCpuPlayers', () => {
-  expect(formatCpuPlayers([])).toBe('');
-  expect(formatCpuPlayers(['', ''])).toBe('');
-  expect(formatCpuPlayers(['bonjour', ''])).toBe('bonjour');
-  expect(formatCpuPlayers(['bonjour', 'bonsoir'])).toBe('bonjour\nbonsoir');
-  expect(formatCpuPlayers(['bonsoir', 'bonjour'])).toBe('bonjour\nbonsoir');
+  expect(formatCpuPlayers([])).toStrictEqual([]);
+  expect(formatCpuPlayers(['', ''])).toStrictEqual([]);
+  expect(formatCpuPlayers(['bonjour', ''])).toStrictEqual(['bonjour']);
+  expect(formatCpuPlayers(['bonjour', 'bonsoir'])).toStrictEqual(['bonjour', 'bonsoir']);
+  expect(formatCpuPlayers(['bonsoir', 'bonjour'])).toStrictEqual(['bonjour', 'bonsoir']);
 });
 
 test('getPlayers', () => {
-  expect(getPlayers('')).toStrictEqual([]);
-  expect(getPlayers('some\n')).toStrictEqual(['some']);
-  expect(getPlayers('some\nelse')).toStrictEqual(['some', 'else']);
-  expect(getPlayers('some\n\n\nelse\n\n')).toStrictEqual(['some', 'else']);
+  expect(getPlayers([''])).toStrictEqual([]);
+  expect(getPlayers(['some', ''])).toStrictEqual(['some']);
+  expect(getPlayers(['some', 'else'])).toStrictEqual(['some', 'else']);
+  expect(getPlayers(['some', '', '', '', 'else', '', ''])).toStrictEqual(['some', 'else']);
 });
 
 test('getReferencePlayers', () => {
-  expect(getReferencePlayers('', '', false)).toStrictEqual([]);
-  expect(getReferencePlayers('', '', true)).toStrictEqual([]);
-  expect(getReferencePlayers('', 'and\nelse', false)).toStrictEqual([]);
-  expect(getReferencePlayers('', 'and\nelse', true)).toStrictEqual([]);
-  expect(getReferencePlayers('some\nthing', 'and\nelse', false)).toStrictEqual(['some', 'thing']);
-  expect(getReferencePlayers('some\nthing', 'and\nelse', true)).toStrictEqual(['some', 'thing', 'and', 'else']);
-  expect(getReferencePlayers('some\nthing', '', false)).toStrictEqual(['some', 'thing']);
-  expect(getReferencePlayers('some\nthing', '', true)).toStrictEqual(['some', 'thing']);
-  expect(getReferencePlayers('some\nthing\n\nthen', 'and\n\nelse\n', true)).toStrictEqual([
+  expect(getReferencePlayers([''], [''], false)).toStrictEqual([]);
+  expect(getReferencePlayers([''], [''], true)).toStrictEqual([]);
+  expect(getReferencePlayers([''], ['and', 'else'], false)).toStrictEqual([]);
+  expect(getReferencePlayers([''], ['and', 'else'], true)).toStrictEqual([]);
+  expect(getReferencePlayers(['some', 'thing'], ['and', 'else'], false)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers(['some', 'thing'], ['and', 'else'], true)).toStrictEqual(['some', 'thing', 'and', 'else']);
+  expect(getReferencePlayers(['some', 'thing'], [''], false)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers(['some', 'thing'], [''], true)).toStrictEqual(['some', 'thing']);
+  expect(getReferencePlayers(['some', 'thing', '', 'then'], ['and', '', 'else', ''], true)).toStrictEqual([
     'some',
     'thing',
     'then',

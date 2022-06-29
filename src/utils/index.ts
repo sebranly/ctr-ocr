@@ -1,58 +1,42 @@
-import { PLACEHOLDER_PLAYERS, PSM_SINGLE_CHAR, PSM_SINGLE_LINE, SEPARATOR_PLAYERS } from '../constants';
+import { PSM_SINGLE_CHAR, PSM_SINGLE_LINE } from '../constants';
 import { Category } from '../types';
 import { REGEX_TIME } from './regEx';
 import { uniq } from 'lodash';
 import { getCharListFromUsernames, getCharListPosition, getCharListTime } from './charList';
 import { numberRange } from './number';
-import { isChromeUA, isFirefoxUA, isMobileUA } from './userAgent';
 
 const formatCpuPlayers = (cpuPlayers: string[]) => {
-  if (!cpuPlayers || cpuPlayers.length === 0) return '';
+  if (!cpuPlayers || cpuPlayers.length === 0) return [];
 
-  return cpuPlayers
-    .filter((s: string) => !!s)
-    .sort()
-    .join(SEPARATOR_PLAYERS);
+  return cpuPlayers.filter((s: string) => !!s).sort();
 };
 
-const getPlayersPlaceholder = (nbPlayers: number, userAgent: UAParser.IResult) => {
-  if (nbPlayers < 1) return '';
+const getPlayers = (players: string[]) => {
+  if (players.length === 0) return [];
 
-  const isChrome = isChromeUA(userAgent);
-  const isFirefox = isFirefoxUA(userAgent);
-  const isMobile = isMobileUA(userAgent);
-
-  const canBeMultiLine = nbPlayers > 1 && (isChrome || isFirefox) && !isMobile;
-
-  if (!canBeMultiLine) return PLACEHOLDER_PLAYERS[0];
-
-  return PLACEHOLDER_PLAYERS.slice(0, nbPlayers).join('\n');
+  return players.filter((s: string) => !!s);
 };
 
-const getPlayers = (players: string) => {
-  if (!players) return [];
+const isHumanPlayer = (player: string, humanPlayers: string[]) => {
+  const newHumanPlayers = getPlayers(humanPlayers);
 
-  return players.split(SEPARATOR_PLAYERS).filter((s: string) => !!s);
+  if (newHumanPlayers.length === 0) return false;
+
+  return newHumanPlayers.includes(player);
 };
 
-const isHumanPlayer = (player: string, humanPlayers: string) => {
-  if (!humanPlayers) return false;
+const getReferencePlayers = (humanPlayers: string[], cpuPlayers: string[], includeCpuPlayers: boolean) => {
+  const newHumanPlayers = getPlayers(humanPlayers);
 
-  const humanPlayersSplit = getPlayers(humanPlayers);
+  if (newHumanPlayers.length === 0) return [];
 
-  return humanPlayersSplit.includes(player);
-};
+  if (!includeCpuPlayers) return newHumanPlayers;
 
-const getReferencePlayers = (humanPlayers: string, cpuPlayers: string, includeCpuPlayers: boolean) => {
-  if (!humanPlayers) return [];
+  const newCpuPlayers = getPlayers(cpuPlayers);
 
-  const humanPlayersSplit = getPlayers(humanPlayers);
+  if (newCpuPlayers.length === 0) return newHumanPlayers;
 
-  if (!includeCpuPlayers || !cpuPlayers) return humanPlayersSplit;
-
-  const cpuPlayersSplit = getPlayers(cpuPlayers);
-
-  return [...humanPlayersSplit, ...cpuPlayersSplit];
+  return [...newHumanPlayers, ...newCpuPlayers];
 };
 
 const positionIsValid = (position: string, max: number) => {
@@ -188,7 +172,6 @@ export {
   formatCpuPlayers,
   getOptionsTeams,
   getPlayers,
-  getPlayersPlaceholder,
   getReferencePlayers,
   getTeamNames,
   getColorHexadecimalTeam,

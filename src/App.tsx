@@ -15,6 +15,7 @@ import {
   EXAMPLE_IMAGES_FOLDER_FULL_EVENT,
   GUIDE_FOLDER,
   URL_CPUS,
+  URL_HUMAN_PLAYERS,
   VIDEO_TUTORIAL,
   WEBSITE_DEFAULT_LANGUAGE,
   WEBSITE_TITLE
@@ -36,7 +37,6 @@ import {
   getOptionsTeams,
   getParams,
   getPlayers,
-  getPlayersPlaceholder,
   getPositionString,
   getReferencePlayers,
   getTeamNames,
@@ -47,7 +47,6 @@ import { getExtract, getMimeType, sortImagesByFilename } from './utils/image';
 import { logMsg, logTable, logTime } from './utils/log';
 import { getIncorrectRaces, validatePoints, validateTeams, validateUsernames } from './utils/validation';
 import { uniq } from 'lodash';
-import UAParser from 'ua-parser-js';
 import { createArraySameValue } from './utils/array';
 import { createLorenzi, getInitialLorenziTeams } from './utils/lorenzi';
 import { Footer } from './components/Footer';
@@ -55,6 +54,7 @@ import { BasicMsg } from './components/BasicMsg';
 import { LorenziVisual } from './components/LorenziVisual';
 import { PresetButton } from './components/PresetButton';
 import { getAbsolutePointsScheme } from './utils/points';
+import { UsersInputs } from './components/UsersInputs';
 
 const App = () => {
   const renderProgressBar = () => {
@@ -679,7 +679,7 @@ const App = () => {
               disabled={true}
               placeholder={PLACEHOLDER_CPUS}
               rows={CTR_MAX_PLAYERS}
-              value={cpuPlayers}
+              value={cpuPlayers.join('\n')}
             />
           </>
         )}
@@ -696,6 +696,19 @@ const App = () => {
       .then((data) => {
         setCpuData(data);
         setCpuPlayers(formatCpuPlayers((data as any)[WEBSITE_DEFAULT_LANGUAGE]));
+      });
+
+    fetch(URL_HUMAN_PLAYERS)
+      .then((response) => response.json())
+      .then((data) => {
+        const { playstation, switch: nintendo, xbox } = data;
+        const newSuggestionPlayers: string[] = [];
+
+        if (playstation) newSuggestionPlayers.push(...playstation);
+        if (nintendo) newSuggestionPlayers.push(...nintendo);
+        if (xbox) newSuggestionPlayers.push(...xbox);
+
+        setSuggestionPlayers(newSuggestionPlayers);
       });
   };
 
@@ -880,16 +893,17 @@ const App = () => {
   const [disabledUI, setDisabledUI] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
-  const [players, setPlayers] = React.useState('');
+  const [players, setPlayers] = React.useState<string[]>(createArraySameValue(CTR_MAX_PLAYERS, ''));
+
   const [pointsScheme, setPointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
   const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
   const [signPointsScheme, setSignPointsScheme] = React.useState<Sign[]>(
     createArraySameValue(CTR_MAX_PLAYERS, Sign.Positive)
   );
 
-  const [copiedPlayers, setCopiedPlayers] = React.useState(false);
   const [copiedLorenzi, setCopiedLorenzi] = React.useState(false);
-  const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
+  const [cpuPlayers, setCpuPlayers] = React.useState([PLACEHOLDER_CPUS]);
+  const [suggestionPlayers, setSuggestionPlayers] = React.useState<string[]>([]);
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
   const [teams, setTeams] = React.useState<string[]>(getTeamNames(INITIAL_TEAMS_NB));
@@ -952,15 +966,12 @@ const App = () => {
     }
   }, [shouldIncludeCpuPlayers, includeCpuPlayers]);
 
-  const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPlayers(e.currentTarget.value);
-    setCopiedPlayers(false);
-
+  React.useEffect(() => {
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
     setLorenziTeams(getInitialLorenziTeams(INITIAL_TEAMS_NB));
     setPlayerTeams({});
-  };
+  }, [players]);
 
   const onClickStartOver = (_e: any) => {
     setStartOverConfirm(true);
@@ -992,7 +1003,13 @@ const App = () => {
     */
     setNbPlayers(value);
 
-    setPlayers('');
+    const differencePlayerCount = value - nbPlayers;
+    const newPlayers =
+      differencePlayerCount > 0
+        ? [...players, ...createArraySameValue(differencePlayerCount, '')]
+        : players.slice(0, value);
+
+    setPlayers(newPlayers);
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
@@ -1064,9 +1081,6 @@ const App = () => {
   const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
   const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
-  const userAgent = navigator?.userAgent ?? '';
-  const userAgentResult = new UAParser(userAgent).getResult();
-  const placeholderPlayers = getPlayersPlaceholder(nbPlayers, userAgentResult);
   const isFFA = nbTeams === nbPlayers;
   const issueOnTeams = !includeCpuPlayers && !isFFA && !validationTeams.correct;
   const issueOnPointsScheme = !validationPointsScheme.correct;
@@ -1106,20 +1120,14 @@ const App = () => {
         <BasicMsg msg="This includes CPUs if any" />
         {renderNumericStepperPlayers()}
         <h3>Human Players</h3>
-        <BasicMsg msg="Type all human players present in the races. Type one username per line." />
-        <textarea
-          className={`textarea-${classPlatform}`}
-          disabled={disabledUI}
-          placeholder={placeholderPlayers}
-          rows={nbPlayers}
-          value={players}
-          onChange={onPlayersChange}
+        <BasicMsg msg="Type all human players present in the races" />
+        <BasicMsg msg="You can leave some fields blank if there were CPUs" />
+        <UsersInputs
+          isDisabledUI={disabledUI}
+          suggestions={suggestionPlayers}
+          players={players}
+          setPlayers={setPlayers}
         />
-        <CopyToClipboard options={{ message: '' }} text={players} onCopy={() => setCopiedPlayers(true)}>
-          <button disabled={nbPlayersTyped === 0 || copiedPlayers} className="mt">
-            {copiedPlayers ? 'Copied' : 'Copy to clipboard'}
-          </button>
-        </CopyToClipboard>
         {renderMainSection()}
       </div>
       <Footer />

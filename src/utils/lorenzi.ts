@@ -1,5 +1,5 @@
 import { getColorHexadecimalTeam } from '.';
-import { SEPARATOR_PLAYERS_LORENZI } from '../constants';
+import { SEPARATOR_PLAYERS } from '../constants';
 import { LorenziTeam, Result } from '../types';
 import { formatDate } from './date';
 import { numberRange } from './number';
@@ -50,7 +50,7 @@ const createLorenziTeams = (
     Object.keys(playerTeams).forEach((player: string) => {
       if (playerTeams[player] === team) {
         const pointsLine = playersPoints[player] || [];
-        const line = `${player} ${pointsLine.join(SEPARATOR_PLAYERS_LORENZI)}`;
+        const line = `${player} ${pointsLine.join(SEPARATOR_PLAYERS)}`;
 
         teamPlayersLines.push(line);
       }
@@ -100,7 +100,7 @@ const createLorenziFFA = (races: Result[][]) => {
   Object.keys(playersPoints).forEach((username: string) => {
     const playerPoints = playersPoints[username];
 
-    const line = `${username} ${playerPoints.join(SEPARATOR_PLAYERS_LORENZI)}`;
+    const line = `${username} ${playerPoints.join(SEPARATOR_PLAYERS)}`;
 
     playersLines.push(line);
   });
