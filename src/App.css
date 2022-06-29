@@ -41,6 +41,10 @@ input[type='color'] {
   vertical-align: middle;
 }
 
+.big-input {
+  font-size: 16px;
+}
+
 .ml {
   margin-left: 5px;
 }

@@ -54,6 +54,7 @@ import { BasicMsg } from './components/BasicMsg';
 import { LorenziVisual } from './components/LorenziVisual';
 import { PresetButton } from './components/PresetButton';
 import { getAbsolutePointsScheme } from './utils/points';
+import { UsersInputs } from './components/UsersInputs';
 
 const App = () => {
   const renderProgressBar = () => {
@@ -893,6 +894,11 @@ const App = () => {
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
   const [players, setPlayers] = React.useState('');
+  const [playersBis, setPlayersBis] = React.useState<string[]>(createArraySameValue(CTR_MAX_PLAYERS, ''));
+
+  // TODO: remove
+  console.log('🚀 ~ file: App.tsx ~ line 898 ~ App ~ playersBis', playersBis);
+
   const [pointsScheme, setPointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
   const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
   const [signPointsScheme, setSignPointsScheme] = React.useState<Sign[]>(
@@ -1003,7 +1009,11 @@ const App = () => {
     */
     setNbPlayers(value);
 
+    // TODO: preserve old values
+    const newPlayersBis = createArraySameValue(value, '');
+
     setPlayers('');
+    setPlayersBis(newPlayersBis);
 
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
@@ -1114,14 +1124,16 @@ const App = () => {
         <BasicMsg msg="This includes CPUs if any" />
         {renderNumericStepperPlayers()}
         <h3>Human Players</h3>
-        <BasicMsg msg="Type all human players present in the races. Type one username per line." />
+        <BasicMsg msg="Type all human players present in the races." />
+        <BasicMsg msg="You can leave some fields blank if there were CPUs." />
         <textarea
           className={`textarea-${classPlatform}`}
           disabled={disabledUI}
           rows={nbPlayers}
           value={players}
-          onChange={onPlayersChange}
+          onChange={onPlayersChange} // TODO: preserve this behavior
         />
+        <UsersInputs suggestions={suggestionPlayers} playersBis={playersBis} setPlayersBis={setPlayersBis} />
         {renderMainSection()}
       </div>
       <Footer />
