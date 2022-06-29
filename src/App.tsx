@@ -28,8 +28,7 @@ import {
   MIME_JPEG,
   MIME_PNG,
   OCR_LANGUAGE,
-  PLACEHOLDER_CPUS,
-  SEPARATOR_PLAYERS
+  PLACEHOLDER_CPUS
 } from './constants';
 import { cleanString, getClosestString, getEditDistance, sortCaseInsensitive } from './utils/string';
 import {
@@ -680,7 +679,7 @@ const App = () => {
               disabled={true}
               placeholder={PLACEHOLDER_CPUS}
               rows={CTR_MAX_PLAYERS}
-              value={cpuPlayers.join(SEPARATOR_PLAYERS)}
+              value={cpuPlayers.join('\n')}
             />
           </>
         )}
@@ -1121,8 +1120,8 @@ const App = () => {
         <BasicMsg msg="This includes CPUs if any" />
         {renderNumericStepperPlayers()}
         <h3>Human Players</h3>
-        <BasicMsg msg="Type all human players present in the races." />
-        <BasicMsg msg="You can leave some fields blank if there were CPUs." />
+        <BasicMsg msg="Type all human players present in the races" />
+        <BasicMsg msg="You can leave some fields blank if there were CPUs" />
         <UsersInputs
           isDisabledUI={disabledUI}
           suggestions={suggestionPlayers}

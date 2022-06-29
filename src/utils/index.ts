@@ -26,17 +26,17 @@ const isHumanPlayer = (player: string, humanPlayers: string[]) => {
 };
 
 const getReferencePlayers = (humanPlayers: string[], cpuPlayers: string[], includeCpuPlayers: boolean) => {
-  const humanPlayersSplit = getPlayers(humanPlayers);
+  const newHumanPlayers = getPlayers(humanPlayers);
 
-  if (humanPlayersSplit.length === 0) return [];
+  if (newHumanPlayers.length === 0) return [];
 
-  if (!includeCpuPlayers) return humanPlayersSplit;
+  if (!includeCpuPlayers) return newHumanPlayers;
 
-  const cpuPlayersSplit = getPlayers(cpuPlayers);
+  const newCpuPlayers = getPlayers(cpuPlayers);
 
-  if (cpuPlayersSplit.length === 0) return humanPlayersSplit;
+  if (newCpuPlayers.length === 0) return newHumanPlayers;
 
-  return [...humanPlayersSplit, ...cpuPlayersSplit];
+  return [...newHumanPlayers, ...newCpuPlayers];
 };
 
 const positionIsValid = (position: string, max: number) => {
