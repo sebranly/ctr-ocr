@@ -28,7 +28,8 @@ import {
   MIME_JPEG,
   MIME_PNG,
   OCR_LANGUAGE,
-  PLACEHOLDER_CPUS
+  PLACEHOLDER_CPUS,
+  SEPARATOR_PLAYERS
 } from './constants';
 import { cleanString, getClosestString, getEditDistance, sortCaseInsensitive } from './utils/string';
 import {
@@ -189,7 +190,7 @@ const App = () => {
     };
 
     const renderOptions = () => {
-      const optionsResultsPlayerHuman = getPlayers(players).sort(sortCaseInsensitive);
+      const optionsResultsPlayerHuman = getPlayers(playersBis).sort(sortCaseInsensitive);
       if (!includeCpuPlayers) {
         return optionsResultsPlayerHuman.map(renderOption);
       }
@@ -225,7 +226,7 @@ const App = () => {
           return (
             <tr key={key}>
               <td>{getPositionString(position)}</td>
-              {includeCpuPlayers && <td>{isHumanPlayer(username, players) ? '👤' : '🤖'}</td>}
+              {includeCpuPlayers && <td>{isHumanPlayer(username, playersBis) ? '👤' : '🤖'}</td>}
               <td>
                 <select
                   className={classesSelectPlayer}
@@ -679,7 +680,7 @@ const App = () => {
               disabled={true}
               placeholder={PLACEHOLDER_CPUS}
               rows={CTR_MAX_PLAYERS}
-              value={cpuPlayers}
+              value={cpuPlayers.join(SEPARATOR_PLAYERS)}
             />
           </>
         )}
@@ -735,7 +736,12 @@ const App = () => {
     await workerUsername.load();
     await workerUsername.loadLanguage(OCR_LANGUAGE);
     await workerUsername.initialize(OCR_LANGUAGE);
-    const usernameParams = getParams(Category.Username, getPlayers(players), getPlayers(cpuPlayers), includeCpuPlayers);
+    const usernameParams = getParams(
+      Category.Username,
+      getPlayers(playersBis),
+      getPlayers(cpuPlayers),
+      includeCpuPlayers
+    );
 
     await workerUsername.setParameters(usernameParams);
 
@@ -843,7 +849,7 @@ const App = () => {
         logMsg(resultsNames);
 
         const dataResults: Result[] = [];
-        const referencePlayers = getReferencePlayers(players, cpuPlayers, includeCpuPlayers);
+        const referencePlayers = getReferencePlayers(playersBis, cpuPlayers, includeCpuPlayers);
         const csv: (string | number)[][] = [];
         playerIndexes.forEach((playerIndex) => {
           const playerGuess = resultsNames[playerIndex];
@@ -893,11 +899,7 @@ const App = () => {
   const [disabledUI, setDisabledUI] = React.useState(true);
   const [onMountOver, setOnMountOver] = React.useState(false);
   const [resultsOcr, setResultsOcr] = React.useState<Result[][]>([]);
-  const [players, setPlayers] = React.useState('');
   const [playersBis, setPlayersBis] = React.useState<string[]>(createArraySameValue(CTR_MAX_PLAYERS, ''));
-
-  // TODO: remove
-  console.log('🚀 ~ file: App.tsx ~ line 898 ~ App ~ playersBis', playersBis);
 
   const [pointsScheme, setPointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
   const [absolutePointsScheme, setAbsolutePointsScheme] = React.useState<number[]>(initialAbsolutePointsScheme);
@@ -906,7 +908,7 @@ const App = () => {
   );
 
   const [copiedLorenzi, setCopiedLorenzi] = React.useState(false);
-  const [cpuPlayers, setCpuPlayers] = React.useState(PLACEHOLDER_CPUS);
+  const [cpuPlayers, setCpuPlayers] = React.useState([PLACEHOLDER_CPUS]);
   const [suggestionPlayers, setSuggestionPlayers] = React.useState<string[]>([]);
   const [cpuData, setCpuData] = React.useState<any>({});
   const [includeCpuPlayers, setIncludeCpuPlayers] = React.useState(false);
@@ -918,7 +920,7 @@ const App = () => {
   const [lorenzi, setLorenzi] = React.useState('');
   const [startOverConfirm, setStartOverConfirm] = React.useState(false);
 
-  const nbPlayersTyped = uniq(getPlayers(players)).length;
+  const nbPlayersTyped = uniq(getPlayers(playersBis)).length;
   const shouldIncludeCpuPlayers = nbPlayersTyped < nbPlayers;
 
   React.useEffect(() => {
@@ -970,14 +972,13 @@ const App = () => {
     }
   }, [shouldIncludeCpuPlayers, includeCpuPlayers]);
 
-  const onPlayersChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPlayers(e.currentTarget.value);
-
+  // TODO: test this behavior
+  React.useEffect(() => {
     setNbTeams(INITIAL_TEAMS_NB);
     setTeams(getTeamNames(INITIAL_TEAMS_NB));
     setLorenziTeams(getInitialLorenziTeams(INITIAL_TEAMS_NB));
     setPlayerTeams({});
-  };
+  }, [playersBis]);
 
   const onClickStartOver = (_e: any) => {
     setStartOverConfirm(true);
@@ -1009,10 +1010,12 @@ const App = () => {
     */
     setNbPlayers(value);
 
-    // TODO: preserve old values
-    const newPlayersBis = createArraySameValue(value, '');
+    const differencePlayerCount = value - nbPlayers;
+    const newPlayersBis =
+      differencePlayerCount > 0
+        ? [...playersBis, ...createArraySameValue(differencePlayerCount, '')]
+        : playersBis.slice(0, value);
 
-    setPlayers('');
     setPlayersBis(newPlayersBis);
 
     setNbTeams(INITIAL_TEAMS_NB);
@@ -1082,7 +1085,7 @@ const App = () => {
   const optionsNbTeams = getOptionsTeams(nbPlayers);
   const classPlatform = isMobile ? 'mobile' : 'desktop';
   const classBgDisabled = disabledUI && (!resultsOcr || resultsOcr.length === 0) ? 'bg-grey' : 'bg-white';
-  const playersNames = uniq(getPlayers(players)).sort(sortCaseInsensitive);
+  const playersNames = uniq(getPlayers(playersBis)).sort(sortCaseInsensitive);
   const validationTeams = validateTeams(playersNames, teams, playerTeams);
   const validationPointsScheme = validatePoints(pointsScheme.slice(0, nbPlayers));
   const isFFA = nbTeams === nbPlayers;
@@ -1126,14 +1129,12 @@ const App = () => {
         <h3>Human Players</h3>
         <BasicMsg msg="Type all human players present in the races." />
         <BasicMsg msg="You can leave some fields blank if there were CPUs." />
-        <textarea
-          className={`textarea-${classPlatform}`}
-          disabled={disabledUI}
-          rows={nbPlayers}
-          value={players}
-          onChange={onPlayersChange} // TODO: preserve this behavior
+        <UsersInputs
+          isDisabledUI={disabledUI}
+          suggestions={suggestionPlayers}
+          playersBis={playersBis}
+          setPlayersBis={setPlayersBis}
         />
-        <UsersInputs suggestions={suggestionPlayers} playersBis={playersBis} setPlayersBis={setPlayersBis} />
         {renderMainSection()}
       </div>
       <Footer />

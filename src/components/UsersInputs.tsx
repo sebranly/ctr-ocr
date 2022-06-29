@@ -1,15 +1,14 @@
 import * as React from 'react';
 
 export interface UsersInputsProps {
+  isDisabledUI: boolean;
   suggestions: string[];
   playersBis: string[];
   setPlayersBis: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const UsersInputs: React.FC<UsersInputsProps> = (props) => {
-  // TODO: have it disabled
-  // TODO: have tests
-  const { playersBis, setPlayersBis, suggestions } = props;
+  const { isDisabledUI, playersBis, setPlayersBis, suggestions } = props;
 
   const onChangeInput = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     if (playersBis.length <= index) return;
@@ -28,6 +27,7 @@ const UsersInputs: React.FC<UsersInputsProps> = (props) => {
       <div key={index}>
         <input
           className="mb mt big-input"
+          disabled={isDisabledUI}
           list={datalistIdString}
           onChange={onChangeInput(index)}
           value={playersBis[index] || ''}

@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UsersInputs 1`] = `
+NodeList [
+  <div>
+    <div>
+      <input
+        class="mb mt big-input"
+        list="human-player-suggestion-0"
+        value="player1"
+      />
+      <datalist
+        id="human-player-suggestion-0"
+      >
+        <option
+          value="someone"
+        />
+        <option
+          value="else"
+        />
+      </datalist>
+    </div>
+    <div>
+      <input
+        class="mb mt big-input"
+        list="human-player-suggestion-1"
+        value="player2"
+      />
+      <datalist
+        id="human-player-suggestion-1"
+      >
+        <option
+          value="someone"
+        />
+        <option
+          value="else"
+        />
+      </datalist>
+    </div>
+    <div>
+      <input
+        class="mb mt big-input"
+        list="human-player-suggestion-2"
+        value="player3"
+      />
+      <datalist
+        id="human-player-suggestion-2"
+      >
+        <option
+          value="someone"
+        />
+        <option
+          value="else"
+        />
+      </datalist>
+    </div>
+  </div>,
+]
+`;

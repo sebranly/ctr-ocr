@@ -6,36 +6,35 @@ import { getCharListFromUsernames, getCharListPosition, getCharListTime } from '
 import { numberRange } from './number';
 
 const formatCpuPlayers = (cpuPlayers: string[]) => {
-  if (!cpuPlayers || cpuPlayers.length === 0) return '';
+  if (!cpuPlayers || cpuPlayers.length === 0) return [];
 
-  return cpuPlayers
-    .filter((s: string) => !!s)
-    .sort()
-    .join(SEPARATOR_PLAYERS);
+  return cpuPlayers.filter((s: string) => !!s).sort();
 };
 
-const getPlayers = (players: string) => {
-  if (!players) return [];
+const getPlayers = (players: string[]) => {
+  if (players.length === 0) return [];
 
-  return players.split(SEPARATOR_PLAYERS).filter((s: string) => !!s);
+  return players.filter((s: string) => !!s);
 };
 
-const isHumanPlayer = (player: string, humanPlayers: string) => {
-  if (!humanPlayers) return false;
+const isHumanPlayer = (player: string, humanPlayers: string[]) => {
+  const newHumanPlayers = getPlayers(humanPlayers);
 
+  if (newHumanPlayers.length === 0) return false;
+
+  return newHumanPlayers.includes(player);
+};
+
+const getReferencePlayers = (humanPlayers: string[], cpuPlayers: string[], includeCpuPlayers: boolean) => {
   const humanPlayersSplit = getPlayers(humanPlayers);
 
-  return humanPlayersSplit.includes(player);
-};
+  if (humanPlayersSplit.length === 0) return [];
 
-const getReferencePlayers = (humanPlayers: string, cpuPlayers: string, includeCpuPlayers: boolean) => {
-  if (!humanPlayers) return [];
-
-  const humanPlayersSplit = getPlayers(humanPlayers);
-
-  if (!includeCpuPlayers || !cpuPlayers) return humanPlayersSplit;
+  if (!includeCpuPlayers) return humanPlayersSplit;
 
   const cpuPlayersSplit = getPlayers(cpuPlayers);
+
+  if (cpuPlayersSplit.length === 0) return humanPlayersSplit;
 
   return [...humanPlayersSplit, ...cpuPlayersSplit];
 };
