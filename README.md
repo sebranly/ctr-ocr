@@ -1,7 +1,7 @@
 # ctr-ocr
 Optical character recognition performed on the video game Crash Team Racing Nitro-Fueled for game results
 
-Live on [Crash Team Results](https://www.crashteamresults.com)
+Live at https://sebranly.github.io/ctr-ocr/
 
 ## Roadmap
 

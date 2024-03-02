@@ -18,7 +18,8 @@ import {
   URL_HUMAN_PLAYERS,
   VIDEO_TUTORIAL,
   WEBSITE_DEFAULT_LANGUAGE,
-  WEBSITE_TITLE
+  WEBSITE_TITLE,
+  WEBSITE_SUBTITLE
 } from './constants/general';
 import {
   CTR_MAX_PLAYERS,
@@ -1089,6 +1090,7 @@ const App = () => {
   return (
     <div className="main">
       <h1>{WEBSITE_TITLE}</h1>
+      <h2>{WEBSITE_SUBTITLE}</h2>
       <div className="w3-light-grey"></div>
       {ocrProgress === Progress.Done && (
         <Confetti
@@ -1098,7 +1100,42 @@ const App = () => {
           recycle={false}
         />
       )}
-      <div className={`center main-content-${classPlatform} ${classBgDisabled}`}>
+      <div className={`text-center main-content-${classPlatform} m-0-auto-mb2 bg-orange`}>
+        <div className="text-left mb black">
+          <b>March 2024 Update:</b> this website address (URL) will be changed as follows:
+          <br />
+          <div>
+            The URL{' '}
+            <a
+              href="https://www.crashteamresults.com/"
+              rel="noopener noreferrer"
+              title="Old URL address of Crash Team Results"
+              target="_blank"
+            >
+              https://www.crashteamresults.com/
+            </a>{' '}
+            will stop working in April 2024.
+          </div>
+          <div>
+            The URL{' '}
+            <a
+              href="https://sebranly.github.io/ctr-ocr/"
+              rel="noopener noreferrer"
+              title="New URL address of Crash Team Results"
+              target="_blank"
+            >
+              https://sebranly.github.io/ctr-ocr/
+            </a>{' '}
+            will become the new one (it is already active).
+          </div>
+          <br />
+          To ensure that you can access this website in the future, please add the following address to your bookmarks:
+          <b>
+            <div>https://sebranly.github.io/ctr-ocr/</div>
+          </b>
+        </div>
+      </div>
+      <div className={`center main-content-${classPlatform} m-0-auto ${classBgDisabled}`}>
         {renderProgressBar()}
         <h2>Introduction</h2>
         <BasicMsg msg="Please enter information from top to bottom for a smooth experience" />
