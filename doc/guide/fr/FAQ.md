@@ -4,7 +4,11 @@ Also available in: [English](../en/FAQ.md)
 
 ## Où est ce site web ?
 
-Crash Team Results est disponible à l'adresse https://www.crashteamresults.com
+Crash Team Results est disponible à l'adresse https://sebranly.github.io/ctr-ocr/
+
+## Pourquoi est-ce que je n'arrive plus à accéder au site web ?
+
+SVP vérifiez que vous essayez d'y accéder via https://sebranly.github.io/ctr-ocr/, car l'ancien nom de domaine crashteamresults.com n'héberge plus ce site du tout.
 
 ## Pourquoi ce nom ?
 

@@ -4,7 +4,11 @@ Also available in: [French](../fr/FAQ.md)
 
 ## Where is this website?
 
-Crash Team Results is available at https://www.crashteamresults.com
+Crash Team Results is available at https://sebranly.github.io/ctr-ocr/
+
+## Why can't I access this website anymore?
+
+Please verify that you're trying to access it through https://sebranly.github.io/ctr-ocr/, as the old domain name crashteamresults.com does not host this website anymore.
 
 ## Why this name?
 

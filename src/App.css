@@ -92,7 +92,6 @@ input[type='color'] {
 
 .main-content-desktop {
   max-width: 75%;
-  margin: 0 auto;
   padding: 10px 10px 30px 10px;
   box-shadow: 0 0 15px #0007;
   border-radius: 15px;
@@ -104,10 +103,17 @@ input[type='color'] {
 
 .main-content-mobile {
   max-width: 95%;
-  margin: 0 auto;
   box-shadow: 0 0 15px #0007;
   border-radius: 15px;
   padding: 10px 10px 30px 10px;
+}
+
+.m-0-auto {
+  margin: 0 auto;
+}
+
+.m-0-auto-mb2 {
+  margin: 0 auto 10px;
 }
 
 .bold {
